@@ -1,11 +1,11 @@
-import { BoeingLogo } from "../components/BoeingLogo"
+import { BoeingHelperLogo } from "../components/BoeingHelperLogo"
 
 const footerLinks = [
   { label: "Capabilities", href: "#capabilities" },
   { label: "Use Cases", href: "#use-cases" },
   { label: "Workflows", href: "#workflows" },
   { label: "Trust", href: "#trust" },
-  { label: "Access", href: "#access" },
+  { label: "Sources", href: "#sources" },
   { label: "FAQ", href: "#faq" },
 ]
 
@@ -15,11 +15,8 @@ export function Footer() {
       <div className="constrain py-14">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              <BoeingLogo variant="white" height={24} />
-              <span className="text-lg font-semibold tracking-tight">Helper</span>
-            </div>
-            <p className="mt-3 max-w-sm text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <BoeingHelperLogo variant="white" height={44} />
+            <p className="mt-4 max-w-sm text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
               Meeting papers, invitations, and attendee lists for Boeing engagement teams.
             </p>
           </div>

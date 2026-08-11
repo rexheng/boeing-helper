@@ -5,7 +5,7 @@ import { UseCases } from "./sections/UseCases"
 import { Workflows } from "./sections/Workflows"
 import { DemoVideo } from "./sections/DemoVideo"
 import { Security } from "./sections/Security"
-import { Pricing } from "./sections/Pricing"
+import { Sources } from "./sections/Sources"
 import { FAQ } from "./sections/FAQ"
 import { Footer } from "./sections/Footer"
 
@@ -30,7 +30,7 @@ export default function App() {
             <Workflows id="workflows" />
             <DemoVideo id="demo" onStartDemo={startDemo} />
             <Security id="trust" />
-            <Pricing id="access" />
+            <Sources id="sources" />
             <FAQ id="faq" />
           </main>
           <Footer />

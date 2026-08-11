@@ -23,7 +23,7 @@ const cases: UseCase[] = [
     alt: "Commercial airliner on the apron ahead of an international aerospace event",
     lede: "Sixty-plus official delegations. A schedule that still moves the night before.",
     detail:
-      "Integrators and CTLs build a meeting paper per counterpart before the chalet and bilateral calendar locks — objectives, key messages, open commitments, and biography. Invitation letters and attendee-list lines follow the same organisation so a colleague can pick up at short notice.",
+      "Integrators and CTLs build a meeting paper per counterpart before pavilion schedules and bilateral meetings lock — objectives, key messages, open commitments, and biography. Invitation letters and attendee-list lines follow the same organisation so a colleague can pick up at short notice.",
     outcome: "One preparation standard across the whole MSPO delegation.",
   },
   {

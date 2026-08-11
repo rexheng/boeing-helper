@@ -1,4 +1,4 @@
-import { FileCheck2, Landmark, Users, ShieldCheck } from "lucide-react"
+import { Landmark, Users, ShieldCheck } from "lucide-react"
 import { SectionHeader } from "../components/SectionHeader"
 import { useInView } from "../hooks/useInView"
 
@@ -11,11 +11,6 @@ const trustPoints = [
     icon: Landmark,
     title: "Internal tool, internal data",
     desc: "Boeing Helper runs as an internal application. Papers, invites, attendee lists, and meeting reports stay inside Boeing systems.",
-  },
-  {
-    icon: FileCheck2,
-    title: "Approved sources only",
-    desc: "Research is assembled from published material and approved internal sources. Every claim can be checked before a paper reaches a customer.",
   },
   {
     icon: Users,
@@ -52,8 +47,8 @@ export function Security({ id }: SecurityProps) {
           subtitle="Boeing Helper sits inside export control and records practice — and names the same collaborators and reviewers the show cycle already uses."
         />
 
-        <div className="grid gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
-          <div className="grid gap-8 sm:grid-cols-2">
+        <div className="grid gap-12 md:grid-cols-1">
+          <div className="grid gap-8 sm:grid-cols-3">
             {trustPoints.map((tp) => {
               const Icon = tp.icon
               return (
@@ -86,7 +81,7 @@ export function Security({ id }: SecurityProps) {
           >
             <p className="system-badge">Who touches the paper</p>
 
-            <div className="mt-6 space-y-6">
+            <div className="mt-6 grid gap-8 sm:grid-cols-2">
               {sourceGroups.map((group) => (
                 <div key={group.label}>
                   <p

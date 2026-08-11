@@ -1,5 +1,5 @@
 import { Button } from "../components/Button"
-import { BoeingLogo } from "../components/BoeingLogo"
+import { BoeingHelperLogo } from "../components/BoeingHelperLogo"
 
 interface HeroProps {
   onStartDemo: () => void
@@ -10,7 +10,7 @@ const navLinks = [
   { label: "Use Cases", href: "#use-cases" },
   { label: "Workflows", href: "#workflows" },
   { label: "Trust", href: "#trust" },
-  { label: "Access", href: "#access" },
+  { label: "Sources", href: "#sources" },
 ]
 
 export function Hero({ onStartDemo }: HeroProps) {
@@ -18,11 +18,8 @@ export function Hero({ onStartDemo }: HeroProps) {
     <div className="relative">
       <header className="site-header">
         <div className="constrain site-header__inner">
-          <a href="#top" className="site-header__logo flex items-center gap-3">
-            <BoeingLogo variant="white" height={20} />
-            <span className="hidden sm:inline text-sm font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Helper
-            </span>
+          <a href="#top" className="site-header__logo flex items-center">
+            <BoeingHelperLogo variant="white" height={36} />
           </a>
 
           <nav className="site-header__nav" aria-label="Primary">
@@ -52,13 +49,11 @@ export function Hero({ onStartDemo }: HeroProps) {
           <div className="constrain animate-[fadeInUp_0.9s_ease-out_both]">
             <h1 className="hero__brand">Boeing Helper</h1>
 
-            <p className="hero__headline">
-              Draft the meeting paper once. Review it once. Put it in the trip book.
-            </p>
+            <p className="hero__headline">Saving time and cost.</p>
 
             <p className="hero__sub">
-              Meeting papers, invitations, and attendee lists for integrators and CTLs —
-              cleared by VPGMs and IBD leadership without restarting the chain.
+              Meeting papers, invitation letters, and attendee lists — prepared once for the
+              show cycle.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-9">
