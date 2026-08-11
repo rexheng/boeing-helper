@@ -46,12 +46,12 @@ export function CompanySelect({ onSelect }: Props) {
           Who are you meeting?
         </h2>
         <p className="mt-3 text-base" style={{ color: "var(--text-secondary)" }}>
-          Boeing Global regions — Southeast Asia first — then country, ministry, or airline.
+          Choose a region, open a country, then pick the ministry or airline you are meeting.
         </p>
       </div>
 
       {/* Region index */}
-      <div className="max-w-4xl mx-auto mb-5 overflow-x-auto">
+      <div className="max-w-4xl mx-auto mb-4 overflow-x-auto">
         <div className="flex gap-0 min-w-max" style={{ border: "1px solid var(--surface-border)" }}>
           {regions.map((r, i) => {
             const active = r.id === activeRegion
@@ -84,6 +84,18 @@ export function CompanySelect({ onSelect }: Props) {
         </p>
       </div>
 
+      {/* Lookup equal path near top */}
+      <div className="max-w-4xl mx-auto mb-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] mb-2" style={{ color: "var(--text-muted)" }}>
+          Or search any Boeing partner
+        </p>
+        <CompanySearch
+          onSelect={handleLookupSelect}
+          selectedId={selected}
+          initialQuery={lookupSeed}
+        />
+      </div>
+
       <div className="max-w-4xl mx-auto space-y-2">
         {region.countries.map((country) => {
           const orgs = byCountry.get(country.id) ?? []
@@ -114,7 +126,7 @@ export function CompanySelect({ onSelect }: Props) {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-xs tabular-nums" style={{ color: "var(--text-muted)" }}>
-                    {hasOrgs ? `${orgs.length}` : "Lookup"}
+                    {hasOrgs ? `${orgs.length} partner${orgs.length === 1 ? "" : "s"}` : "Lookup"}
                   </span>
                   <ChevronDown
                     size={16}
@@ -168,8 +180,11 @@ export function CompanySelect({ onSelect }: Props) {
                               <h3 className="text-[14px] font-semibold leading-tight" style={{ color: "var(--text-primary)" }}>
                                 {company.name}
                               </h3>
-                              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>
+                              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>
                                 {company.industry}
+                              </p>
+                              <p className="text-[12px] mt-1 line-clamp-2 leading-snug" style={{ color: "var(--text-secondary)" }}>
+                                {company.tagline}
                               </p>
                             </div>
                             {isSelected && (
@@ -206,21 +221,6 @@ export function CompanySelect({ onSelect }: Props) {
         })}
       </div>
 
-      <div className="flex items-center gap-4 my-7 max-w-4xl mx-auto">
-        <div className="flex-1 h-px" style={{ background: "var(--surface-border)" }} />
-        <span className="text-[11px] uppercase tracking-[0.1em]" style={{ color: "var(--text-muted)" }}>
-          Partner lookup
-        </span>
-        <div className="flex-1 h-px" style={{ background: "var(--surface-border)" }} />
-      </div>
-
-      <div className="max-w-4xl mx-auto">
-        <CompanySearch
-          onSelect={handleLookupSelect}
-          selectedId={selected}
-          initialQuery={lookupSeed}
-        />
-      </div>
     </div>
   )
 }

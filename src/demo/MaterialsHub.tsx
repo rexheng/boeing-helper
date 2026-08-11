@@ -272,7 +272,8 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
               className="text-left font-bold text-[11px] text-white px-2 py-1.5 border"
               style={{ background: NAVY, borderColor: GRID }}
             >
-              {(eventLabel || data.eventName).toUpperCase()} · Participant List · {data.revisedLabel}
+              {(eventLabel || data.eventName).toUpperCase()} · Participant List{" "}
+              <span style={{ color: "#F5C6CB" }}>{data.revisedLabel}</span>
             </th>
           </tr>
         </thead>
