@@ -2,6 +2,8 @@ node_modules
 dist
 dist-server
 .env
+.env.local
+.env.*.local
 .cache
 .vercel
 .DS_Store
