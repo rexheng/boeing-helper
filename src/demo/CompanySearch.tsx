@@ -89,10 +89,18 @@ export function CompanySearch({ onSelect, selectedId = null, query, onQueryChang
                         target.src = company.fallbackLogoUrl
                       } else {
                         target.style.display = "none"
-                        target.parentElement!.innerHTML = `<span style="color:#0033A1" class="font-bold text-base">${company.name[0]}</span>`
+                        const sibling = target.nextElementSibling as HTMLElement | null
+                        if (sibling) sibling.style.display = "flex"
                       }
                     }}
                   />
+                  <span
+                    className="w-7 h-7 items-center justify-center font-bold text-sm"
+                    style={{ display: "none", color: "#0033A1" }}
+                    aria-hidden
+                  >
+                    {company.name[0]}
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0 pr-6">
                   <div className="flex items-center gap-2 flex-wrap">

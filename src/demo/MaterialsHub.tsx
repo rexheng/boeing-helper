@@ -71,7 +71,12 @@ export function MaterialsHub({
 
   const handleExcelDownload = async () => {
     const { downloadAttendeeDashboardExcel } = await import("../utils/attendeeExcelExport")
-    downloadAttendeeDashboardExcel({ ...dashboard, eventName: eventName || dashboard.eventName })
+    const name = eventName || dashboard.eventName
+    downloadAttendeeDashboardExcel({
+      ...dashboard,
+      eventName: name,
+      eventTitle: name.toUpperCase(),
+    })
   }
 
   return (
@@ -252,7 +257,8 @@ export function MaterialsHub({
 }
 
 function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
-  const rows = flattenAttendees(data, { filledOnly: false })
+  const [showEmpty, setShowEmpty] = useState(false)
+  const rows = flattenAttendees(data, { filledOnly: !showEmpty })
 
   return (
     <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 10 }}>
@@ -290,6 +296,13 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
           </tr>
         </thead>
       </table>
+
+      <div className="px-2 py-1.5 flex justify-end" style={{ borderBottom: `1px solid ${GRID}` }}>
+        <label className="inline-flex items-center gap-2 text-[10px] font-semibold cursor-pointer" style={{ color: NAVY }}>
+          <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
+          Show empty role slots
+        </label>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_0.9fr]">
         <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>

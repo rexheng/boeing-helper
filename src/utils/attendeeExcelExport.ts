@@ -1,83 +1,126 @@
 import * as XLSX from "xlsx"
 import {
   type AttendeeDashboardData,
+  type AttendeeSection,
   flattenAttendees,
   sectionCount,
   subsectionCount,
 } from "../data/attendeeDashboard"
 
+function sectionRows(section: AttendeeSection): string[][] {
+  const rows: string[][] = [
+    [`${section.title} (${sectionCount(section)})`, "", "", ""],
+    ["Role", "Name", "Organization", "I/D/L"],
+  ]
+  for (const sub of section.subsections) {
+    rows.push([`${sub.title} (${subsectionCount(sub)})`, "", "", ""])
+    for (const r of sub.rows) {
+      rows.push([
+        r.roleLabel,
+        r.name || "",
+        r.organization || "",
+        r.travel ? (r.count > 1 ? `${r.travel}·${r.count}` : r.travel) : "",
+      ])
+    }
+  }
+  return rows
+}
+
 export function downloadAttendeeDashboardExcel(data: AttendeeDashboardData): void {
   const wb = XLSX.utils.book_new()
 
-  // Dashboard sheet — mirrors on-screen Role | Name | Organization | I/D/L lattice
+  // —— Dashboard: true side-by-side Role/Name/Org/Travel blocks (16 cols) ——
   const grid: (string | number)[][] = []
   grid.push([
     "Attendee List Template",
     "",
+    "",
+    "",
+    "",
+    "",
     data.eventTitle,
     "",
+    "",
+    "",
+    "",
     "Participant List",
+    "",
     data.revisedLabel,
+    "",
+    "",
   ])
-  grid.push([])
-  grid.push(["#", "Top 5 Objectives", "BD&S Leads", "Key", "Travel", "#"])
+  grid.push([
+    "#",
+    "Top 5 Objectives",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "BD&S Leads",
+    "",
+    "",
+    "Key",
+    "Travel",
+    "",
+    "#",
+    "",
+  ])
+
+  const travelPack = [
+    ["I", "International Travel Required", data.travelCounts.I],
+    ["D", "Domestic / Regional Travel Required", data.travelCounts.D],
+    ["L", "Local Attendee, No Travel", data.travelCounts.L],
+    ["", "Total assigned seats", data.travelCounts.I + data.travelCounts.D + data.travelCounts.L],
+    ["", "", ""],
+  ] as const
+
   data.objectives.forEach((o, i) => {
-    const travel =
-      i === 0
-        ? (["I", "International Travel Required", data.travelCounts.I] as const)
-        : i === 1
-          ? (["D", "Domestic / Regional Travel Required", data.travelCounts.D] as const)
-          : i === 2
-            ? (["L", "Local Attendee, No Travel", data.travelCounts.L] as const)
-            : i === 3
-              ? (["", "Total assigned seats", data.travelCounts.I + data.travelCounts.D + data.travelCounts.L] as const)
-              : (["", "", ""] as const)
-    grid.push([o.rank, o.text, o.bdsLead, travel[0], travel[1], travel[2]])
+    const t = travelPack[i] ?? (["", "", ""] as const)
+    grid.push([
+      o.rank,
+      o.text,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      o.bdsLead,
+      "",
+      "",
+      t[0],
+      t[1],
+      "",
+      t[2],
+      "",
+    ])
   })
+
   grid.push([])
+  grid.push(data.columns.flatMap((c) => [`${c.title} (${sectionCount(c)})`, "", "", ""]))
+  grid.push(data.columns.flatMap(() => ["Role", "Name", "Organization", "I/D/L"]))
 
-  // Four section headers
-  grid.push(data.columns.map((c) => `${c.title} (${sectionCount(c)})`))
-  grid.push(data.columns.map(() => "Role | Name | Organization | I/D/L | Seats | Notes"))
-
-  const maxSubs = Math.max(...data.columns.map((c) => c.subsections.length))
-  for (let si = 0; si < maxSubs; si++) {
-    grid.push(
-      data.columns.map((c) => {
-        const sub = c.subsections[si]
-        return sub ? `${sub.title} (${subsectionCount(sub)})` : ""
-      }),
-    )
-    const maxRows = Math.max(
-      ...data.columns.map((c) => (c.subsections[si] ? c.subsections[si].rows.length : 0)),
-      0,
-    )
-    for (let ri = 0; ri < maxRows; ri++) {
-      grid.push(
-        data.columns.map((c) => {
-          const row = c.subsections[si]?.rows[ri]
-          if (!row) return ""
-          const parts = [
-            row.roleLabel,
-            row.name || "",
-            row.organization || "",
-            row.travel || "",
-            row.count || "",
-            row.notes || "",
-          ]
-          return parts.join(" | ")
-        }),
-      )
+  const blocks = data.columns.map(sectionRows)
+  // skip the two header lines already written
+  const bodies = blocks.map((b) => b.slice(2))
+  const maxBody = Math.max(...bodies.map((b) => b.length), 0)
+  for (let i = 0; i < maxBody; i++) {
+    const row: (string | number)[] = []
+    for (const body of bodies) {
+      const cells = body[i] ?? ["", "", "", ""]
+      row.push(...cells)
     }
-    grid.push([])
+    grid.push(row)
   }
 
   const dashSheet = XLSX.utils.aoa_to_sheet(grid)
-  dashSheet["!cols"] = [{ wch: 42 }, { wch: 42 }, { wch: 42 }, { wch: 42 }]
+  dashSheet["!cols"] = Array.from({ length: 16 }, () => ({ wch: 14 }))
   XLSX.utils.book_append_sheet(wb, dashSheet, "Dashboard")
 
-  // Flat roster — full scaffold including empty role slots
-  const list = flattenAttendees(data, { filledOnly: false }).map((r) => ({
+  // —— Flat roster (filled seats by default sheet; full scaffold second) ——
+  const filled = flattenAttendees(data, { filledOnly: true }).map((r) => ({
     Section: r.section,
     Subsection: r.subsection,
     Role: r.role,
@@ -87,18 +130,21 @@ export function downloadAttendeeDashboardExcel(data: AttendeeDashboardData): voi
     Seats: r.count,
     Notes: r.notes,
   }))
-  const listSheet = XLSX.utils.json_to_sheet(list)
-  listSheet["!cols"] = [
-    { wch: 34 },
-    { wch: 28 },
-    { wch: 22 },
-    { wch: 28 },
-    { wch: 36 },
-    { wch: 8 },
-    { wch: 8 },
-    { wch: 28 },
-  ]
-  XLSX.utils.book_append_sheet(wb, listSheet, "Attendee List")
+  const filledSheet = XLSX.utils.json_to_sheet(filled)
+  XLSX.utils.book_append_sheet(wb, filledSheet, "Filled Roster")
+
+  const scaffold = flattenAttendees(data, { filledOnly: false }).map((r) => ({
+    Section: r.section,
+    Subsection: r.subsection,
+    Role: r.role,
+    Name: r.name,
+    Organization: r.organization,
+    Travel: r.travel,
+    Seats: r.count,
+    Notes: r.notes,
+  }))
+  const scaffoldSheet = XLSX.utils.json_to_sheet(scaffold)
+  XLSX.utils.book_append_sheet(wb, scaffoldSheet, "Full Scaffold")
 
   const objSheet = XLSX.utils.json_to_sheet(
     data.objectives.map((o) => ({

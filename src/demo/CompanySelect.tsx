@@ -90,28 +90,22 @@ export function CompanySelect({ onSelect }: Props) {
               {selectedCompany.countryName} · {selectedCompany.industry}
             </p>
           </div>
-          <button
-            type="button"
-            className="text-xs font-semibold cursor-pointer shrink-0"
-            style={{ color: "var(--boeing-blue)" }}
-            onClick={() => setSelected(null)}
-          >
-            Clear
-          </button>
+          <Check size={18} style={{ color: "var(--boeing-blue)" }} className="shrink-0" />
         </div>
       )}
 
       {/* SEA-emphasized region rail */}
       <div className="max-w-4xl mx-auto mb-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Boeing regions">
           {visibleRegions.map((r) => {
             const active = r.id === activeRegion
             const isSea = r.id === "southeast-asia"
             const count = companies.filter((c) => c.regionId === r.id).length
             return (
-              <button
+                <button
                 key={r.id}
                 type="button"
+                role="tab"
                 aria-selected={active}
                 onClick={() => {
                   setActiveRegion(r.id)
