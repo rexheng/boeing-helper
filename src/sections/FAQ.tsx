@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "Is this demonstration using live data?",
-    a: "No. Demonstration organisations and contacts run on prepared research so the pitch behaves the same every time. Connected to live sources, the same preparation flow assembles while you wait.",
+    a: "No. Demonstration organisations and contacts use prepared research. In production, the same steps run against approved published and internal sources.",
   },
   {
     q: "Can teams take materials offline?",

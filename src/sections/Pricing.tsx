@@ -11,54 +11,26 @@ export function Pricing({ id }: PricingProps) {
 
   return (
     <section id={id} className="section section--muted">
-      <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
+      <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""} max-w-3xl`}>
         <SectionHeader
           eyebrow="Access"
           title="Internal tool. Pilot on one show cycle."
           subtitle="Boeing Helper is not sold externally. Nominate the integrator and the show; IT and records owners clear access."
         />
 
-        <div className={`grid gap-10 md:grid-cols-3 stagger ${visible ? "visible" : ""}`}>
-          {[
-            {
-              label: "Pilot",
-              title: "One campaign, one show",
-              desc: "Integrator and CTL run meeting papers, invites, and attendee drafts through a live engagement cycle.",
-            },
-            {
-              label: "Team use",
-              title: "Shared templates across BUs",
-              desc: "Same paper standard for BDS, BGS, GovOps, and IBD reviewers — RD and VPGM see one pack.",
-            },
-            {
-              label: "Support",
-              title: "Onboarding with your show calendar",
-              desc: "Help structuring papers, invitation language, and attendee-list timing for the cycle you are on.",
-            },
-          ].map((track) => (
-            <div
-              key={track.label}
-              className="flex h-full flex-col"
-              style={{ borderTop: "2px solid var(--boeing-blue)" }}
-            >
-              <p
-                className="pt-6 font-ui text-xs font-medium uppercase"
-                style={{ color: "var(--boeing-blue)", letterSpacing: "0.12em" }}
-              >
-                {track.label}
-              </p>
-              <h4 className="mt-3 text-xl font-semibold" style={{ color: "var(--boeing-navy)" }}>
-                {track.title}
-              </h4>
-              <p className="mt-3 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                {track.desc}
-              </p>
-            </div>
-          ))}
+        <div className={`space-y-6 ${visible ? "opacity-100" : ""}`}>
+          <p style={{ color: "var(--text-secondary)" }} className="leading-relaxed text-lg">
+            Start with one campaign team on a live engagement cycle — meeting papers,
+            invitations, and attendee drafts. Shared templates across BUs come after the
+            pilot proves the pack for RD and IBD review.
+          </p>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+            Onboarding follows your show calendar. No external licensing.
+          </p>
         </div>
 
         <div
-          className="mt-14 flex flex-col gap-6 pt-8 md:flex-row md:items-center md:justify-between"
+          className="mt-12 flex flex-col gap-6 pt-8 md:flex-row md:items-center md:justify-between"
           style={{ borderTop: "1px solid var(--surface-border)" }}
         >
           <div>
