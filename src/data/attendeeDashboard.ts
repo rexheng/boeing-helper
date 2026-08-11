@@ -44,14 +44,14 @@ export interface AttendeeDashboardData {
 const ACCENT = {
   navy: "#0A2240",
   blue: "#0033A1",
-  steel: "#4A6FA5",
+  steel: "#1F4F8A",
   green: "#2F6B4F",
 } as const
 
 const SUB_HEADER = {
-  navy: "#1E3A5F",
+  navy: "#163A63",
   blue: "#1A4A9C",
-  steel: "#5B7BA8",
+  steel: "#2A5F9E",
   green: "#3D8B63",
 } as const
 
@@ -90,10 +90,14 @@ export function buildAttendeeDashboard(
   const customerTravel: TravelCode =
     countryName === "Singapore" || company.country === "singapore" ? "L" : "I"
 
+  const counterpartLabel = person.title.toLowerCase().includes("minister")
+    ? `Minister ${person.name.split(" ").slice(-1)[0]}`
+    : person.name
+
   const objectives: AttendeeObjective[] = [
     {
       rank: 1,
-      text: `Secure follow-on technical session with ${person.name.split(" ").slice(-1)[0]} on live programme timing`,
+      text: `Secure follow-on technical session with ${counterpartLabel} on live programme timing`,
       bdsLead: "Rex Heng",
     },
     {
@@ -129,13 +133,13 @@ export function buildAttendeeDashboard(
           title: "Business Development & Strategy",
           rows: [
             { id: "bds-ceo", roleLabel: "CEO", name: "", travel: "", count: 0 },
-            { id: "bds-vp", roleLabel: "VP", name: "Rex Heng", organization: "IBD · SEA", travel: "L", count: 1 },
+            { id: "bds-vp", roleLabel: "VP", name: "", travel: "", count: 0 },
             { id: "bds-ea", roleLabel: "EA", name: "", travel: "", count: 0 },
-            { id: "bds-ad", roleLabel: "AD", name: "Regional Director", organization: "Boeing SEA", travel: "L", count: 1 },
-            { id: "bds-msb", roleLabel: "MS&B", name: "Programme focal", travel: "I", count: 1 },
+            { id: "bds-ad", roleLabel: "AD", name: "", travel: "", count: 0 },
+            { id: "bds-msb", roleLabel: "MS&B", name: "", travel: "", count: 0 },
             { id: "bds-pw-r", roleLabel: "PW", name: "", travel: "", count: 0 },
             { id: "bds-siws", roleLabel: "SI&WS", name: "", travel: "", count: 0 },
-            { id: "bds-vl-r", roleLabel: "VL", name: "AH-64 / CH-47 lead", travel: "D", count: 1 },
+            { id: "bds-vl-r", roleLabel: "VL", name: "", travel: "", count: 0 },
           ],
         },
         {
@@ -144,7 +148,7 @@ export function buildAttendeeDashboard(
           rows: [
             { id: "bds-exec", roleLabel: "Executive", name: "", travel: "", count: 0 },
             { id: "bds-rd", roleLabel: "Regional Director", name: "SEA RD", travel: "L", count: 1 },
-            { id: "bds-rf", roleLabel: "Regional Focal", name: "Rex Heng", travel: "L", count: 1 },
+            { id: "bds-rf", roleLabel: "Regional Focal", name: "Rex Heng", organization: "IBD · SEA", travel: "L", count: 1 },
             { id: "bds-isp", roleLabel: "ISP", name: "", travel: "", count: 0 },
             {
               id: "bds-customer",

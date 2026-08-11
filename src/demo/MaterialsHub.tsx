@@ -7,12 +7,9 @@ import {
   accentColor,
   buildAttendeeDashboard,
   flattenAttendees,
-  sectionCount,
-  subHeaderColor,
-  subsectionCount,
   type AttendeeDashboardData,
-  type AttendeeSection,
 } from "../data/attendeeDashboard"
+import { AttendeeExcelSheet } from "./AttendeeExcelSheet"
 
 interface MaterialsHubProps {
   company: Company
@@ -28,8 +25,9 @@ type InviteClose = "meeting" | "special" | "contact"
 
 const BLUE = "#0033A1"
 const NAVY = "#0A2240"
-const GRID = "#C5CDD4"
-const CELL = "#F7F9FC"
+const GRID = "#9AA3AD"
+const ZEBRA = "#EEF2F6"
+const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
 
 export function MaterialsHub({
   company,
@@ -44,12 +42,12 @@ export function MaterialsHub({
   const defaultEvent = /mspo/i.test(meetingType)
     ? "MSPO 2026"
     : countryName
-      ? `Singapore Airshow engagement`
+      ? "Singapore Airshow 2026"
       : meetingType
   const [eventName, setEventName] = useState(defaultEvent)
   const [showcase, setShowcase] = useState("P-8A pathway and rotorcraft sustainment support")
   const [senderName, setSenderName] = useState("Rex Heng")
-  const [senderTitle] = useState("Regional Integrator, International Business Development")
+  const senderTitle = "Regional Integrator, International Business Development"
   const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
 
   const dashboard = useMemo(
@@ -176,7 +174,6 @@ export function MaterialsHub({
                 Invitation Template
               </div>
             </div>
-
             <p>Dear {salutation},</p>
             <p>
               On behalf of The Boeing Company, I write to invite you to meet with us during{" "}
@@ -198,20 +195,15 @@ export function MaterialsHub({
       )}
 
       {tab === "attendee" && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div
-              className="inline-flex gap-1 p-1"
-              style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)" }}
-              role="tablist"
-              aria-label="Dashboard display"
-            >
+            <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
               {(
                 [
                   { id: "excel" as const, label: "Excel format", icon: LayoutGrid },
                   { id: "list" as const, label: "List format", icon: List },
                 ] as const
-              ).map((v) => {
+              ).map((v, i) => {
                 const Icon = v.icon
                 const active = attendeeView === v.id
                 return (
@@ -221,35 +213,32 @@ export function MaterialsHub({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setAttendeeView(v.id)}
-                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold"
+                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
                     style={{
-                      background: active ? "#fff" : "transparent",
-                      color: active ? NAVY : "var(--text-secondary)",
-                      border: active ? `1px solid ${GRID}` : "1px solid transparent",
-                      borderRadius: 4,
-                      boxShadow: active ? "0 1px 2px rgba(10,34,64,0.06)" : undefined,
+                      background: active ? NAVY : "#fff",
+                      color: active ? "#fff" : NAVY,
+                      borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
                     }}
                   >
-                    <Icon size={13} />
+                    <Icon size={12} />
                     {v.label}
                   </button>
                 )
               })}
             </div>
-
             <button
               type="button"
               onClick={handleExcelDownload}
-              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white"
-              style={{ background: BLUE, borderRadius: 4 }}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-white"
+              style={{ background: BLUE }}
             >
-              <Download size={14} />
+              <Download size={13} />
               Download Excel
             </button>
           </div>
 
           {attendeeView === "excel" ? (
-            <ExcelDashboard data={dashboard} eventLabel={eventName} />
+            <AttendeeExcelSheet data={dashboard} eventLabel={eventName} />
           ) : (
             <ListDashboard data={dashboard} eventLabel={eventName} />
           )}
@@ -263,89 +252,57 @@ export function MaterialsHub({
   )
 }
 
-function ExcelDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
+function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
+  const rows = flattenAttendees(data)
+
   return (
-    <div
-      className="bg-white overflow-x-auto"
-      style={{
-        border: `1px solid ${GRID}`,
-        boxShadow: "0 8px 28px rgba(10,34,64,0.08)",
-        fontFamily: "IBM Plex Sans, Ubuntu, Arial, sans-serif",
-      }}
-    >
-      {/* Title strip */}
-      <div className="grid grid-cols-[1.4fr_1fr_1fr] min-w-[920px]">
-        <div
-          className="px-4 py-2.5 text-white font-semibold text-[15px] tracking-wide"
-          style={{ background: BLUE }}
-        >
-          Attendee List Template
-        </div>
-        <div
-          className="px-4 py-2.5 font-semibold text-[13px] flex items-center"
-          style={{ color: NAVY, borderBottom: `1px solid ${GRID}`, borderLeft: `1px solid ${GRID}` }}
-        >
-          {eventLabel || data.eventTitle}
-        </div>
-        <div
-          className="px-4 py-2.5 font-semibold text-[13px] flex items-center"
-          style={{ color: NAVY, borderBottom: `1px solid ${GRID}`, borderLeft: `1px solid ${GRID}` }}
-        >
-          Participant List
-        </div>
-      </div>
+    <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 11 }}>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <th
+              colSpan={3}
+              className="text-left font-bold text-[12px] text-white px-2 py-1.5 border"
+              style={{ background: BLUE, borderColor: GRID }}
+            >
+              Attendee List Template
+            </th>
+            <th
+              colSpan={3}
+              className="text-left font-bold text-[11px] text-white px-2 py-1.5 border"
+              style={{ background: NAVY, borderColor: GRID }}
+            >
+              {(eventLabel || data.eventName).toUpperCase()} · Participant List · {data.revisedLabel}
+            </th>
+          </tr>
+        </thead>
+      </table>
 
-      <div className="px-3 pt-2 min-w-[920px]">
-        <p className="text-[11px] font-semibold mb-2" style={{ color: "#C41E3A" }}>
-          {data.revisedLabel}
-        </p>
-      </div>
-
-      {/* Objectives + Travel key */}
-      <div className="grid grid-cols-[1.55fr_0.9fr] gap-3 px-3 pb-3 min-w-[920px]">
-        <table className="w-full border-collapse text-[11px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_0.9fr]">
+        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
           <thead>
-            <tr style={{ background: "#4A5568", color: "#fff" }}>
-              <th className="text-left font-semibold px-2 py-1.5 border" style={{ borderColor: GRID, width: "28%" }}>
-                Top 5 Objectives
-              </th>
-              <th className="text-left font-semibold px-2 py-1.5 border" style={{ borderColor: GRID }}>
-                Objective
-              </th>
-              <th className="text-left font-semibold px-2 py-1.5 border" style={{ borderColor: GRID, width: "22%" }}>
-                BD&amp;S Leads
-              </th>
+            <tr style={{ background: NAVY, color: "#fff" }}>
+              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "16%" }}>#</th>
+              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Top 5 Objectives</th>
+              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "22%" }}>BD&amp;S Leads</th>
             </tr>
           </thead>
           <tbody>
             {data.objectives.map((o) => (
-              <tr key={o.rank} style={{ background: o.rank % 2 ? "#fff" : CELL }}>
-                <td className="px-2 py-1.5 border font-medium" style={{ borderColor: GRID, color: NAVY }}>
-                  Objective {o.rank}:
-                </td>
-                <td className="px-2 py-1.5 border" style={{ borderColor: GRID, color: "var(--text-secondary)" }}>
-                  {o.text}
-                </td>
-                <td className="px-2 py-1.5 border font-medium" style={{ borderColor: GRID, color: NAVY }}>
-                  {o.bdsLead}
-                </td>
+              <tr key={o.rank} style={{ background: o.rank % 2 ? "#fff" : ZEBRA }}>
+                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>Objective {o.rank}:</td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{o.text}</td>
+                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{o.bdsLead}</td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        <table className="w-full border-collapse text-[11px] h-fit">
+        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
           <thead>
             <tr style={{ background: BLUE, color: "#fff" }}>
-              <th className="text-left font-semibold px-2 py-1.5 border" style={{ borderColor: GRID, width: "14%" }}>
-                Key
-              </th>
-              <th className="text-left font-semibold px-2 py-1.5 border" style={{ borderColor: GRID }}>
-                Travel
-              </th>
-              <th className="text-right font-semibold px-2 py-1.5 border" style={{ borderColor: GRID, width: "22%" }}>
-                #
-              </th>
+              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Key</th>
+              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Travel</th>
+              <th className="text-right font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>#</th>
             </tr>
           </thead>
           <tbody>
@@ -356,158 +313,25 @@ function ExcelDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eve
                 { code: "L", label: "Local Attendee, No Travel", n: data.travelCounts.L },
               ] as const
             ).map((row, i) => (
-              <tr key={row.code} style={{ background: i % 2 ? CELL : "#fff" }}>
-                <td className="px-2 py-1.5 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>
-                  {row.code}
-                </td>
-                <td className="px-2 py-1.5 border" style={{ borderColor: GRID, color: "var(--text-secondary)" }}>
-                  {row.label}
-                </td>
-                <td className="px-2 py-1.5 border text-right font-semibold" style={{ borderColor: GRID, color: NAVY }}>
-                  {row.n}
-                </td>
+              <tr key={row.code} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
+                <td className="px-1.5 py-1 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{row.code}</td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{row.label}</td>
+                <td className="px-1.5 py-1 border text-right font-bold" style={{ borderColor: GRID, color: NAVY }}>{row.n}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Four role columns */}
-      <div className="grid grid-cols-4 gap-2 px-3 pb-4 min-w-[920px]">
-        {data.columns.map((col) => (
-          <ExcelColumn key={col.id} section={col} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function ExcelColumn({ section }: { section: AttendeeSection }) {
-  const accent = accentColor(section.accent)
-  const subBg = subHeaderColor(section.accent)
-  const total = sectionCount(section)
-
-  return (
-    <div style={{ border: `1px solid ${GRID}`, background: "#fff" }}>
-      <div
-        className="px-2 py-2 flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-[0.04em] text-white leading-tight"
-        style={{ background: accent, minHeight: 44 }}
-      >
-        <span>{section.title}</span>
-        <span
-          className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold"
-          style={{ background: "rgba(255,255,255,0.18)", borderRadius: 2 }}
-        >
-          {total}
-        </span>
-      </div>
-
-      {section.subsections.map((sub) => {
-        const count = subsectionCount(sub)
-        return (
-          <div key={sub.id}>
-            <div
-              className="px-2 py-1 flex items-center justify-between text-[10px] font-semibold text-white"
-              style={{ background: subBg }}
-            >
-              <span>{sub.title}</span>
-              <span>{count}</span>
-            </div>
-            <table className="w-full border-collapse text-[10px]">
-              <tbody>
-                {sub.rows.map((row, i) => (
-                  <tr key={row.id} style={{ background: i % 2 ? CELL : "#fff" }}>
-                    <td
-                      className="px-1.5 py-1 border-b align-top font-medium"
-                      style={{ borderColor: GRID, color: NAVY, width: "38%" }}
-                    >
-                      {row.roleLabel}
-                    </td>
-                    <td className="px-1.5 py-1 border-b align-top" style={{ borderColor: GRID, color: "var(--text-secondary)" }}>
-                      <div className="flex items-start justify-between gap-1">
-                        <span className="leading-snug">
-                          {row.name || <span style={{ color: "#A0AAB4" }}>—</span>}
-                          {row.organization && (
-                            <span className="block text-[9px]" style={{ color: "var(--text-muted)" }}>
-                              {row.organization}
-                            </span>
-                          )}
-                        </span>
-                        {row.travel && (
-                          <span
-                            className="shrink-0 font-bold text-[9px] px-1"
-                            style={{
-                              color: BLUE,
-                              background: "var(--boeing-ice)",
-                              border: `1px solid ${GRID}`,
-                            }}
-                          >
-                            {row.travel}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
-  const rows = flattenAttendees(data)
-
-  return (
-    <div className="bg-white space-y-5" style={{ border: `1px solid ${GRID}`, boxShadow: "0 8px 28px rgba(10,34,64,0.08)" }}>
-      <div className="px-5 py-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between" style={{ background: NAVY, color: "#fff" }}>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.14em]" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Attendee list · {data.revisedLabel}
-          </p>
-          <h3 className="text-lg font-semibold mt-1">{eventLabel || data.eventName}</h3>
-          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
-            Role roster with travel codes and objectives
-          </p>
-        </div>
-        <div className="flex gap-4 text-xs">
-          <span><strong>I</strong> {data.travelCounts.I}</span>
-          <span><strong>D</strong> {data.travelCounts.D}</span>
-          <span><strong>L</strong> {data.travelCounts.L}</span>
-        </div>
-      </div>
-
-      <div className="px-5">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-2" style={{ color: BLUE }}>
-          Top 5 objectives
-        </p>
-        <ol className="space-y-2 mb-6">
-          {data.objectives.map((o) => (
-            <li
-              key={o.rank}
-              className="grid grid-cols-[1.5rem_1fr_auto] gap-3 text-sm items-start py-2"
-              style={{ borderBottom: `1px solid ${GRID}` }}
-            >
-              <span className="font-bold" style={{ color: BLUE }}>{o.rank}</span>
-              <span style={{ color: "var(--text-secondary)" }}>{o.text}</span>
-              <span className="text-xs font-semibold whitespace-nowrap" style={{ color: NAVY }}>{o.bdsLead}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <div className="px-5 pb-5 overflow-x-auto">
-        <table className="w-full text-sm border-collapse min-w-[640px]">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse min-w-[720px]" style={{ fontSize: 10.5 }}>
           <thead>
-            <tr style={{ background: CELL }}>
-              {["Section", "Role", "Name", "Travel", "#"].map((h) => (
+            <tr>
+              {["Section", "Subsection", "Role", "Name", "Organization", "Travel"].map((h) => (
                 <th
                   key={h}
-                  className="text-left text-[10px] font-bold uppercase tracking-[0.1em] px-3 py-2 border-b"
-                  style={{ color: "var(--text-muted)", borderColor: GRID }}
+                  className="text-left font-bold px-1.5 py-1 border text-white"
+                  style={{ background: NAVY, borderColor: GRID }}
                 >
                   {h}
                 </th>
@@ -515,38 +339,30 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={`${r.section}-${r.role}-${i}`} style={{ background: i % 2 ? CELL : "#fff" }}>
-                <td className="px-3 py-2.5 border-b align-top" style={{ borderColor: GRID, color: "var(--text-muted)", fontSize: 12 }}>
-                  <div className="font-medium" style={{ color: NAVY }}>{r.section.replace(" Customer Meetings & Engagements", "").replace(" Operation Staff", "")}</div>
-                  <div className="text-[11px]">{r.subsection}</div>
-                </td>
-                <td className="px-3 py-2.5 border-b align-top font-medium" style={{ borderColor: GRID, color: NAVY }}>
-                  {r.role}
-                </td>
-                <td className="px-3 py-2.5 border-b align-top" style={{ borderColor: GRID, color: "var(--text-secondary)" }}>
-                  {r.name}
-                  {r.organization && (
-                    <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>{r.organization}</span>
-                  )}
-                </td>
-                <td className="px-3 py-2.5 border-b align-top">
-                  {r.travel !== "—" ? (
-                    <span
-                      className="inline-block px-1.5 py-0.5 text-[11px] font-bold"
-                      style={{ color: BLUE, background: "var(--boeing-ice)", border: `1px solid ${GRID}` }}
-                    >
-                      {r.travel}
-                    </span>
-                  ) : (
-                    <span style={{ color: "#A0AAB4" }}>—</span>
-                  )}
-                </td>
-                <td className="px-3 py-2.5 border-b align-top font-semibold" style={{ borderColor: GRID, color: NAVY }}>
-                  {r.count}
-                </td>
-              </tr>
-            ))}
+            {rows.map((r, i) => {
+              const sectionColor =
+                r.section.startsWith("BDS") ? accentColor("navy")
+                  : r.section.startsWith("BGS") ? accentColor("steel")
+                    : r.section.startsWith("Boeing Global") ? accentColor("blue")
+                      : accentColor("green")
+              return (
+                <tr key={`${r.section}-${r.role}-${i}`} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
+                  <td className="px-1.5 py-1 border font-bold text-white" style={{ borderColor: GRID, background: sectionColor }}>
+                    {r.section.startsWith("BDS") ? "BDS"
+                      : r.section.startsWith("BGS") ? "BGS"
+                        : r.section.startsWith("Boeing Global") ? "Boeing Global"
+                          : "Exhibit Ops"}
+                  </td>
+                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#444" }}>{r.subsection}</td>
+                  <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{r.role}</td>
+                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{r.name}</td>
+                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.organization}</td>
+                  <td className="px-1.5 py-1 border text-center font-bold" style={{ borderColor: GRID, color: BLUE }}>
+                    {r.travel !== "—" ? r.travel : ""}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

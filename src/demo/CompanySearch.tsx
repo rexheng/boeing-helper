@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Search, Check } from "lucide-react"
 import {
   searchPartnerDirectory,
@@ -9,77 +9,52 @@ import {
 
 interface Props {
   onSelect: (company: Company) => void
+  selectedId?: string | null
+  initialQuery?: string
 }
 
-export function CompanySearch({ onSelect }: Props) {
-  const [query, setQuery] = useState("")
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [searched, setSearched] = useState(false)
+export function CompanySearch({ onSelect, selectedId = null, initialQuery = "" }: Props) {
+  const [query, setQuery] = useState(initialQuery)
+
+  useEffect(() => {
+    if (initialQuery) setQuery(initialQuery)
+  }, [initialQuery])
 
   const results = useMemo(() => {
-    if (!searched || !query.trim()) return [] as PartnerLookupEntry[]
-    return searchPartnerDirectory(query).slice(0, 8)
-  }, [query, searched])
-
-  const runSearch = useCallback(() => {
-    if (!query.trim()) return
-    setSearched(true)
-    setSelectedId(null)
+    const q = query.trim()
+    if (q.length < 2) return [] as PartnerLookupEntry[]
+    return searchPartnerDirectory(q).slice(0, 8)
   }, [query])
 
-  const handlePick = (entry: PartnerLookupEntry) => {
-    setSelectedId(entry.id)
-    onSelect(partnerToCompany(entry))
-  }
-
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value)
-              setSearched(false)
-            }}
-            onKeyDown={(e) => e.key === "Enter" && runSearch()}
-            placeholder="Search partners — Emirates, Qantas, Korean Air, MINDEF…"
-            className="w-full h-12 px-4 pl-10 rounded outline-none transition-colors text-sm"
-            style={{
-              background: "var(--bg-input)",
-              border: "1px solid var(--surface-border)",
-              color: "var(--text-primary)",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = "var(--boeing-blue)"
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0, 51, 161, 0.12)"
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = "var(--surface-border)"
-              e.currentTarget.style.boxShadow = "none"
-            }}
-          />
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-        </div>
-        <button
-          type="button"
-          onClick={runSearch}
-          disabled={!query.trim()}
-          className="h-12 px-6 rounded-full text-sm font-medium uppercase tracking-[0.08em] text-white transition-colors cursor-pointer disabled:cursor-not-allowed"
-          style={{ background: "var(--boeing-blue)", opacity: !query.trim() ? 0.4 : 1 }}
-        >
-          Search
-        </button>
+    <div className="space-y-3">
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Airline, ministry, or country — e.g. Emirates, Qantas, MINDEF"
+          className="w-full h-12 px-4 pl-10 outline-none transition-colors text-sm"
+          style={{
+            background: "var(--bg-input)",
+            border: "1px solid var(--surface-border)",
+            color: "var(--text-primary)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--boeing-blue)"
+            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0, 51, 161, 0.12)"
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--surface-border)"
+            e.currentTarget.style.boxShadow = "none"
+          }}
+        />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
       </div>
 
-      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-        Looks up a curated Boeing partner directory (airlines, ministries, air forces) — no live web scrape.
-      </p>
-
-      {searched && results.length === 0 && (
-        <p className="text-sm text-center py-4" style={{ color: "var(--text-secondary)" }}>
-          No partners matched “{query.trim()}”. Try an airline, ministry, or country name.
+      {query.trim().length >= 2 && results.length === 0 && (
+        <p className="text-sm py-2" style={{ color: "var(--text-secondary)" }}>
+          No partners matched “{query.trim()}”.
         </p>
       )}
 
@@ -92,53 +67,49 @@ export function CompanySearch({ onSelect }: Props) {
               <button
                 key={entry.id}
                 type="button"
-                onClick={() => handlePick(entry)}
-                className="relative w-full flex items-start gap-4 p-4 text-left cursor-pointer transition-colors"
+                onClick={() => onSelect(company)}
+                className="relative w-full flex items-center gap-3 px-3 py-3 text-left cursor-pointer"
                 style={{
                   border: `1px solid ${isSelected ? "var(--boeing-blue)" : "var(--surface-border)"}`,
-                  borderRadius: "var(--radius)",
                   background: isSelected ? "var(--boeing-ice)" : "var(--bg-card)",
-                  animation: "fadeInUp 0.3s ease-out",
                 }}
               >
                 <div
-                  className="w-12 h-12 rounded flex items-center justify-center overflow-hidden flex-shrink-0"
+                  className="w-10 h-10 flex items-center justify-center overflow-hidden flex-shrink-0"
                   style={{ background: "#fff", border: "1px solid var(--surface-border)" }}
                 >
                   <img
                     src={company.logoUrl}
-                    alt={company.name}
-                    className="w-8 h-8 object-contain"
+                    alt=""
+                    className="w-7 h-7 object-contain"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
-                      if (company.fallbackLogoUrl && target.src !== company.fallbackLogoUrl) {
+                      if (company.fallbackLogoUrl && !target.dataset.fallback) {
+                        target.dataset.fallback = "1"
                         target.src = company.fallbackLogoUrl
                       } else {
                         target.style.display = "none"
-                        target.parentElement!.innerHTML = `<span style="color:#0033A1" class="font-bold text-lg">${company.name[0]}</span>`
+                        target.parentElement!.innerHTML = `<span style="color:#0033A1" class="font-bold text-base">${company.name[0]}</span>`
                       }
                     }}
                   />
                 </div>
                 <div className="flex-1 min-w-0 pr-6">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-[15px]" style={{ color: "var(--text-primary)" }}>
+                    <h3 className="font-semibold text-[14px]" style={{ color: "var(--text-primary)" }}>
                       {entry.name}
                     </h3>
-                    <span className="text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--boeing-cyan)" }}>
+                    <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
                       {entry.countryName}
                     </span>
                   </div>
-                  <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
-                    {entry.tagline}
-                  </p>
-                  <p className="text-xs mt-1 line-clamp-2" style={{ color: "var(--text-muted)" }}>
-                    {entry.overview}
+                  <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>
+                    {entry.industry} · {entry.tagline}
                   </p>
                 </div>
                 {isSelected && (
                   <div
-                    className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
+                    className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center"
                     style={{ background: "var(--boeing-blue)" }}
                   >
                     <Check size={12} className="text-white" />
