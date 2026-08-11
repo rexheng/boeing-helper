@@ -1,123 +1,165 @@
 import { jsPDF } from "jspdf"
 import type { MeetingPaper } from "./meetingPaperGenerator"
 
-const NAVY: [number, number, number] = [10, 34, 64]
-const BLUE: [number, number, number] = [0, 51, 161]
-const DARK: [number, number, number] = [37, 55, 70]
-const GRAY: [number, number, number] = [102, 115, 126]
+/** Letter page, matching BDS/BGS Meeting Paper Airshow template. */
+const PAGE_W = 215.9 // mm
+const PAGE_H = 279.4
+const MARGIN_L = 19.05 // 0.75in
+const MARGIN_R = 19.05
+const MARGIN_T = 20.32 // 0.8in
+const MARGIN_B = 17.78 // 0.7in
+const CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R
+const LABEL_W = 25.1 // ~1422 DXA
+const VALUE_W = CONTENT_W - LABEL_W
+const BLUE: [number, number, number] = [0, 0, 255]
+const BLACK: [number, number, number] = [0, 0, 0]
+const FONT = "helvetica" // Arial Narrow unavailable in jsPDF standard fonts
 
-const PAGE_W = 210
-const MARGIN = 20
-const CONTENT_W = PAGE_W - MARGIN * 2
-
-function checkPage(doc: jsPDF, y: number, needed: number): number {
-  if (y + needed > 275) {
-    doc.addPage()
-    return 22
-  }
-  return y
+function drawHeader(doc: jsPDF, dateLabel: string, y: number): number {
+  doc.setFont(FONT, "normal")
+  doc.setFontSize(11)
+  doc.setTextColor(0, 0, 0)
+  doc.text(dateLabel, MARGIN_L, y)
+  doc.setFont(FONT, "bold")
+  doc.setFontSize(12)
+  doc.text("BOEING", PAGE_W - MARGIN_R, y, { align: "right" })
+  return y + 10
 }
 
-function section(doc: jsPDF, label: string, y: number): number {
-  y = checkPage(doc, y, 14)
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(9)
+function drawTitles(doc: jsPDF, paper: MeetingPaper, y: number): number {
+  doc.setFont(FONT, "bold")
+  doc.setFontSize(10.5)
   doc.setTextColor(BLUE[0], BLUE[1], BLUE[2])
-  doc.text(label.toUpperCase(), MARGIN, y)
-  return y + 5
+  const title = paper.meetingTitle.replace(/^MEETING WITH\s+/i, "Meeting With ")
+  doc.text(title, PAGE_W / 2, y, { align: "center" })
+  y += 5.5
+  doc.text(paper.subtitle, PAGE_W / 2, y, { align: "center" })
+  y += 5.5
+  doc.text(paper.locationOrEvent, PAGE_W / 2, y, { align: "center" })
+  return y + 8
 }
 
-function body(doc: jsPDF, text: string, y: number, size = 10): number {
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(size)
-  doc.setTextColor(DARK[0], DARK[1], DARK[2])
-  const lines = doc.splitTextToSize(text, CONTENT_W)
-  for (const line of lines) {
-    y = checkPage(doc, y, 5.5)
-    doc.text(line, MARGIN, y)
-    y += 5.5
+function wrap(doc: jsPDF, text: string, maxW: number, fontSize: number): string[] {
+  doc.setFontSize(fontSize)
+  return doc.splitTextToSize(text, maxW) as string[]
+}
+
+function drawRow(
+  doc: jsPDF,
+  label: string,
+  value: string,
+  y: number,
+  opts?: { labelLines?: string[] },
+): number {
+  const pad = 1.5
+  const fontSize = 10.5
+  const lineH = 4.2
+
+  doc.setFont(FONT, "bold")
+  const labelParts = [label, ...(opts?.labelLines || [])]
+  const labelWrapped: string[] = []
+  for (const part of labelParts) {
+    labelWrapped.push(...wrap(doc, part, LABEL_W - pad * 2, fontSize))
   }
-  return y + 3
+
+  doc.setFont(FONT, "normal")
+  const valueLines = value
+    .split("\n")
+    .flatMap((line) => (line.trim() === "" ? [""] : wrap(doc, line, VALUE_W - pad * 2, fontSize)))
+
+  const rowsNeeded = Math.max(labelWrapped.length, valueLines.length, 1)
+  const boxH = Math.max(rowsNeeded * lineH + pad * 2, 8)
+
+  // page break
+  if (y + boxH > PAGE_H - MARGIN_B - 12) {
+    doc.addPage()
+    y = MARGIN_T
+  }
+
+  doc.setDrawColor(0, 0, 0)
+  doc.setLineWidth(0.25)
+  doc.rect(MARGIN_L, y, LABEL_W, boxH)
+  doc.rect(MARGIN_L + LABEL_W, y, VALUE_W, boxH)
+
+  doc.setFont(FONT, "bold")
+  doc.setFontSize(fontSize)
+  doc.setTextColor(0, 0, 0)
+  let ly = y + pad + 3.5
+  for (const line of labelWrapped) {
+    doc.text(line, MARGIN_L + pad, ly)
+    ly += lineH
+  }
+
+  doc.setFont(FONT, "normal")
+  let vy = y + pad + 3.5
+  for (const line of valueLines) {
+    doc.text(line, MARGIN_L + LABEL_W + pad, vy)
+    vy += lineH
+  }
+
+  return y + boxH
+}
+
+function drawFooter(doc: jsPDF) {
+  const pages = doc.getNumberOfPages()
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i)
+    doc.setFont(FONT, "bold")
+    doc.setFontSize(10)
+    doc.setTextColor(0, 0, 0)
+    doc.text("BOEING PROPRIETARY", PAGE_W / 2, PAGE_H - 10, { align: "center" })
+  }
 }
 
 export async function exportMeetingPaperPDF(paper: MeetingPaper, fileStem: string): Promise<void> {
-  const doc = new jsPDF({ unit: "mm", format: "a4" })
-  let y = 18
+  const doc = new jsPDF({ unit: "mm", format: "letter" })
+  let y = MARGIN_T
 
-  doc.setFont("helvetica", "normal")
-  doc.setFontSize(9)
-  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
-  doc.text(paper.dateLabel, MARGIN, y)
+  y = drawHeader(doc, paper.dateLabel, y)
+  y = drawTitles(doc, paper, y)
 
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(11)
-  doc.setTextColor(NAVY[0], NAVY[1], NAVY[2])
-  doc.text("BOEING", PAGE_W - MARGIN, y, { align: "right" })
-  y += 12
+  const isAirShow = /air show|airshow|bilateral|chalet|mspo/i.test(paper.locationOrEvent)
 
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(14)
-  doc.setTextColor(BLUE[0], BLUE[1], BLUE[2])
-  doc.text(paper.meetingTitle, PAGE_W / 2, y, { align: "center" })
-  y += 7
-  doc.setFontSize(11)
-  doc.text(paper.subtitle, PAGE_W / 2, y, { align: "center" })
-  y += 6
-  doc.setFont("helvetica", "normal")
-  doc.text(paper.locationOrEvent, PAGE_W / 2, y, { align: "center" })
-  y += 10
-
-  doc.setDrawColor(BLUE[0], BLUE[1], BLUE[2])
-  doc.setLineWidth(0.4)
-  doc.line(MARGIN, y, MARGIN + CONTENT_W, y)
-  y += 8
-
-  y = section(doc, "Contact", y)
-  y = body(doc, `${paper.contact.name}\n${paper.contact.title}\n${paper.contact.phone}`, y)
-
-  y = section(doc, "Customer, salutation & RAA", y)
-  y = body(
+  y = drawRow(
     doc,
-    `${paper.customer.name} — ${paper.customer.title}\nSalutation: ${paper.customer.salutation} [${paper.customer.phonetic}]\nRAA: ${paper.customer.raa}`,
+    "Contact",
+    `${paper.contact.name}, ${paper.contact.title}, ${paper.contact.phone}`,
+    y,
+  )
+  y = drawRow(
+    doc,
+    "Customer(s) Salutation & Customer RAA",
+    [
+      `${paper.customer.name}, ${paper.customer.title}`,
+      `“${paper.customer.salutation}” [${paper.customer.phonetic}]`,
+      `RAA: “${paper.customer.raa}”`,
+    ].join("\n"),
+    y,
+  )
+  y = drawRow(doc, "Objectives", paper.objectives.join("\n"), y)
+  y = drawRow(
+    doc,
+    "Key Messages",
+    paper.keyMessages.map((km) => (km.note ? `${km.message}\nNote: ${km.note}` : km.message)).join("\n"),
     y,
   )
 
-  y = section(doc, "Objectives", y)
-  for (let i = 0; i < paper.objectives.length; i++) {
-    y = body(doc, `${i + 1}. ${paper.objectives[i]}`, y)
+  if (!isAirShow && paper.agendaLogistics) {
+    y = drawRow(doc, "Agenda/", paper.agendaLogistics, y, { labelLines: ["Logistics"] })
   }
 
-  y = section(doc, "Key messages", y)
-  for (let i = 0; i < paper.keyMessages.length; i++) {
-    const km = paper.keyMessages[i]
-    y = body(doc, `${i + 1}. ${km.message}`, y)
-    if (km.note) y = body(doc, `Note: ${km.note}`, y, 9)
-  }
+  y = drawRow(doc, "Campaign Background", paper.campaignBackground, y)
+  y = drawRow(doc, "Potential Customer Sat", paper.customerSatIssues.join("\n"), y, {
+    labelLines: ["Issues"],
+  })
+  y = drawRow(doc, "Engagement Background", paper.engagementBackground, y)
+  y = drawRow(
+    doc,
+    "Biography",
+    `${paper.biography.name}, ${paper.biography.title}\n${paper.biography.text}`,
+    y,
+  )
 
-  if (paper.agendaLogistics) {
-    y = section(doc, "Agenda / logistics", y)
-    y = body(doc, paper.agendaLogistics, y)
-  }
-
-  y = section(doc, "Campaign background", y)
-  y = body(doc, paper.campaignBackground, y)
-
-  y = section(doc, "Potential customer sat issues", y)
-  for (const issue of paper.customerSatIssues) {
-    y = body(doc, `• ${issue}`, y)
-  }
-
-  y = section(doc, "Engagement background", y)
-  y = body(doc, paper.engagementBackground, y)
-
-  y = section(doc, "Biography", y)
-  y = body(doc, `${paper.biography.name}\n${paper.biography.title}\n${paper.biography.text}`, y)
-
-  y = checkPage(doc, y, 12)
-  doc.setFont("helvetica", "bold")
-  doc.setFontSize(8)
-  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
-  doc.text("BOEING PROPRIETARY", PAGE_W / 2, Math.max(y + 8, 285), { align: "center" })
-
-  doc.save(`meeting-paper-${fileStem.toLowerCase().replace(/\s+/g, "-")}.pdf`)
+  drawFooter(doc)
+  doc.save(`Meeting-Paper-${fileStem.toLowerCase().replace(/\s+/g, "-")}.pdf`)
 }

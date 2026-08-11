@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Download, Lock } from "lucide-react"
+import { Download, FileText } from "lucide-react"
 import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
@@ -15,25 +15,30 @@ interface MeetingPaperViewProps {
   onContinue: () => void
 }
 
-const BLUE = "#0033A1"
+const BLUE = "#0000FF"
 const NAVY = "#0A2240"
 
-function Section({
+function Row({
   label,
+  labelLines,
   children,
 }: {
   label: string
+  labelLines?: string[]
   children: React.ReactNode
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-[11rem_1fr] sm:gap-6 py-5 border-b" style={{ borderColor: "var(--surface-border)" }}>
-      <p
-        className="font-ui text-[11px] font-bold uppercase tracking-[0.14em] pt-0.5"
-        style={{ color: BLUE }}
-      >
-        {label}
-      </p>
-      <div className="min-w-0 text-[15px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+    <div
+      className="grid grid-cols-[7.5rem_1fr] md:grid-cols-[8.5rem_1fr]"
+      style={{ border: "1px solid #000", borderTop: "none" }}
+    >
+      <div className="px-2 py-2 font-bold text-[10.5px] leading-snug" style={{ fontFamily: "'Arial Narrow', Arial, sans-serif", borderRight: "1px solid #000", color: "#000" }}>
+        <div>{label}</div>
+        {labelLines?.map((l) => (
+          <div key={l}>{l}</div>
+        ))}
+      </div>
+      <div className="px-2 py-2 text-[10.5px] leading-snug whitespace-pre-wrap" style={{ fontFamily: "'Arial Narrow', Arial, sans-serif", color: "#000" }}>
         {children}
       </div>
     </div>
@@ -52,168 +57,112 @@ export function MeetingPaperView({
     () => generateMeetingPaper(research, company, person, meetingType),
     [research, company, person, meetingType],
   )
-  const [downloading, setDownloading] = useState(false)
+  const [busy, setBusy] = useState<"pdf" | "docx" | null>(null)
+  const isAirShow = /air show|airshow|bilateral|chalet|mspo/i.test(meetingType)
 
   const handlePdf = async () => {
-    setDownloading(true)
+    setBusy("pdf")
     try {
       const { exportMeetingPaperPDF } = await import("../utils/meetingPaperPdf")
       await exportMeetingPaperPDF(paper, person.name)
     } catch (err) {
-      console.error("PDF export failed:", err)
+      console.error(err)
     } finally {
-      setDownloading(false)
+      setBusy(null)
     }
   }
+
+  const handleDocx = async () => {
+    setBusy("docx")
+    try {
+      const { exportMeetingPaperDocx } = await import("../utils/templateExport")
+      await exportMeetingPaperDocx(paper)
+    } catch (err) {
+      console.error(err)
+      alert("Word export failed. Try PDF, or refresh and retry.")
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const title = paper.meetingTitle.replace(/^MEETING WITH\s+/i, "Meeting With ")
 
   return (
     <div className="space-y-6 pb-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="system-badge system-badge--dark">Meeting Paper</p>
-          <h2 className="mt-2 text-3xl font-bold" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
-            {person.name}
+          <h2 className="mt-2 text-2xl md:text-3xl font-bold" style={{ color: NAVY }}>
+            BDS / BGS air-show format
           </h2>
           <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-            {meetingType} · {company.name}
-            {research.country?.name ? ` · ${research.country.name}` : ""}
+            Matches the Boeing Meeting Paper template — export Word or PDF for the trip book.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <button onClick={handlePdf} disabled={downloading} className="btn-secondary">
+          <button onClick={handleDocx} disabled={!!busy} className="btn-secondary">
+            <FileText size={16} />
+            {busy === "docx" ? "Generating…" : "Download Word"}
+          </button>
+          <button onClick={handlePdf} disabled={!!busy} className="btn-secondary">
             <Download size={16} />
-            {downloading ? "Generating…" : "Download PDF"}
+            {busy === "pdf" ? "Generating…" : "Download PDF"}
           </button>
           <Button onClick={onContinue}>Continue to materials</Button>
         </div>
       </div>
 
-      <article className="bg-white px-6 sm:px-10 py-8 sm:py-10" style={{ border: "1px solid var(--surface-border)" }}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between pb-8 border-b" style={{ borderColor: "var(--surface-border)" }}>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>{paper.dateLabel}</p>
-          <div className="text-center sm:flex-1">
-            <p className="text-lg font-bold tracking-wide" style={{ color: BLUE }}>{paper.meetingTitle}</p>
-            <p className="mt-1 text-sm font-medium" style={{ color: BLUE }}>{paper.subtitle}</p>
-            <p className="mt-1 text-sm" style={{ color: BLUE }}>{paper.locationOrEvent}</p>
-          </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] sm:text-right" style={{ color: NAVY }}>
-            Boeing
-          </p>
+      {/* On-screen preview mirroring Word */}
+      <article
+        className="bg-white mx-auto max-w-[8.5in] shadow-sm"
+        style={{ border: "1px solid var(--surface-border)", fontFamily: "'Arial Narrow', Arial, sans-serif" }}
+      >
+        <div className="px-8 pt-6 pb-2 flex items-center justify-between text-[11px]">
+          <span>{paper.dateLabel}</span>
+          <img src="/templates/boeing-logo-doc.png" alt="Boeing" className="h-7 object-contain" />
         </div>
 
-        <Section label="Contact">
-          <p style={{ color: NAVY }} className="font-medium">{paper.contact.name}</p>
-          <p>{paper.contact.title}</p>
-          <p className="text-sm mt-1">{paper.contact.phone}</p>
-        </Section>
+        <div className="px-8 text-center pb-4">
+          <p className="font-bold text-[10.5px]" style={{ color: BLUE }}>{title}</p>
+          <p className="font-bold text-[10.5px]" style={{ color: BLUE }}>{paper.subtitle}</p>
+          <p className="font-bold text-[10.5px]" style={{ color: BLUE }}>{paper.locationOrEvent}</p>
+        </div>
 
-        <Section label="Customer">
-          <p style={{ color: NAVY }} className="font-medium">
-            {paper.customer.name} — {paper.customer.title}
-          </p>
-        </Section>
-
-        <Section label="Salutation">
-          <p>
-            <span className="font-medium" style={{ color: NAVY }}>{paper.customer.salutation}</span>
-            <span className="text-sm" style={{ color: "var(--text-muted)" }}> [{paper.customer.phonetic}]</span>
-          </p>
-        </Section>
-
-        <Section label="Customer RAA">
-          <p>{paper.customer.raa}</p>
-        </Section>
-
-        <Section label="Objectives">
-          <ol className="space-y-2">
-            {paper.objectives.map((o, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="font-mono text-xs tabular-nums pt-1" style={{ color: "var(--boeing-cyan)" }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span>{o}</span>
-              </li>
-            ))}
-          </ol>
-        </Section>
-
-        <Section label="Key messages">
-          <ol className="space-y-4">
-            {paper.keyMessages.map((km, i) => (
-              <li key={i}>
-                <p className="flex gap-3">
-                  <span className="font-mono text-xs tabular-nums pt-1" style={{ color: "var(--boeing-cyan)" }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span>{km.message}</span>
-                </p>
-                {km.note && (
-                  <p className="mt-1 ml-8 text-sm" style={{ color: "var(--text-muted)" }}>
-                    Note: {km.note}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ol>
-        </Section>
-
-        {paper.agendaLogistics ? (
-          <Section label="Agenda / logistics">
-            <p>{paper.agendaLogistics}</p>
-          </Section>
-        ) : (
-          <Section label="Agenda / logistics">
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              Deleted for air-show / bilateral meetings.
-            </p>
-          </Section>
-        )}
-
-        <Section label="Campaign background">
-          <p>{paper.campaignBackground}</p>
-          {paper.countryPaperBlurb && (
-            <p className="mt-3 text-sm" style={{ color: "var(--text-muted)" }}>
-              Further detail lives in the country paper.
-            </p>
-          )}
-        </Section>
-
-        <Section label="Potential cust sat issues">
-          <ul className="space-y-2">
-            {paper.customerSatIssues.map((issue) => (
-              <li key={issue} className="flex gap-3">
-                <span className="mt-2 h-px w-3 shrink-0" style={{ background: BLUE }} />
-                <span>{issue}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section label="Engagement background">
-          <p>{paper.engagementBackground}</p>
-        </Section>
-
-        <Section label="Biography">
-          <div className="flex flex-col sm:flex-row gap-5">
-            {paper.biography.photoUrl && (
-              <img
-                src={paper.biography.photoUrl}
-                alt=""
-                className="w-24 h-28 object-cover shrink-0"
-                style={{ border: "1px solid var(--surface-border)" }}
-              />
+        <div className="px-6 pb-6">
+          <div style={{ borderTop: "1px solid #000" }}>
+            <Row label="Contact">
+              {paper.contact.name}, {paper.contact.title}, {paper.contact.phone}
+            </Row>
+            <Row label="Customer(s) Salutation & Customer RAA">
+              {paper.customer.name}, {paper.customer.title}
+              {"\n"}“{paper.customer.salutation}” [{paper.customer.phonetic}]
+              {"\n"}RAA: “{paper.customer.raa}”
+            </Row>
+            <Row label="Objectives">
+              {paper.objectives.join("\n")}
+            </Row>
+            <Row label="Key Messages">
+              {paper.keyMessages.map((km) => (km.note ? `${km.message}\nNote: ${km.note}` : km.message)).join("\n")}
+            </Row>
+            {!isAirShow && paper.agendaLogistics && (
+              <Row label="Agenda/" labelLines={["Logistics"]}>
+                {paper.agendaLogistics}
+              </Row>
             )}
-            <div>
-              <p className="font-semibold" style={{ color: NAVY }}>{paper.biography.name}</p>
-              <p className="text-sm mb-2">{paper.biography.title}</p>
-              <p>{paper.biography.text}</p>
-            </div>
+            <Row label="Campaign Background">{paper.campaignBackground}</Row>
+            <Row label="Potential Customer Sat" labelLines={["Issues"]}>
+              {paper.customerSatIssues.join("\n")}
+            </Row>
+            <Row label="Engagement Background">{paper.engagementBackground}</Row>
+            <Row label="Biography">
+              <span className="font-bold">{paper.biography.name}, {paper.biography.title}</span>
+              {"\n"}
+              {paper.biography.text}
+            </Row>
           </div>
-        </Section>
+        </div>
 
-        <p className="pt-8 text-center text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--text-muted)" }}>
-          Boeing Proprietary
-        </p>
+        <p className="pb-6 text-center text-[10px] font-bold tracking-wide">BOEING PROPRIETARY</p>
       </article>
 
       {internalNotes && (
@@ -222,13 +171,6 @@ export function MeetingPaperView({
           <p className="whitespace-pre-wrap">{internalNotes}</p>
         </div>
       )}
-
-      <div className="flex gap-3 text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-        <Lock size={14} color={BLUE} className="mt-0.5 shrink-0" />
-        <p>
-          In-country owns wording on objectives, RAA, and key messages. CTL drafts messages; integrator supplies agenda only when it applies.
-        </p>
-      </div>
     </div>
   )
 }
