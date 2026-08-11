@@ -61,4 +61,25 @@ export const people: Person[] = [
   { id: "gilberto-teodoro", companyId: "paf", name: "Gilberto Teodoro Jr.", title: "Secretary of National Defense", headline: "Returned Lockheed's $5.58B F-16 proposal over funding, not capability — demands financing creativity and absorbable capability", initial: "G", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Gilbert_Teodoro%2C_2023_official_portrait.jpg/330px-Gilbert_Teodoro%2C_2023_official_portrait.jpg", seniority: "Secretary" },
   { id: "antonio-nafarrete", companyId: "paf", name: "Gen. Antonio Nafarrete", title: "Chief of Staff, Armed Forces of the Philippines", headline: "61st AFP chief since July 2026 — inherits Horizon 3 and the shift to the Comprehensive Archipelagic Defence Concept", initial: "N", photoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/LtGen_Nafarrete.jpg/330px-LtGen_Nafarrete.jpg", seniority: "Service Chief" },
   { id: "jose-romualdez", companyId: "paf", name: "Jose Manuel Romualdez", title: "Ambassador of the Philippines to the United States", headline: "Says Manila is 'not closing doors' on US platforms but needs imaginative financing — the channel for FMS and EXIM structuring", initial: "J", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Portrait_of_Ambassador_of_the_Philippines_to_the_United_States_Jose_Manuel_Romualdez.jpg/330px-Portrait_of_Ambassador_of_the_Philippines_to_the_United_States_Jose_Manuel_Romualdez.jpg", seniority: "Ambassador" },
+
+  // Japan Airlines
+  { id: "mitsuko-tsuchiya", companyId: "jal", name: "Mitsuko Tsuchiya", title: "Senior Vice President, Fleet Strategy (illustrative)", headline: "Fleet planning counterpart for widebody utilisation and cabin programmes", initial: "M", seniority: "VP" },
+
+  // Korean Air
+  { id: "walter-cho", companyId: "korean-air", name: "Walter Cho", title: "Chairman & CEO, Korean Air", headline: "Leads Korean Air Group through Asiana integration and fleet renewal", initial: "W", seniority: "C-Suite" },
+
+  // Air India
+  { id: "campbell-wilson", companyId: "air-india", name: "Campbell Wilson", title: "Chief Executive Officer, Air India", headline: "CEO driving Air India transformation and Boeing delivery ramp", initial: "C", seniority: "C-Suite" },
+
+  // Qantas
+  { id: "vanessa-hudson", companyId: "qantas", name: "Vanessa Hudson", title: "Chief Executive Officer, Qantas Group", headline: "CEO owning Project Sunrise timing and group fleet strategy", initial: "V", seniority: "C-Suite" },
+
+  // Australian Department of Defence
+  { id: "robert-chipman", companyId: "mod-australia", name: "AIRMSHL Robert Chipman", title: "Chief of Air Force, RAAF", headline: "RAAF chief owning airborne ISR and strike readiness including P-8A and Growler", initial: "R", seniority: "Service Chief" },
+
+  // Emirates
+  { id: "ahmed-bin-saeed", companyId: "emirates", name: "HH Sheikh Ahmed bin Saeed Al Maktoum", title: "Chairman & Chief Executive, Emirates Airline", headline: "Chairs Emirates Group — owns fleet strategy including 777X induction", initial: "A", seniority: "Chairman" },
+
+  // Qatar Airways
+  { id: "akbar-al-baker", companyId: "qatar-airways", name: "Akbar Al Baker", title: "Group Chief Executive, Qatar Airways", headline: "Long-serving GCE shaping Qatar's Boeing widebody commitments", initial: "A", seniority: "C-Suite" },
 ]

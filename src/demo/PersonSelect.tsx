@@ -1,8 +1,25 @@
 import { useState, useEffect, useMemo } from "react"
 import { people, type Person } from "../data/people"
-import type { Company } from "../data/companies"
+import { getPartnerById, type Company } from "../data/companies"
 import { Check, Loader2, ExternalLink, UserPlus, Search } from "lucide-react"
 import { getJudgesByCompany, findJudgeByName } from "../data/research/judges"
+
+function partnerContactsAsPeople(company: Company): Person[] {
+  const partner = getPartnerById(company.id)
+  if (!partner?.contacts?.length) return []
+  return partner.contacts.map((ct) => ({
+    id: ct.id,
+    companyId: company.id,
+    name: ct.name,
+    title: ct.title,
+    headline: ct.headline,
+    initial: ct.name.charAt(0).toUpperCase(),
+    seniority: ct.seniority,
+    photoUrl: ct.photoUrl,
+    linkedinUrl: ct.linkedinUrl,
+    isCustom: true,
+  }))
+}
 
 interface Props {
   company: Company
@@ -20,60 +37,57 @@ export function PersonSelect({ company, prefetchedContacts, contactsLoading: ext
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
-    if (!company.isCustom) return
-
-    // Check for hardcoded judge contacts first — instant, no API
-    const judges = getJudgesByCompany(company.name)
-    if (judges.length > 0) {
-      setDynamicPeople(judges.map((j) => ({
-        id: j.slug,
-        companyId: company.id,
-        name: j.name,
-        title: j.title,
-        headline: j.title,
-        initial: j.name.charAt(0).toUpperCase(),
-        isCustom: true,
-      })))
+    const seeded = people.filter((p) => p.companyId === company.id)
+    if (seeded.length > 0) {
+      setDynamicPeople([])
+      setLoading(false)
       return
     }
 
-    // If contacts were prefetched by DemoFlow, use them directly
+    const fromPartner = partnerContactsAsPeople(company)
+    if (fromPartner.length > 0) {
+      setDynamicPeople(fromPartner)
+      setLoading(false)
+      return
+    }
+
     if (prefetchedContacts !== undefined && prefetchedContacts !== null) {
       setDynamicPeople(prefetchedContacts)
+      setLoading(false)
       return
     }
 
-    // Fallback: fetch contacts ourselves (if no prefetch was done)
-    if (externalLoading) return // DemoFlow is still fetching
-    setLoading(true)
-    fetch("/api/company-contacts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyName: company.name, companyDomain: company.domain }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const contacts: Person[] = (data.contacts || []).map((c: any) => ({
-          ...c,
+    const judges = getJudgesByCompany(company.name)
+    if (judges.length > 0) {
+      setDynamicPeople(
+        judges.map((j) => ({
+          id: j.slug,
           companyId: company.id,
+          name: j.name,
+          title: j.title,
+          headline: j.title,
+          initial: j.name.charAt(0).toUpperCase(),
           isCustom: true,
-        }))
-        setDynamicPeople(contacts)
-      })
-      .catch(() => setDynamicPeople([]))
-      .finally(() => setLoading(false))
+        })),
+      )
+      setLoading(false)
+      return
+    }
+
+    if (externalLoading) return
+    setDynamicPeople([])
+    setLoading(false)
   }, [company, prefetchedContacts, externalLoading])
 
-  // When prefetchedContacts arrives after mount (was loading when we mounted)
   useEffect(() => {
     if (prefetchedContacts && prefetchedContacts.length > 0 && dynamicPeople.length === 0) {
-      setDynamicPeople(prefetchedContacts)
+      const seeded = people.filter((p) => p.companyId === company.id)
+      if (seeded.length === 0) setDynamicPeople(prefetchedContacts)
     }
-  }, [prefetchedContacts])
+  }, [prefetchedContacts, company.id, dynamicPeople.length])
 
-  const filtered = company.isCustom
-    ? dynamicPeople
-    : people.filter((p) => p.companyId === company.id)
+  const seeded = people.filter((p) => p.companyId === company.id)
+  const filtered = seeded.length > 0 ? seeded : dynamicPeople
 
   // Fuzzy match search query against hidden judge names
   const matchedJudge = useMemo(() => findJudgeByName(searchQuery), [searchQuery])
@@ -257,7 +271,7 @@ export function PersonSelect({ company, prefetchedContacts, contactsLoading: ext
         </div>
       )}
 
-      {!loading && !externalLoading && company.isCustom && filtered.length === 0 && !matchedJudge && (
+      {!loading && !externalLoading && filtered.length === 0 && !matchedJudge && (
         <div className="bh-card p-8 max-w-md mx-auto text-center space-y-6">
           <div className="flex justify-center">
             <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "var(--boeing-ice)" }}>

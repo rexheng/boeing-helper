@@ -5,11 +5,52 @@ export interface MeetingType {
   icon: string
 }
 
+/**
+ * Boeing Helper context types — IBD / trip-book workflows (not generic SaaS meetings).
+ *
+ * Proposed set (aligned to how Regional Integrators actually prep):
+ * 1. Air-show bilateral — chalet / stand engagement at a show
+ * 2. Stakeholder biography — executive bio + RAA pack for a principal
+ * 3. Programme status review — delivery / sustainment cadence
+ * 4. Country / ministry engagement — government protocol brief
+ * 5. Pre-travel trip book — full materials lock before wheels-up
+ * 6. Other — freeform
+ */
 export const meetingTypes: MeetingType[] = [
-  { id: "airshow", label: "Air Show Briefing", subtitle: "Chalet or stand meeting — delegation background, programme status, talking points", icon: "plane" },
-  { id: "first-call", label: "First Call / Introduction", subtitle: "First engagement — establish relationship, understand priorities", icon: "handshake" },
-  { id: "follow-up", label: "Follow-up Meeting", subtitle: "Continue an open thread — commitments made, questions outstanding", icon: "repeat" },
-  { id: "check-in", label: "Progress Check-in", subtitle: "Programme status — deliveries, sustainment, issues to surface", icon: "clipboard-check" },
-  { id: "quarterly", label: "Quarterly Review", subtitle: "Formal cadence — performance against commitments, next-quarter asks", icon: "bar-chart" },
-  { id: "other", label: "Other", subtitle: "Describe your meeting context", icon: "message-circle" },
+  {
+    id: "airshow",
+    label: "Air-Show Bilateral",
+    subtitle: "Chalet or stand meeting — delegation background, programme status, talking points",
+    icon: "plane",
+  },
+  {
+    id: "biography",
+    label: "Stakeholder Biography Prep",
+    subtitle: "Executive bio, phonetic, RAA, and key messages for the principal",
+    icon: "users",
+  },
+  {
+    id: "programme",
+    label: "Programme Status Review",
+    subtitle: "Deliveries, sustainment, open actions, and next milestone owners",
+    icon: "clipboard-check",
+  },
+  {
+    id: "country",
+    label: "Country / Ministry Engagement",
+    subtitle: "Government protocol, bilateral context, and ministry priorities",
+    icon: "handshake",
+  },
+  {
+    id: "trip-book",
+    label: "Pre-Travel Trip Book",
+    subtitle: "Lock papers, attendee dashboard, and materials before travel",
+    icon: "presentation",
+  },
+  {
+    id: "other",
+    label: "Other",
+    subtitle: "Describe the engagement context in your own words",
+    icon: "message-circle",
+  },
 ]
