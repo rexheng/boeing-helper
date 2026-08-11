@@ -13,8 +13,8 @@ const NAVY = "#0A2240"
 const GRID = "#8E97A1"
 const ZEBRA = "#EEF2F6"
 const LEGEND = "#D6DEE8"
-const EMPTY = "#FAFBFC"
-const FONT = "'IBM Plex Sans', Ubuntu, Arial, sans-serif"
+const EMPTY = "#FFFFFF"
+const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
 
 type FlatBlock =
   | { kind: "sub"; title: string; count: number }
@@ -62,6 +62,12 @@ export function AttendeeExcelSheet({
     return flats.map((f) => padBlocks(f, max))
   }, [data.columns])
 
+  const travelRows = [
+    { code: "I", label: "International Travel Required", n: data.travelCounts.I },
+    { code: "D", label: "Domestic / Regional Travel Required", n: data.travelCounts.D },
+    { code: "L", label: "Local Attendee, No Travel", n: data.travelCounts.L },
+  ] as const
+
   return (
     <div
       className="w-full overflow-x-auto bg-white"
@@ -69,91 +75,62 @@ export function AttendeeExcelSheet({
     >
       <table className="w-full border-collapse min-w-[1100px]" style={{ tableLayout: "fixed" }}>
         <colgroup>
-          {Array.from({ length: 16 }).map((_, i) => {
-            const within = i % 4
-            const pct = within === 0 ? 7 : within === 1 ? 8.5 : within === 2 ? 6.5 : 3
-            return <col key={i} style={{ width: `${pct}%` }} />
-          })}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <col key={i} style={{ width: "6.25%" }} />
+          ))}
         </colgroup>
 
         <thead>
           <tr>
-            <th
-              colSpan={16}
-              className="text-left font-bold text-[12px] text-white px-2 py-1.5 border"
-              style={{ background: NAVY, borderColor: GRID }}
-            >
+            <th colSpan={6} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: BLUE, borderColor: GRID }}>
               Attendee List Template
-              <span className="mx-3" style={{ color: "rgba(255,255,255,0.35)" }}>|</span>
-              {title}
-              <span className="mx-3" style={{ color: "rgba(255,255,255,0.35)" }}>|</span>
-              Participant List
-              <span className="ml-3 text-[10px] font-semibold tracking-wide" style={{ color: "rgba(255,255,255,0.7)" }}>
-                {data.revisedLabel}
-              </span>
             </th>
+            <th colSpan={6} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID }}>
+              {title}
+            </th>
+            <th colSpan={3} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID }}>
+              Participant List
+            </th>
+            <th className="text-right font-bold text-[10px] px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID, color: "#F8D7DA" }}>
+              {data.revisedLabel}
+            </th>
+          </tr>
+          <tr style={{ background: LEGEND }}>
+            <th colSpan={1} className="text-left font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>#</th>
+            <th colSpan={8} className="text-left font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>Top 5 Objectives</th>
+            <th colSpan={3} className="text-left font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>BD&amp;S Leads</th>
+            <th className="text-left font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>Key</th>
+            <th colSpan={2} className="text-left font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>Travel</th>
+            <th className="text-right font-bold text-[9px] px-1 py-0.5 border" style={{ borderColor: GRID, color: NAVY }}>#</th>
           </tr>
         </thead>
 
         <tbody>
-          {/* Band headers */}
-          <tr>
-            <td
-              colSpan={12}
-              className="px-1.5 py-1 border font-bold text-white text-[9px]"
-              style={{ background: NAVY, borderColor: GRID }}
-            >
-              Top 5 Objectives · BD&amp;S Leads
-            </td>
-            <td
-              colSpan={4}
-              className="px-1.5 py-1 border font-bold text-white text-[9px]"
-              style={{ background: BLUE, borderColor: GRID }}
-            >
-              Travel Key
-            </td>
-          </tr>
+          {data.objectives.map((o, idx) => {
+            const t = travelRows[idx]
+            return (
+              <tr key={o.rank} style={{ background: idx % 2 ? ZEBRA : "#fff" }}>
+                <td className="px-1 py-0.5 border font-bold text-center" style={{ borderColor: GRID, color: NAVY }}>{o.rank}</td>
+                <td colSpan={8} className="px-1 py-0.5 border" style={{ borderColor: GRID, color: "#222" }}>{o.text}</td>
+                <td colSpan={3} className="px-1 py-0.5 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{o.bdsLead}</td>
+                {t ? (
+                  <>
+                    <td className="px-1 py-0.5 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{t.code}</td>
+                    <td colSpan={2} className="px-1 py-0.5 border" style={{ borderColor: GRID, color: "#222" }}>{t.label}</td>
+                    <td className="px-1 py-0.5 border font-bold text-right" style={{ borderColor: GRID, color: NAVY }}>{t.n}</td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-1 py-0.5 border" style={{ borderColor: GRID }} />
+                    <td colSpan={2} className="px-1 py-0.5 border" style={{ borderColor: GRID }} />
+                    <td className="px-1 py-0.5 border" style={{ borderColor: GRID }} />
+                  </>
+                )}
+              </tr>
+            )
+          })}
 
-          {data.objectives.map((o, idx) => (
-            <tr key={o.rank} style={{ background: idx % 2 ? ZEBRA : "#fff" }}>
-              <td className="px-1 py-1 border font-bold text-center" style={{ borderColor: GRID, color: NAVY }}>
-                {o.rank}
-              </td>
-              <td colSpan={8} className="px-1 py-1 border" style={{ borderColor: GRID, color: "#222" }}>
-                {o.text}
-              </td>
-              <td colSpan={3} className="px-1 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
-                {o.bdsLead}
-              </td>
-              {idx === 0 && (
-                <td rowSpan={5} colSpan={4} className="p-0 border align-top" style={{ borderColor: GRID }}>
-                  {(
-                    [
-                      { code: "I", label: "International Travel Required", n: data.travelCounts.I },
-                      { code: "D", label: "Domestic / Regional Travel Required", n: data.travelCounts.D },
-                      { code: "L", label: "Local Attendee, No Travel", n: data.travelCounts.L },
-                    ] as const
-                  ).map((row, i) => (
-                    <div
-                      key={row.code}
-                      className="grid grid-cols-[1.4rem_1fr_1.4rem] gap-1 px-1 py-1.5 text-[9.5px]"
-                      style={{
-                        background: i % 2 ? ZEBRA : "#fff",
-                        borderBottom: i < 2 ? `1px solid ${GRID}` : undefined,
-                        minHeight: 34,
-                      }}
-                    >
-                      <span className="font-bold text-center" style={{ color: BLUE }}>{row.code}</span>
-                      <span style={{ color: "#222" }}>{row.label}</span>
-                      <span className="font-bold text-right" style={{ color: NAVY }}>{row.n}</span>
-                    </div>
-                  ))}
-                </td>
-              )}
-            </tr>
-          ))}
-
-          {/* Four section headers */}
+          {/* Section headers */}
           <tr>
             {data.columns.map((col) => (
               <td
@@ -174,18 +151,13 @@ export function AttendeeExcelSheet({
           <tr style={{ background: LEGEND }}>
             {data.columns.flatMap((col) =>
               ["Role", "Name", "Organization", "I/D/L"].map((h) => (
-                <td
-                  key={`${col.id}-${h}`}
-                  className="px-0.5 py-0.5 border font-bold text-[9px]"
-                  style={{ borderColor: GRID, color: NAVY }}
-                >
+                <td key={`${col.id}-${h}`} className="px-0.5 py-0.5 border font-bold text-[9px]" style={{ borderColor: GRID, color: NAVY }}>
                   {h}
                 </td>
               )),
             )}
           </tr>
 
-          {/* Flat body */}
           {columns[0].map((_, rowIdx) => (
             <tr key={`r-${rowIdx}`}>
               {columns.map((colBlocks, colIdx) => {
@@ -242,18 +214,10 @@ function FragmentRow({
 }) {
   return (
     <>
-      <td className="px-0.5 py-0.5 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>
-        {role}
-      </td>
-      <td className="px-0.5 py-0.5 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }}>
-        {name}
-      </td>
-      <td className="px-0.5 py-0.5 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>
-        {org}
-      </td>
-      <td className="px-0.5 py-0.5 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>
-        {travel}
-      </td>
+      <td className="px-0.5 py-0.5 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>{role}</td>
+      <td className="px-0.5 py-0.5 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }}>{name}</td>
+      <td className="px-0.5 py-0.5 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>{org}</td>
+      <td className="px-0.5 py-0.5 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>{travel}</td>
     </>
   )
 }

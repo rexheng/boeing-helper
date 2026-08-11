@@ -256,24 +256,37 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
   const rows = flattenAttendees(data)
 
   return (
-    <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 11 }}>
+    <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 10 }}>
       <table className="w-full border-collapse">
         <thead>
           <tr>
             <th
-              colSpan={3}
-              className="text-left font-bold text-[12px] text-white px-2 py-1.5 border"
+              colSpan={2}
+              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
               style={{ background: BLUE, borderColor: GRID }}
             >
               Attendee List Template
             </th>
             <th
-              colSpan={3}
-              className="text-left font-bold text-[11px] text-white px-2 py-1.5 border"
+              colSpan={2}
+              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
               style={{ background: NAVY, borderColor: GRID }}
             >
-              {(eventLabel || data.eventName).toUpperCase()} · Participant List{" "}
-              <span style={{ color: "#F5C6CB" }}>{data.revisedLabel}</span>
+              {(eventLabel || data.eventName).toUpperCase()}
+            </th>
+            <th
+              colSpan={1}
+              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
+              style={{ background: NAVY, borderColor: GRID }}
+            >
+              Participant List
+            </th>
+            <th
+              colSpan={1}
+              className="text-right font-bold text-[10px] px-1.5 py-1 border"
+              style={{ background: NAVY, borderColor: GRID, color: "#F8D7DA" }}
+            >
+              {data.revisedLabel}
             </th>
           </tr>
         </thead>

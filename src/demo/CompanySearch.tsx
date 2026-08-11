@@ -3,9 +3,14 @@ import { Search, Check } from "lucide-react"
 import {
   searchPartnerDirectory,
   partnerToCompany,
+  regions,
   type Company,
   type PartnerLookupEntry,
 } from "../data/companies"
+
+function regionsLabel(regionId: string) {
+  return regions.find((r) => r.id === regionId)?.name ?? regionId
+}
 
 interface Props {
   onSelect: (company: Company) => void
@@ -100,6 +105,8 @@ export function CompanySearch({ onSelect, selectedId = null, query, onQueryChang
                   </div>
                   <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>
                     {entry.industry}
+                    {" · "}
+                    {regionsLabel(entry.regionId)}
                   </p>
                 </div>
                 {isSelected && (
