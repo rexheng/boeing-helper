@@ -99,8 +99,8 @@ export function UseCases({ id }: UseCasesProps) {
         <div ref={ref} className={`reveal ${visible ? "visible" : ""}`}>
           <SectionHeader
             eyebrow="Use Cases"
-            title="Same paper flow for air shows, government talks, and airline reviews."
-            subtitle="Meeting papers, invitations, and attendee lines follow one structure whether the counterpart sits in an MSPO bilateral, a ministerial roundtable, or an airline leadership review."
+            title="One paper flow. Three kinds of room."
+            subtitle="Air shows, government talks, airline reviews."
           />
         </div>
 
