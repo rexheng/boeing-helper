@@ -34,21 +34,21 @@ export const regions: RegionGroup[] = [
     name: "Southeast Asia",
     blurb: "Boeing SEA hub in Singapore — commercial growth and defence partnerships across ASEAN.",
     countries: [
-      { id: "singapore", name: "Singapore", ministryHint: "Seeded: MINDEF · Singapore Airlines" },
-      { id: "indonesia", name: "Indonesia", ministryHint: "Seeded: Kemhan RI · Garuda" },
-      { id: "malaysia", name: "Malaysia", ministryHint: "Seeded: RMAF" },
-      { id: "thailand", name: "Thailand", ministryHint: "Seeded: RTAF" },
-      { id: "vietnam", name: "Vietnam", ministryHint: "Seeded: CAAV" },
-      { id: "philippines", name: "Philippines", ministryHint: "Seeded: PAF" },
+      { id: "singapore", name: "Singapore", ministryHint: "MINDEF · Singapore Airlines" },
+      { id: "indonesia", name: "Indonesia", ministryHint: "Kemhan RI · Garuda Indonesia" },
+      { id: "malaysia", name: "Malaysia", ministryHint: "Royal Malaysian Air Force" },
+      { id: "thailand", name: "Thailand", ministryHint: "Royal Thai Air Force" },
+      { id: "vietnam", name: "Vietnam", ministryHint: "Civil Aviation Authority of Vietnam" },
+      { id: "philippines", name: "Philippines", ministryHint: "Philippine Air Force" },
     ],
   },
   {
     id: "northeast-asia",
     name: "Northeast Asia",
-    blurb: "Japan, Republic of Korea, and China — mature fleets, industrial partnerships, and alliance sustainment.",
+    blurb: "Japan and Republic of Korea — mature fleets, industrial partnerships, and alliance sustainment.",
     countries: [
-      { id: "japan", name: "Japan", ministryHint: "Seeded: Japan Airlines" },
-      { id: "korea", name: "Republic of Korea", ministryHint: "Seeded: Korean Air" },
+      { id: "japan", name: "Japan", ministryHint: "Japan Airlines" },
+      { id: "korea", name: "Republic of Korea", ministryHint: "Korean Air" },
     ],
   },
   {
@@ -56,7 +56,7 @@ export const regions: RegionGroup[] = [
     name: "India",
     blurb: "New Delhi HQ with Bengaluru engineering depth — Make-in-India defence and commercial fleet rebuild.",
     countries: [
-      { id: "india", name: "India", ministryHint: "Seeded: Air India" },
+      { id: "india", name: "India", ministryHint: "Air India" },
     ],
   },
   {
@@ -64,7 +64,7 @@ export const regions: RegionGroup[] = [
     name: "Australia & New Zealand",
     blurb: "Australia–NZ–South Pacific hub — defence cooperation and airline fleet renewals.",
     countries: [
-      { id: "australia", name: "Australia", ministryHint: "Seeded: Defence Australia · Qantas" },
+      { id: "australia", name: "Australia", ministryHint: "Department of Defence · Qantas" },
     ],
   },
   {
@@ -72,9 +72,9 @@ export const regions: RegionGroup[] = [
     name: "Middle East",
     blurb: "Dubai and Riyadh presence — airline hubs, defence readiness, and distribution centres.",
     countries: [
-      { id: "uae", name: "United Arab Emirates", ministryHint: "Seeded: Emirates" },
-      { id: "qatar", name: "Qatar", ministryHint: "Seeded: Qatar Airways" },
-      { id: "saudi", name: "Saudi Arabia", ministryHint: "Use partner lookup" },
+      { id: "uae", name: "United Arab Emirates", ministryHint: "Emirates" },
+      { id: "qatar", name: "Qatar", ministryHint: "Qatar Airways" },
+      { id: "saudi", name: "Saudi Arabia", ministryHint: "Search for ministries and airlines" },
     ],
   },
   {
@@ -82,9 +82,9 @@ export const regions: RegionGroup[] = [
     name: "Europe",
     blurb: "UK, EU, and Türkiye — industrial partnerships, airline fleets, and NATO-aligned defence.",
     countries: [
-      { id: "uk", name: "United Kingdom", ministryHint: "Use partner lookup" },
-      { id: "germany", name: "Germany", ministryHint: "Use partner lookup" },
-      { id: "france", name: "France", ministryHint: "Use partner lookup" },
+      { id: "uk", name: "United Kingdom", ministryHint: "Search for ministries and airlines" },
+      { id: "germany", name: "Germany", ministryHint: "Search for ministries and airlines" },
+      { id: "france", name: "France", ministryHint: "Search for ministries and airlines" },
     ],
   },
   {
@@ -92,8 +92,8 @@ export const regions: RegionGroup[] = [
     name: "Americas",
     blurb: "Canada and Latin America — allied sustainment and commercial growth markets.",
     countries: [
-      { id: "canada", name: "Canada", ministryHint: "Use partner lookup" },
-      { id: "brazil", name: "Brazil", ministryHint: "Use partner lookup" },
+      { id: "canada", name: "Canada", ministryHint: "Search for ministries and airlines" },
+      { id: "brazil", name: "Brazil", ministryHint: "Search for ministries and airlines" },
     ],
   },
 ]

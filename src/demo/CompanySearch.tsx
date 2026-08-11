@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
 import { Search, Check } from "lucide-react"
 import {
   searchPartnerDirectory,
@@ -10,16 +10,11 @@ import {
 interface Props {
   onSelect: (company: Company) => void
   selectedId?: string | null
-  initialQuery?: string
+  query: string
+  onQueryChange: (q: string) => void
 }
 
-export function CompanySearch({ onSelect, selectedId = null, initialQuery = "" }: Props) {
-  const [query, setQuery] = useState(initialQuery)
-
-  useEffect(() => {
-    if (initialQuery) setQuery(initialQuery)
-  }, [initialQuery])
-
+export function CompanySearch({ onSelect, selectedId = null, query, onQueryChange }: Props) {
   const results = useMemo(() => {
     const q = query.trim()
     if (q.length < 2) return [] as PartnerLookupEntry[]
@@ -32,7 +27,7 @@ export function CompanySearch({ onSelect, selectedId = null, initialQuery = "" }
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Airline, ministry, or country — e.g. Emirates, Qantas, MINDEF"
           className="w-full h-12 px-4 pl-10 outline-none transition-colors text-sm"
           style={{
@@ -104,7 +99,7 @@ export function CompanySearch({ onSelect, selectedId = null, initialQuery = "" }
                     </span>
                   </div>
                   <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>
-                    {entry.industry} · {entry.tagline}
+                    {entry.industry}
                   </p>
                 </div>
                 {isSelected && (
