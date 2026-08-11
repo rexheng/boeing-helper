@@ -9,7 +9,6 @@ interface Capability {
   title: string
   image: string
   alt: string
-  /** Framing for portrait-oriented photography inside the landscape tile. */
   focus?: string
   desc: string
   points: string[]
@@ -17,37 +16,48 @@ interface Capability {
 
 const capabilities: Capability[] = [
   {
-    title: "Briefing Intelligence",
+    title: "Papers & briefings",
     image: "/images/capability-briefing.jpg",
     alt: "Colleagues reviewing printed briefing material at a table",
-    desc: "One consolidated read-ahead per engagement — company position, industry landscape, and country context, assembled before you leave for the show.",
+    desc: "Meeting papers for every engagement — objectives, key messages, campaign background, customer sat issues, and biography — plus country papers and FMS cheat sheets when the trip book needs them.",
     points: [
-      "Fleet, order book, and programme status",
-      "Industry and competitor movement",
-      "Country priorities and bilateral context",
+      "Meeting paper structure leadership already expects",
+      "Country papers and FMS cheat sheets in the same flow",
+      "Biography cut to current title and role",
     ],
   },
   {
-    title: "Biography Preparation",
+    title: "Meeting invitations",
     image: "/images/capability-bio.jpg",
     alt: "Portrait of an executive in a glass-walled office",
     focus: "50% 18%",
-    desc: "Know who is in the room before you shake hands. Career history, portfolio, public positions, and the concerns they have raised on record.",
+    desc: "Event and bilateral invitation letters from the real Boeing invitation template — salutation, event context, showcase language, and the right closing paragraph for the ask.",
     points: [
-      "Appointment history and reporting lines",
-      "Stated priorities and recent remarks",
-      "Prior Boeing touchpoints and open items",
+      "Meeting-only, special-event, or contact-first closings",
+      "Sender, contact, and event fields filled once",
+      "Ready for in-country review before it goes out",
     ],
   },
   {
-    title: "Live Meeting Overlay",
+    title: "Attendee list",
     image: "/images/capability-live.jpg",
     alt: "Delegates taking notes during a conference session",
-    desc: "Keep the briefing at hand while the meeting runs. Recall a figure, a programme name, or a follow-up commitment without breaking the conversation.",
+    desc: "Show attendee lists across BDS, BGS, Boeing Global, and exhibit operations — with travel key, objectives, and the D-90 to D-30 review path integrators already run.",
     points: [
-      "Key facts on a single keystroke",
-      "Talking points and questions to expect",
-      "Follow-ups captured as they are agreed",
+      "BU lanes that match the show template",
+      "International, domestic, and local travel counts",
+      "Draft → RD → division leads → executive lock",
+    ],
+  },
+  {
+    title: "Meeting report",
+    image: "/images/usecase-government.jpg",
+    alt: "Boeing C-17 Globemaster III in flight",
+    desc: "Post-meeting notes and stakeholder tracking after the room — what was said, what was committed, and who owns the follow-up.",
+    points: [
+      "Outcomes against the paper’s objectives",
+      "Action owners and due dates",
+      "Feed for the next engagement background",
     ],
   },
 ]
@@ -60,11 +70,11 @@ export function ToolShowcase({ id }: ToolShowcaseProps) {
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Capabilities"
-          title="Everything your team needs before the room fills."
-          subtitle="Boeing Helper pulls preparation into one place so account teams, campaign leads, and executives arrive with the same picture of the counterpart."
+          title="Everything the show cycle needs before papers lock."
+          subtitle="Boeing Helper is a briefing-materials preparer for integrators, CTLs, and the reviewers who sign the trip book — not a live meeting overlay."
         />
 
-        <div className={`grid gap-6 md:grid-cols-3 stagger ${visible ? "visible" : ""}`}>
+        <div className={`grid gap-6 sm:grid-cols-2 stagger ${visible ? "visible" : ""}`}>
           {capabilities.map((cap) => (
             <article key={cap.title} className="flex h-full flex-col">
               <div className="photo-tile">
@@ -81,23 +91,20 @@ export function ToolShowcase({ id }: ToolShowcaseProps) {
                 </div>
               </div>
 
-              <p
-                className="mt-5 text-base leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
+              <p className="mt-5 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                 {cap.desc}
               </p>
 
-              <ul className="mt-auto space-y-2 pt-5">
+              <ul className="mt-4 space-y-2">
                 {cap.points.map((point) => (
                   <li
                     key={point}
-                    className="flex gap-3 text-sm leading-relaxed"
-                    style={{ color: "var(--text-muted)" }}
+                    className="flex gap-3 text-sm leading-snug"
+                    style={{ color: "var(--text-secondary)" }}
                   >
                     <span
                       aria-hidden
-                      className="mt-2 h-px w-4 shrink-0"
+                      className="mt-2 h-px w-3 shrink-0"
                       style={{ background: "var(--boeing-blue)" }}
                     />
                     {point}

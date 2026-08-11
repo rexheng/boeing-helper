@@ -10,27 +10,27 @@ interface FAQProps {
 const faqs = [
   {
     q: "Who is Boeing Helper for?",
-    a: "Boeing teams who prepare for external meetings — campaign and capture leads, country directors, programme managers, and the executives they support. It is aimed at engagements where the counterpart matters as much as the material: air-show meetings, ministerial reviews, and airline leadership calls.",
+    a: "Integrators, CTLs, Division BD CoS, BGS-G, GovOps, ISP, and the reviewers who clear papers — VPGMs, Division BD, and IBD VP. The landing speaks to leadership; the product saves time for the people who draft and the people who sign.",
+  },
+  {
+    q: "What does it produce?",
+    a: "Meeting papers for engagements and roundtables, country papers, FMS cheat sheets, generic organisation meeting notes, invitation letters, show attendee lists, and post-meeting reports with stakeholder follow-ups.",
   },
   {
     q: "Where does the research come from?",
-    a: "Two places. Published material such as regulatory filings, official statements, and trade and defense press; and approved internal sources such as account records, programme status, and prior meeting notes. Each briefing section lists the sources behind it so a reviewer can check anything before it is used with a customer.",
+    a: "Published material — official statements, trade and defense press — and approved internal sources such as account records, programme status, and prior engagement notes. Each section can be traced before a paper leaves the tool.",
   },
   {
     q: "Is this demonstration using live data?",
-    a: "No. The demonstration companies and contacts run on prepared research so the flow behaves the same way every time it is shown. When Boeing Helper is connected to live sources, the same six steps run against them and the research assembles while you wait rather than appearing instantly.",
+    a: "No. Demonstration organisations and contacts run on prepared research so the pitch behaves the same every time. Connected to live sources, the same preparation flow assembles while you wait.",
   },
   {
-    q: "Can I take the briefing into a meeting offline?",
-    a: "Yes. Any briefing can be exported to PDF from the review step, with the same structure and sources as the on-screen version. Teams commonly export the night before so the pack is available without a connection on the show floor.",
-  },
-  {
-    q: "What do the live meeting overlays do?",
-    a: "They keep the briefing within reach while the meeting runs. A keystroke brings up the counterpart's background, the key figures for their fleet or programme, or the questions you expected — without switching windows or opening a document in front of the customer.",
+    q: "Can teams take materials offline?",
+    a: "Yes. Meeting papers export to PDF from the review step with the same structure as the on-screen version. Teams commonly export the night before so the pack is available on the show floor without a connection.",
   },
   {
     q: "Does it record meetings?",
-    a: "Not by default. The live meeting view does not capture audio or video and does not transcribe unless someone explicitly turns it on. Follow-ups are recorded only when a user writes them down.",
+    a: "No. Boeing Helper prepares materials before and after engagements. It does not overlay a live meeting, capture audio or video, or transcribe a conversation.",
   },
 ]
 

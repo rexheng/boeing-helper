@@ -1,4 +1,4 @@
-import { FileCheck2, Landmark, MicOff, ShieldCheck } from "lucide-react"
+import { FileCheck2, Landmark, Users, ShieldCheck } from "lucide-react"
 import { SectionHeader } from "../components/SectionHeader"
 import { useInView } from "../hooks/useInView"
 
@@ -10,33 +10,33 @@ const trustPoints = [
   {
     icon: Landmark,
     title: "Internal tool, internal data",
-    desc: "Boeing Helper runs as an internal application. Briefings, notes, and meeting records stay inside Boeing systems and are not shared with external parties.",
+    desc: "Boeing Helper runs as an internal application. Papers, invites, attendee lists, and meeting reports stay inside Boeing systems.",
   },
   {
     icon: FileCheck2,
     title: "Approved sources only",
-    desc: "Research is assembled from published material and approved internal sources. Every claim in a briefing carries its source so it can be checked before it is used in a meeting.",
+    desc: "Research is assembled from published material and approved internal sources. Every claim can be checked before a paper reaches a customer.",
   },
   {
-    icon: MicOff,
-    title: "No recording by default",
-    desc: "The live meeting view does not record audio or video and does not transcribe unless a user explicitly turns it on. Nothing is captured in the background.",
+    icon: Users,
+    title: "Roles that already own the paper",
+    desc: "Draft inputs from CTLs, integrators, GovOps, and ISP. Wording ownership stays with in-country teams. Review clears through VPGMs, Division BD, and IBD VP.",
   },
   {
     icon: ShieldCheck,
     title: "Handled as Boeing confidential",
-    desc: "Customer, government, and programme information is treated as Boeing confidential and follows existing classification and retention practice. Export control and non-disclosure obligations still apply.",
+    desc: "Customer, government, and programme information follows existing classification and retention practice. Export control and non-disclosure obligations still apply.",
   },
 ]
 
 const sourceGroups = [
   {
-    label: "Published sources",
-    items: ["Regulatory filings", "Official statements", "Trade and defense press"],
+    label: "Collaborators (inputs)",
+    items: ["CTLs & Division BD CoS", "BGS-G, GovOps & GovOps CoS", "Integrators, ISP & ISP CoS"],
   },
   {
-    label: "Approved internal sources",
-    items: ["Account and campaign records", "Programme status", "Prior meeting notes"],
+    label: "Reviewers",
+    items: ["VPGMs", "Division BD", "IBD VP"],
   },
 ]
 
@@ -49,7 +49,7 @@ export function Security({ id }: SecurityProps) {
         <SectionHeader
           eyebrow="Trust"
           title="Handled the way Boeing handles everything else."
-          subtitle="Boeing Helper is an internal preparation tool. It is designed to sit inside existing confidentiality, export control, and records practice rather than alongside it."
+          subtitle="Boeing Helper sits inside existing confidentiality, export control, and records practice — and names the same collaborators and reviewers the show cycle already uses."
         />
 
         <div className="grid gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
@@ -84,7 +84,7 @@ export function Security({ id }: SecurityProps) {
               color: "#fff",
             }}
           >
-            <p className="system-badge">Where briefings come from</p>
+            <p className="system-badge">Who touches the paper</p>
 
             <div className="mt-6 space-y-6">
               {sourceGroups.map((group) => (
@@ -119,8 +119,7 @@ export function Security({ id }: SecurityProps) {
               className="mt-7 border-t pt-5 text-xs leading-relaxed"
               style={{ borderColor: "rgba(255,255,255,0.16)", color: "rgba(255,255,255,0.7)" }}
             >
-              Sources are shown on every briefing section, so a reviewer can trace any figure back
-              before it reaches a customer conversation.
+              Named roles mirror the real handoff path. The tool does not invent new approvers or skip IBD VP lock for late additions.
             </p>
           </div>
         </div>

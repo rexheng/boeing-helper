@@ -2,6 +2,7 @@ import { BoeingLogo } from "../components/BoeingLogo"
 
 const footerLinks = [
   { label: "Capabilities", href: "#capabilities" },
+  { label: "Workflows", href: "#workflows" },
   { label: "Use Cases", href: "#use-cases" },
   { label: "Trust", href: "#trust" },
   { label: "Access", href: "#access" },
@@ -19,7 +20,7 @@ export function Footer() {
               <span className="text-lg font-semibold tracking-tight">Helper</span>
             </div>
             <p className="mt-3 max-w-sm text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              Client meeting and biography preparation for Boeing engagement teams.
+              Meeting papers, invitations, and attendee lists for Boeing engagement teams.
             </p>
           </div>
 

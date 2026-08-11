@@ -43,7 +43,7 @@ const workflows: Record<
       { label: "Run research agents", note: "Internal · Industry · Country" },
       { label: "Review & export PDF", note: "Ready for RD, IBD, and trip book" },
     ],
-    proof: "One briefing every reviewer sees — regenerate without restarting at RD.",
+    proof: "One meeting paper every reviewer sees — regenerate without restarting at RD.",
   },
   fms: {
     label: "FMS cheat sheet",
@@ -52,7 +52,7 @@ const workflows: Record<
       { label: "Draft cheat-sheet brief", note: "One shared baseline" },
       { label: "PDF to trip book & field", note: "Same pack for every reviewer" },
     ],
-    proof: "One pack for RD, IBD VP, and the field — not divergent versions.",
+    proof: "One pack for RD, VPGM, and IBD VP — not divergent versions.",
   },
 }
 
@@ -300,7 +300,7 @@ export function Workflows({ id }: WorkflowsProps) {
             <SectionHeader
               eyebrow="Simplify your workflows"
               title="Twelve handoffs. Three moves."
-              subtitle="No more chasing twelve people for trip-book data. Select, research, export — ready to review."
+              subtitle="No more chasing CTLs, GovOps, ISP, and RD for the same trip-book facts. Select, research, export — one pack for every reviewer."
             />
 
             <div

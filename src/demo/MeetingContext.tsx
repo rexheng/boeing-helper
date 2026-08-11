@@ -34,15 +34,15 @@ export function MeetingContext({ company, person, onSubmit }: Props) {
   return (
     <div className="max-w-lg mx-auto">
       <div className="text-center mb-8">
-        <p className="system-badge system-badge--dark mb-3">Step 03 &middot; Meeting</p>
+        <p className="system-badge system-badge--dark mb-3">Step 03 &middot; Context</p>
         <h2
           className="text-2xl md:text-3xl font-semibold"
           style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
         >
-          What kind of meeting is this?
+          What kind of engagement is this?
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          The meeting type sets the shape of the briefing and what the agents look for.
+          Engagement type shapes the meeting paper — objectives, key messages, and whether agenda/logistics apply.
         </p>
       </div>
 

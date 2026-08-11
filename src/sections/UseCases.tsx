@@ -23,7 +23,7 @@ const cases: UseCase[] = [
     alt: "Commercial airliner on the apron ahead of an international aerospace event",
     lede: "Sixty-plus official delegations. A schedule that still moves the night before.",
     detail:
-      "Campaign and country teams build a briefing per counterpart before the chalet and bilateral calendar locks — who is attending, what they have asked for previously, and where open commitments sit. Every pack follows the same structure so a colleague can pick up a meeting at short notice.",
+      "Integrators and CTLs build a meeting paper per counterpart before the chalet and bilateral calendar locks — objectives, key messages, open commitments, and biography. Invitation letters and attendee-list lines follow the same organisation so a colleague can pick up at short notice.",
     outcome: "One preparation standard across the whole MSPO delegation.",
   },
   {
@@ -33,7 +33,7 @@ const cases: UseCase[] = [
     alt: "Boeing C-17 Globemaster III in flight",
     lede: "Ministerial and staff talks where the questions are known long before they are asked.",
     detail:
-      "Boeing Helper assembles the country picture alongside the individual: defense posture, procurement cycle, industrial participation expectations, and the bilateral concerns that have surfaced on record. Sustainment and offset commitments sit next to the person raising them.",
+      "Meeting papers carry customer sat issues, campaign background, and RAA next to the person in the room. Country papers and FMS cheat sheets sit behind the walk-in pack so RD and IBD review one story, not divergent drafts.",
     outcome: "No surprises on offsets, timelines, or prior commitments.",
   },
   {
@@ -43,7 +43,7 @@ const cases: UseCase[] = [
     alt: "Commercial aircraft at the gate during evening turnaround",
     lede: "Fleet and network conversations that start from the customer's actual position.",
     detail:
-      "Current fleet, orders and options, network direction, and the operational pressures leadership has been public about — gathered before the first call and carried through follow-ups so the account team keeps one shared record of the relationship.",
+      "Organisation meeting papers and follow-up reports keep fleet, orders, and operational pressure in one shared record — from first invitation through post-meeting stakeholder tracking.",
     outcome: "One shared view of the account across every touchpoint.",
   },
 ]
@@ -112,7 +112,7 @@ export function UseCases({ id }: UseCasesProps) {
           <SectionHeader
             eyebrow="Use Cases"
             title="Built around the meetings with 60+ official delegations from allied nations."
-            subtitle="The same preparation flow whether the counterpart sits in an MSPO bilateral, a government roundtable, or an airline leadership review."
+            subtitle="The same meeting-paper flow whether the counterpart sits in an MSPO bilateral, a government roundtable, or an airline leadership review."
           />
         </div>
 

@@ -26,8 +26,8 @@ export default function App() {
           <main>
             <Hero onStartDemo={startDemo} />
             <ToolShowcase id="capabilities" />
-            <UseCases id="use-cases" />
             <Workflows id="workflows" />
+            <UseCases id="use-cases" />
             <DemoVideo id="demo" onStartDemo={startDemo} />
             <Security id="trust" />
             <Pricing id="access" />

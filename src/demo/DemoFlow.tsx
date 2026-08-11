@@ -5,14 +5,14 @@ import { people } from "../data/people"
 import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
 import { getHardcodedResearch } from "../data/research"
-import type { FrameworksData } from "../types/frameworks"
 import { CompanySelect } from "./CompanySelect"
 import { PersonSelect } from "./PersonSelect"
 import { MeetingContext } from "./MeetingContext"
 import { AgentResearch } from "./AgentResearch"
-import { ResearchResults } from "./ResearchResults"
-import { MeetingSimulation } from "./MeetingSimulation"
-import { MeetingSummary } from "./MeetingSummary"
+import { MeetingPaperView } from "./MeetingPaperView"
+import { MaterialsHub } from "./MaterialsHub"
+import { HandoffScreen } from "./HandoffScreen"
+import { MeetingReportView } from "./MeetingReportView"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import { BoeingLogo } from "../components/BoeingLogo"
 
@@ -20,9 +20,8 @@ interface DemoFlowProps {
   onClose: () => void
 }
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
-// Fallback research for backdoor / skip-to-step-6 when hardcoded data is unavailable
 const mockResearch: ResearchResult = {
   person: {
     name: "Chan Chun Sing",
@@ -74,7 +73,7 @@ const mockResearch: ResearchResult = {
 function getInitialState(): { step: Step; company: Company | null; person: Person | null; meetingType: string; research: ResearchResult | null } {
   const params = new URLSearchParams(window.location.search)
   const skipTo = params.get("step")
-  if (skipTo === "6" || skipTo === "5") {
+  if (skipTo === "5" || skipTo === "6" || skipTo === "7" || skipTo === "8") {
     const co = companies.find((c) => c.id === "mindef-sg") ?? companies[0]
     const pe = people.find((p) => p.companyId === co.id)!
     return {
@@ -96,25 +95,18 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
   const [meetingType, setMeetingType] = useState<string>(init.meetingType)
   const [research, setResearch] = useState<ResearchResult | null>(init.research)
   const [internalNotes, setInternalNotes] = useState("")
-  const [frameworksData, setFrameworksData] = useState<FrameworksData | null>(null)
-  const [transcript, setTranscript] = useState("")
-  const [meetingDuration, setMeetingDuration] = useState(0)
   const [prefetchedResult, setPrefetchedResult] = useState<ResearchResult | null>(null)
   const [prefetchInProgress, setPrefetchInProgress] = useState(false)
   const prefetchAbort = useRef<AbortController | null>(null)
 
-  // Start research in background as soon as we have company + person (for custom companies)
   const startPrefetch = useCallback((co: Company, pe: Person) => {
-    // Don't prefetch for demo companies — they use hardcoded data which is instant
     if (getHardcodedResearch(co.id, pe.id)) return
 
-    // Abort any previous prefetch
     prefetchAbort.current?.abort()
     const abort = new AbortController()
     prefetchAbort.current = abort
     setPrefetchInProgress(true)
 
-    // Use a default meeting type for prefetch — the prompt adapts but the research is the same
     fetch("/api/research", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -146,11 +138,10 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
           } catch { /* skip */ }
         }
       }
-    }).catch(() => { /* aborted or failed — AgentResearch will do its own fetch */ })
+    }).catch(() => { /* aborted or failed */ })
       .finally(() => setPrefetchInProgress(false))
   }, [])
 
-  // Prefetch contacts for custom companies as soon as company is selected
   const [prefetchedContacts, setPrefetchedContacts] = useState<Person[] | null>(null)
   const [contactsLoading, setContactsLoading] = useState(false)
 
@@ -161,7 +152,6 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     setPrefetchedContacts(null)
     prefetchAbort.current?.abort()
 
-    // Start Apollo contact lookup immediately for custom companies
     if (c.isCustom) {
       setContactsLoading(true)
       fetch("/api/company-contacts", {
@@ -187,7 +177,6 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
 
   const handlePersonSelect = useCallback((p: Person) => {
     setPerson(p)
-    // Start research in background immediately for custom companies
     if (company) startPrefetch(company, p)
     setTimeout(() => setStep(3), 400)
   }, [company, startPrefetch])
@@ -197,8 +186,14 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     setStep(4)
   }, [])
 
-  const canGoBack = step > 1 && step <= 5
-  const canGoForward = (step === 1 && company) || (step === 2 && person) || (step === 3 && meetingType) || (step === 5 && research)
+  const canGoBack = step > 1 && step !== 4
+  const canGoForward =
+    (step === 1 && company) ||
+    (step === 2 && person) ||
+    (step === 3 && meetingType) ||
+    (step === 5 && research) ||
+    step === 6 ||
+    step === 7
 
   const goBack = () => {
     if (step > 1) setStep((s) => (s - 1) as Step)
@@ -209,45 +204,27 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     else if (step === 2 && person) setStep(3)
     else if (step === 3 && meetingType) setStep(4)
     else if (step === 5 && research) setStep(6)
+    else if (step === 6) setStep(7)
+    else if (step === 7) setStep(8)
   }
 
-  const stepLabels = ["Organization", "Contact", "Meeting", "Research", "Briefing", "Live", "Summary"]
+  const stepLabels = ["Organization", "Contact", "Context", "Research", "Paper", "Materials", "Handoff", "Report"]
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Scroll to top on step change
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 })
   }, [step])
 
-  // Step 6 is full-screen
-  if (step === 6 && company && person && research) {
-    return (
-      <div className="fixed inset-0 z-50" style={{ backgroundColor: "var(--bg-base)" }}>
-        <MeetingSimulation person={person} company={company} research={research} meetingType={meetingType} internalNotes={internalNotes} frameworksData={frameworksData} onMeetingEnd={(t, d) => { setTranscript(t); setMeetingDuration(d); setStep(7) }} />
-      </div>
-    )
-  }
-
-  // Step 7 is full-screen summary
-  if (step === 7 && company && person && research) {
-    return (
-      <div className="fixed inset-0 z-50 overflow-y-auto" style={{ backgroundColor: "var(--bg-base)" }}>
-        <MeetingSummary person={person} company={company} research={research} meetingType={meetingType} transcript={transcript} internalNotes={internalNotes} frameworksData={frameworksData} meetingDuration={meetingDuration} onClose={onClose} />
-      </div>
-    )
-  }
-
   return (
     <div ref={scrollRef} className="demo-shell fixed inset-0 z-50 overflow-y-auto">
       <div className="sticky top-0 z-20">
-        {/* Navy brand bar */}
         <div className="demo-topbar">
           <div className="max-w-5xl mx-auto px-4 md:px-6 flex items-center justify-between gap-4" style={{ minHeight: "2.75rem" }}>
             <div className="flex items-center gap-3 min-w-0">
               <BoeingLogo variant="white" height={18} />
               <span className="text-sm font-semibold tracking-tight text-white">Helper</span>
               <span className="hidden sm:inline text-[11px] uppercase tracking-[0.14em] truncate" style={{ color: "var(--boeing-cyan-bright)" }}>
-                Meeting Preparation
+                Briefing Materials
               </span>
             </div>
             <div className="flex items-center gap-3 shrink-0">
@@ -268,7 +245,6 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
           </div>
         </div>
 
-        {/* Progress rail */}
         <div style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--surface-border)" }}>
           <div className="max-w-5xl mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between gap-4">
             <div className="w-24 shrink-0">
@@ -304,7 +280,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
                       }}
                     />
                     <span
-                      className="text-[11px] hidden md:inline whitespace-nowrap"
+                      className="text-[11px] hidden lg:inline whitespace-nowrap"
                       style={{
                         color: active ? "var(--boeing-blue)" : reached ? "var(--text-secondary)" : "var(--text-muted)",
                         fontWeight: active ? 600 : 400,
@@ -335,16 +311,68 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-10 md:py-14">
         {step === 1 && <CompanySelect onSelect={handleCompanySelect} />}
-        {step === 2 && company && <PersonSelect company={company} prefetchedContacts={prefetchedContacts} contactsLoading={contactsLoading} onSelect={handlePersonSelect} />}
-        {step === 3 && company && person && <MeetingContext company={company} person={person} onSubmit={handleMeetingSubmit} />}
+        {step === 2 && company && (
+          <PersonSelect
+            company={company}
+            prefetchedContacts={prefetchedContacts}
+            contactsLoading={contactsLoading}
+            onSelect={handlePersonSelect}
+          />
+        )}
+        {step === 3 && company && person && (
+          <MeetingContext company={company} person={person} onSubmit={handleMeetingSubmit} />
+        )}
         {step === 4 && company && person && (
-          <AgentResearch company={company} person={person} meetingType={meetingType} prefetchedResult={prefetchedResult} prefetchInProgress={prefetchInProgress} onComplete={(r, notes) => { setResearch(r); setInternalNotes(notes); setStep(5) }} />
+          <AgentResearch
+            company={company}
+            person={person}
+            meetingType={meetingType}
+            prefetchedResult={prefetchedResult}
+            prefetchInProgress={prefetchInProgress}
+            onComplete={(r, notes) => {
+              setResearch(r)
+              setInternalNotes(notes)
+              setStep(5)
+            }}
+          />
         )}
         {step === 5 && company && person && research && (
-          <ResearchResults company={company} person={person} research={research} meetingType={meetingType} internalNotes={internalNotes} onStartMeeting={() => setStep(6)} onFrameworksReady={setFrameworksData} />
+          <MeetingPaperView
+            company={company}
+            person={person}
+            research={research}
+            meetingType={meetingType}
+            internalNotes={internalNotes}
+            onContinue={() => setStep(6)}
+          />
+        )}
+        {step === 6 && company && person && (
+          <MaterialsHub
+            company={company}
+            person={person}
+            meetingType={meetingType}
+            countryName={research?.country?.name}
+            onContinue={() => setStep(7)}
+          />
+        )}
+        {step === 7 && company && person && (
+          <HandoffScreen
+            personName={person.name}
+            companyName={company.name}
+            meetingType={meetingType}
+            onContinue={() => setStep(8)}
+          />
+        )}
+        {step === 8 && company && person && (
+          <MeetingReportView
+            personName={person.name}
+            personTitle={person.title}
+            companyName={company.name}
+            meetingType={meetingType}
+            onFinish={onClose}
+          />
         )}
       </div>
     </div>

@@ -1,22 +1,24 @@
 # Boeing Helper
 
-AI-powered stakeholder meeting preparation for Boeing — event briefing, biography prep, and procurement context for every engagement.
+Internal briefing-materials preparer for Boeing — meeting papers, invitations, attendee lists, and post-meeting reports for show-cycle engagements.
 
 ## Demo flow
 
 1. Select a counterpart organization (SEA air-show theme)
 2. Choose a contact
-3. Pick a meeting type
-4. Watch three research agents run in parallel
-5. Review the synthesized briefing (PDF export)
-6. Enter a live meeting simulation with research overlays
+3. Set engagement context
+4. Watch research agents run
+5. Review the meeting paper (PDF export)
+6. Prepare invitation letter and attendee-list line
+7. Hand off along the RD → Division BD → VPGM / IBD VP path
+8. Capture a post-meeting report
 
 ## Stack
 
 - React 18 + TypeScript + Vite 6
 - Tailwind CSS
 - Express API (Vercel serverless via `api/index.ts`)
-- Optional: Manus AI, Apollo.io, Groq
+- Optional: Manus AI, Apollo.io, Groq (frameworks)
 
 ## Commands
 
@@ -32,8 +34,8 @@ Copy `.env.example` to `.env` (all keys optional — demo companies use hardcode
 
 - `MANUS_API_KEY` — custom-company research
 - `APOLLO_API_KEY` — contact lookup
-- `GROQ_API_KEY` — meeting summary
+- `GROQ_API_KEY` — strategic frameworks
 
 ## Deploy
 
-Linked to Vercel as a standalone project (separate from Manusman).
+Linked to Vercel as a standalone project.

@@ -9,8 +9,6 @@ export interface Person {
   photoUrl?: string
   seniority?: string
   isCustom?: boolean
-  videoId?: string
-  videoStart?: number
 }
 
 export const people: Person[] = [

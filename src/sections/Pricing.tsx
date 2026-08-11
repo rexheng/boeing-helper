@@ -10,19 +10,19 @@ const tracks = [
   {
     label: "Internal pilot",
     title: "One campaign, one show cycle",
-    desc: "A single account or campaign team runs Boeing Helper through a full engagement cycle, from first briefing to post-meeting follow-ups.",
-    detail: "Set up with your existing team distribution list.",
+    desc: "A single integrator or campaign team runs Boeing Helper through a live engagement cycle — meeting papers, invites, and attendee drafts for one show.",
+    detail: "Set up with your existing distribution list and SharePoint folder.",
   },
   {
-    label: "Enterprise rollout",
+    label: "Team rollout",
     title: "Across regions and business units",
-    desc: "Shared briefing templates, common source configuration, and consistent meeting records across Commercial, Defense & Space, and Government Services.",
+    desc: "Shared paper templates and one preparation standard for BDS, BGS, GovOps, and IBD reviewers — so RD and VPGM review the same pack every time.",
     detail: "Coordinated with IT and the relevant records owners.",
   },
   {
     label: "Support",
-    title: "Onboarding and briefing review",
-    desc: "Guidance on structuring briefings, reviewing sources before customer meetings, and adapting the flow to a specific show or engagement calendar.",
+    title: "Onboarding and paper review",
+    desc: "Guidance on structuring meeting papers, invitation language, and attendee-list timing for a specific show calendar.",
     detail: "Available to any team already running a pilot.",
   },
 ]
@@ -36,7 +36,7 @@ export function Pricing({ id }: PricingProps) {
         <SectionHeader
           eyebrow="Access"
           title="Available to Boeing teams on request."
-          subtitle="Boeing Helper is not sold or licensed externally. Access is arranged internally, starting with a pilot on a live engagement cycle."
+          subtitle="Boeing Helper is an internal tool. It is not sold or licensed externally. Access starts with a pilot on a live show cycle."
         />
 
         <div className={`grid gap-10 md:grid-cols-3 stagger ${visible ? "visible" : ""}`}>
@@ -74,14 +74,14 @@ export function Pricing({ id }: PricingProps) {
         >
           <div>
             <p className="text-xl font-semibold" style={{ color: "var(--boeing-navy)" }}>
-              Request access for your team
+              Request a pilot for your team
             </p>
             <p className="mt-2" style={{ color: "var(--text-secondary)" }}>
-              Tell us the engagement cycle you are preparing for and we will set up a pilot.
+              Tell us the show cycle you are preparing for and we will set up access with your integrator.
             </p>
           </div>
           <a href="#top" className="shrink-0">
-            <Button variant="primary">Request access</Button>
+            <Button variant="primary">Request pilot access</Button>
           </a>
         </div>
       </div>

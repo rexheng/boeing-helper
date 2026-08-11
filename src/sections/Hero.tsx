@@ -7,10 +7,10 @@ interface HeroProps {
 
 const navLinks = [
   { label: "Capabilities", href: "#capabilities" },
-  { label: "Use Cases", href: "#use-cases" },
   { label: "Workflows", href: "#workflows" },
+  { label: "Use Cases", href: "#use-cases" },
   { label: "Trust", href: "#trust" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Access", href: "#access" },
 ]
 
 export function Hero({ onStartDemo }: HeroProps) {
@@ -55,12 +55,12 @@ export function Hero({ onStartDemo }: HeroProps) {
             <h1 className="hero__brand">Boeing Helper</h1>
 
             <p className="hero__headline">
-              Event meeting, biography preparation, and procurement positions for every engagement.
+              One preparation standard from draft to trip book.
             </p>
 
             <p className="hero__sub">
-              Walk into a meeting with all the key information ready, so you know what concerns
-              are likely to surface.
+              Meeting papers, invitations, and attendee lists — drafted once for
+              integrators and CTLs, reviewed once by VPGMs and IBD leadership.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-9">
