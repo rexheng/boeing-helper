@@ -10,11 +10,11 @@ interface FAQProps {
 const faqs = [
   {
     q: "Who is Boeing Helper for?",
-    a: "Integrators, CTLs, Division BD CoS, BGS-G, GovOps, ISP, and the reviewers who clear papers — VPGMs, Division BD, and IBD VP. The landing speaks to leadership; the product saves time for the people who draft and the people who sign.",
+    a: "Integrators and CTLs draft; VPGMs, Division BD, and IBD VP review. Both sides work from one pack — with inputs from Division BD CoS, BGS-G, GovOps, ISP, and other integrators as the show cycle requires.",
   },
   {
     q: "What does it produce?",
-    a: "Meeting papers for engagements and roundtables, country papers, FMS cheat sheets, generic organisation meeting notes, invitation letters, show attendee lists, and post-meeting reports with stakeholder follow-ups.",
+    a: "Meeting papers for engagements and roundtables, country papers, FMS cheat sheets, organisation meeting notes, invitation letters, show attendee lists, and post-meeting reports with stakeholder follow-ups.",
   },
   {
     q: "Where does the research come from?",
@@ -29,8 +29,8 @@ const faqs = [
     a: "Yes. Meeting papers export to PDF from the review step with the same structure as the on-screen version. Teams commonly export the night before so the pack is available on the show floor without a connection.",
   },
   {
-    q: "Does it record meetings?",
-    a: "No. Boeing Helper prepares materials before and after engagements. It does not overlay a live meeting, capture audio or video, or transcribe a conversation.",
+    q: "Does this replace RD or IBD review?",
+    a: "No. Prep collapses; review does not. Regional Directors, Division BD, VPGMs, and IBD VP still clear papers. Late attendee additions still need IBD VP approval.",
   },
 ]
 

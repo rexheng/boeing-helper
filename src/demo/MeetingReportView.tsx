@@ -1,10 +1,14 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "../components/Button"
+import type { Company } from "../data/companies"
+import type { Person } from "../data/people"
+import type { ResearchResult } from "../types/research"
+import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
 
 interface MeetingReportViewProps {
-  personName: string
-  personTitle: string
-  companyName: string
+  company: Company
+  person: Person
+  research: ResearchResult
   meetingType: string
   onFinish: () => void
 }
@@ -13,14 +17,19 @@ const NAVY = "#0A2240"
 const BLUE = "#0033A1"
 
 export function MeetingReportView({
-  personName,
-  personTitle,
-  companyName,
+  company,
+  person,
+  research,
   meetingType,
   onFinish,
 }: MeetingReportViewProps) {
+  const paper = useMemo(
+    () => generateMeetingPaper(research, company, person, meetingType),
+    [research, company, person, meetingType],
+  )
+
   const [outcome, setOutcome] = useState(
-    `Discussed programme status and next decision timing with ${personName}. Customer asked for a written follow-up on sustainment cost and delivery window.`,
+    paper.objectives.map((o, i) => `${i + 1}. Partial — discuss in room: ${o}`).join("\n"),
   )
   const [actions, setActions] = useState(
     `1. Integrator — send follow-up pack within 5 business days\n2. CTL — update campaign background with sat issues raised\n3. In-country — confirm next bilateral window`,
@@ -34,17 +43,28 @@ export function MeetingReportView({
           Post-meeting notes
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          Stakeholder tracking after the room — feeds the next engagement background.
+          Outcomes against this paper’s objectives — feeds the next engagement background.
         </p>
       </div>
 
-      <article className="bh-card p-6 sm:p-8 space-y-6">
+      <article className="bg-white p-6 sm:p-8 space-y-6" style={{ border: "1px solid var(--surface-border)" }}>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: BLUE }}>Engagement</p>
           <p className="mt-2 font-semibold" style={{ color: NAVY }}>{meetingType}</p>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            {personName} · {personTitle} · {companyName}
+            {person.name} · {person.title} · {company.name}
           </p>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: BLUE }}>
+            Paper objectives
+          </p>
+          <ol className="space-y-1 text-sm" style={{ color: "var(--text-secondary)" }}>
+            {paper.objectives.map((o, i) => (
+              <li key={i}>{i + 1}. {o}</li>
+            ))}
+          </ol>
         </div>
 
         <label className="block">
@@ -52,8 +72,8 @@ export function MeetingReportView({
           <textarea
             value={outcome}
             onChange={(e) => setOutcome(e.target.value)}
-            rows={4}
-            className="mt-2 w-full px-3 py-2 text-sm rounded-sm leading-relaxed"
+            rows={5}
+            className="mt-2 w-full px-3 py-2 text-sm leading-relaxed"
             style={{ border: "1px solid var(--surface-border)", color: "var(--text-secondary)" }}
           />
         </label>
@@ -64,17 +84,10 @@ export function MeetingReportView({
             value={actions}
             onChange={(e) => setActions(e.target.value)}
             rows={4}
-            className="mt-2 w-full px-3 py-2 text-sm rounded-sm leading-relaxed font-mono"
+            className="mt-2 w-full px-3 py-2 text-sm leading-relaxed font-mono"
             style={{ border: "1px solid var(--surface-border)", color: "var(--text-secondary)" }}
           />
         </label>
-
-        <div
-          className="p-4 text-sm"
-          style={{ background: "var(--bg-muted)", color: "var(--text-secondary)" }}
-        >
-          Next paper’s engagement background should cite this report: date, attendees, and open actions.
-        </div>
       </article>
 
       <div className="flex justify-end">

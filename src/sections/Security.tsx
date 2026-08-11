@@ -48,8 +48,8 @@ export function Security({ id }: SecurityProps) {
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Trust"
-          title="Handled the way Boeing handles everything else."
-          subtitle="Boeing Helper sits inside existing confidentiality, export control, and records practice — and names the same collaborators and reviewers the show cycle already uses."
+          title="Built for existing confidentiality and review practice."
+          subtitle="Boeing Helper sits inside export control and records practice — and names the same collaborators and reviewers the show cycle already uses."
         />
 
         <div className="grid gap-12 md:grid-cols-[3fr_2fr] md:gap-16">

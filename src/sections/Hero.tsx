@@ -7,8 +7,8 @@ interface HeroProps {
 
 const navLinks = [
   { label: "Capabilities", href: "#capabilities" },
-  { label: "Workflows", href: "#workflows" },
   { label: "Use Cases", href: "#use-cases" },
+  { label: "Workflows", href: "#workflows" },
   { label: "Trust", href: "#trust" },
   { label: "Access", href: "#access" },
 ]
@@ -50,17 +50,15 @@ export function Hero({ onStartDemo }: HeroProps) {
 
         <div className="hero__content">
           <div className="constrain animate-[fadeInUp_0.9s_ease-out_both]">
-            <p className="system-badge mb-5">Boeing Internal Tool</p>
-
             <h1 className="hero__brand">Boeing Helper</h1>
 
             <p className="hero__headline">
-              One preparation standard from draft to trip book.
+              Draft the meeting paper once. Review it once. Put it in the trip book.
             </p>
 
             <p className="hero__sub">
-              Meeting papers, invitations, and attendee lists — drafted once for
-              integrators and CTLs, reviewed once by VPGMs and IBD leadership.
+              Meeting papers, invitations, and attendee lists for integrators and CTLs —
+              cleared by VPGMs and IBD leadership without restarting the chain.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-9">

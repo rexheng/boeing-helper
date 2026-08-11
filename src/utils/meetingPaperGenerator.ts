@@ -31,7 +31,6 @@ export interface MeetingPaper {
     text: string
     photoUrl?: string
   }
-  /** Supporting intel kept behind the walk-in paper */
   countryPaperBlurb?: string
 }
 
@@ -48,6 +47,50 @@ function inferSalutation(name: string, title: string): string {
   return name.split(" ")[0]
 }
 
+/** Flagship demo overrides — programme-true language for leadership pitch */
+function flagshipOverrides(person: Person, company: Company): Partial<MeetingPaper> | null {
+  if (person.id !== "chan-chun-sing" && company.id !== "mindef-sg") return null
+  return {
+    contact: {
+      name: "Alex Rivera",
+      title: "Regional Integrator, International Business Development",
+      phone: "+65 6xxx xxxx (confirm before travel)",
+    },
+    customer: {
+      name: person.name,
+      title: person.title,
+      salutation: "Minister Chan",
+      phonetic: "chahn chun sing",
+      raa: "Responsible for defence policy and RSAF acquisition decisions affecting P-8A, AH-64, and Chinook programmes.",
+    },
+    objectives: [
+      "Customer commits to a follow-on technical session on P-8A induction timing.",
+      "Align on AH-64D life-extension and Chinook sustainment open items before the next programme review.",
+      "Confirm who on the Singapore side owns the next written ask to Boeing.",
+    ],
+    keyMessages: [
+      {
+        message: "P-8A delivery and training pathway is the near-term conversation — schedule reliability over new platform pitches.",
+        note: "RSAF has called F-35 and P-8A the force’s game-changers.",
+      },
+      {
+        message: "AH-64D and CH-47 sustainment economics matter as much as unit price; bring cost-per-flight-hour evidence.",
+      },
+      {
+        message: "Local industry participation through ST Engineering and DSTA should be named in the room, not left to follow-up.",
+      },
+    ],
+    customerSatIssues: [
+      "Delivery credibility after F-35 and commercial schedule slips",
+      "Lifecycle and sustainment cost versus acquisition price",
+      "Spare parts and training pipeline for Apache and Chinook fleets",
+      "Offset / local industry expectations on maritime patrol induction",
+    ],
+    engagementBackground:
+      "Last Boeing programme touch: confirm date, attendees, and open actions with the Singapore in-country team before this paper locks. Public marker Feb 2026: Chief of Air Force framed F-35 and P-8A as RSAF game-changers (CNA).",
+  }
+}
+
 export function generateMeetingPaper(
   research: ResearchResult,
   company: Company,
@@ -56,58 +99,48 @@ export function generateMeetingPaper(
 ): MeetingPaper {
   const country = research.country
   const isAirShow = /air show|airshow|mspo|chalet|bilateral/i.test(meetingType)
+  const flagship = flagshipOverrides(person, company)
 
-  const objectives: string[] = []
-  if (country?.priorities?.[0]) {
-    objectives.push(`Customer confirms interest in a follow-on discussion on: ${truncate(country.priorities[0], 90)}.`)
-  }
-  if (research.company.key_metrics[0]) {
-    objectives.push(
-      `Align on status for ${research.company.key_metrics[0].label} (${research.company.key_metrics[0].value}) and any open Boeing asks.`,
-    )
-  }
-  objectives.push("Agree owners and dates for the next deliverable before leaving the room.")
-  if (objectives.length < 3 && country?.priorities?.[1]) {
-    objectives.push(`Test readiness to advance: ${truncate(country.priorities[1], 90)}.`)
+  const objectives: string[] = flagship?.objectives ?? []
+  if (!flagship) {
+    if (country?.priorities?.[0]) {
+      objectives.push(`Customer confirms interest in a follow-on discussion on: ${truncate(country.priorities[0], 90)}.`)
+    }
+    if (research.company.key_metrics[0]) {
+      objectives.push(
+        `Align on status for ${research.company.key_metrics[0].label} (${research.company.key_metrics[0].value}) and any open Boeing asks.`,
+      )
+    }
+    objectives.push("Agree owners and dates for the next deliverable before leaving the room.")
   }
 
-  const keyMessages: { message: string; note?: string }[] = []
-  if (research.company.key_metrics[0]) {
-    keyMessages.push({
-      message: `${research.company.key_metrics[0].label} stands at ${research.company.key_metrics[0].value} — Boeing can speak to schedule and sustainment with programme detail.`,
-      note: research.company.recent_news[0]
-        ? `Recent: ${truncate(research.company.recent_news[0].headline, 100)}`
-        : undefined,
-    })
-  }
-  if (country?.priorities?.[0]) {
-    keyMessages.push({
-      message: `Boeing’s near-term offer maps to their stated priority: ${truncate(country.priorities[0], 100)}.`,
-    })
-  }
-  if (country?.concerns?.[0]) {
-    keyMessages.push({
-      message: `Address ${truncate(country.concerns[0], 80)} with evidence, not reassurance language.`,
-    })
-  }
-  if (keyMessages.length < 3) {
-    keyMessages.push({
-      message: `Keep the discussion on programme performance and decision timing — not partnership platitudes.`,
-    })
+  const keyMessages = flagship?.keyMessages ?? []
+  if (!flagship) {
+    if (research.company.key_metrics[0]) {
+      keyMessages.push({
+        message: `${research.company.key_metrics[0].label} stands at ${research.company.key_metrics[0].value} — speak to schedule and sustainment with programme detail.`,
+      })
+    }
+    if (country?.priorities?.[0]) {
+      keyMessages.push({
+        message: `Near-term offer maps to their stated priority: ${truncate(country.priorities[0], 100)}.`,
+      })
+    }
+    if (country?.concerns?.[0]) {
+      keyMessages.push({
+        message: `Address ${truncate(country.concerns[0], 80)} with programme evidence.`,
+      })
+    }
   }
 
   const satIssues =
+    flagship?.customerSatIssues ??
     country?.concerns?.slice(0, 4) ??
     [
       "Cost and affordability pressure on the next tranche",
-      "Delivery timing credibility after recent programme slips",
-      "Local industry participation and offset expectations",
+      "Delivery timing credibility",
+      "Local industry participation expectations",
     ]
-
-  const lastNews = research.company.recent_news[0]
-  const engagementBackground = lastNews
-    ? `Last public marker: "${lastNews.headline}" (${lastNews.source}, ${lastNews.date}). Confirm the last Boeing bilateral date, attendees, and open actions with the in-country team before the paper locks.`
-    : `Confirm the date of the last engagement, who attended, and what was discussed with the in-country team before the paper locks.`
 
   const bioText =
     research.person.background.length > 420
@@ -123,36 +156,35 @@ export function generateMeetingPaper(
     meetingTitle: `MEETING WITH ${person.name.toUpperCase()}`,
     subtitle: `${person.title}${country?.name ? `, ${country.name}` : ""}`,
     locationOrEvent: meetingType,
-    contact: {
-      name: "Regional Integrator (demo)",
-      title: "International Business Development",
-      phone: "+1 · confirm in-country number",
+    contact: flagship?.contact ?? {
+      name: "Alex Rivera",
+      title: "Regional Integrator, International Business Development",
+      phone: "Confirm in-country number before travel",
     },
-    customer: {
+    customer: flagship?.customer ?? {
       name: person.name,
       title: person.title,
       salutation: inferSalutation(person.name, person.title),
-      phonetic: "[confirm phonetic with in-country]",
+      phonetic: "Confirm with in-country team",
       raa:
-        research.person.profile_overview?.slice(0, 160) ||
+        research.person.profile_overview?.slice(0, 180) ||
         `Responsible for decisions affecting ${company.name} engagement with Boeing.`,
     },
     objectives: objectives.slice(0, 4),
     keyMessages: keyMessages.slice(0, 4),
     agendaLogistics: isAirShow
       ? null
-      : "Add timed agenda, gift, and photographer/media only when applicable. Delete this block for air-show bilaterals.",
+      : "11:00 Welcome · 11:15 Programme brief · 12:00 Discussion · Gift / photographer: confirm with integrator. Delete this block for air-show bilaterals.",
     campaignBackground: truncate(
-      [
-        research.company.overview,
-        country?.bilateral_context,
-      ]
-        .filter(Boolean)
-        .join(" "),
+      [research.company.overview, country?.bilateral_context].filter(Boolean).join(" "),
       380,
     ),
     customerSatIssues: satIssues,
-    engagementBackground,
+    engagementBackground:
+      flagship?.engagementBackground ??
+      (research.company.recent_news[0]
+        ? `Confirm last Boeing bilateral (date, attendees, open actions) with in-country before lock. Public marker: "${research.company.recent_news[0].headline}" (${research.company.recent_news[0].source}, ${research.company.recent_news[0].date}).`
+        : "Confirm the date of the last engagement, who attended, and what was discussed with the in-country team before the paper locks."),
     biography: {
       name: person.name,
       title: person.title,
@@ -160,10 +192,7 @@ export function generateMeetingPaper(
       photoUrl: person.photoUrl,
     },
     countryPaperBlurb: country
-      ? truncate(
-          `${country.overview} Priorities: ${country.priorities.slice(0, 2).join("; ")}.`,
-          280,
-        )
+      ? truncate(`${country.overview} Priorities: ${country.priorities.slice(0, 2).join("; ")}.`, 280)
       : undefined,
   }
 }

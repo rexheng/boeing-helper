@@ -2,8 +2,8 @@ import { BoeingLogo } from "../components/BoeingLogo"
 
 const footerLinks = [
   { label: "Capabilities", href: "#capabilities" },
-  { label: "Workflows", href: "#workflows" },
   { label: "Use Cases", href: "#use-cases" },
+  { label: "Workflows", href: "#workflows" },
   { label: "Trust", href: "#trust" },
   { label: "Access", href: "#access" },
   { label: "FAQ", href: "#faq" },

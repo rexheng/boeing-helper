@@ -40,7 +40,7 @@ const workflows: Record<
     label: "Trip-book papers",
     moves: [
       { label: "Select counterpart", note: "Org + biography" },
-      { label: "Run research agents", note: "Internal · Industry · Country" },
+      { label: "Assemble research", note: "Internal · Industry · Country" },
       { label: "Review & export PDF", note: "Ready for RD, IBD, and trip book" },
     ],
     proof: "One meeting paper every reviewer sees — regenerate without restarting at RD.",
@@ -52,7 +52,7 @@ const workflows: Record<
       { label: "Draft cheat-sheet brief", note: "One shared baseline" },
       { label: "PDF to trip book & field", note: "Same pack for every reviewer" },
     ],
-    proof: "One pack for RD, VPGM, and IBD VP — not divergent versions.",
+    proof: "Prep collapses to three moves. RD, VPGM, and IBD VP review still clear the pack.",
   },
 }
 
@@ -298,9 +298,9 @@ export function Workflows({ id }: WorkflowsProps) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.28fr)] lg:items-center lg:gap-12">
           <div>
             <SectionHeader
-              eyebrow="Simplify your workflows"
+              eyebrow="Show-cycle handoffs"
               title="Twelve handoffs. Three moves."
-              subtitle="No more chasing CTLs, GovOps, ISP, and RD for the same trip-book facts. Select, research, export — one pack for every reviewer."
+              subtitle="No more chasing CTLs, GovOps, ISP, and RD for the same trip-book facts. Select, assemble research, export — one pack for every reviewer. Review gates stay; the restart loop does not."
             />
 
             <div

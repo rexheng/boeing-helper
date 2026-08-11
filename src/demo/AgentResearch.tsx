@@ -744,9 +744,24 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 Research complete &mdash; 3 agents finished in {formatTime(elapsedSeconds)}
               </p>
-              <Button onClick={() => onComplete(result, internalNotes)}>Continue to Briefing</Button>
+              <Button onClick={() => onComplete(result, internalNotes)}>Continue to Meeting Paper</Button>
             </>
           )}
+        </div>
+      )}
+
+      {!isComplete && getHardcodedResearch(company.id, person.id) && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            className="btn-secondary text-xs"
+            onClick={() => {
+              const hardcoded = getHardcodedResearch(company.id, person.id)
+              if (hardcoded) onComplete(hardcoded, internalNotes)
+            }}
+          >
+            Skip to meeting paper
+          </button>
         </div>
       )}
 

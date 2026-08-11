@@ -365,11 +365,11 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
             onContinue={() => setStep(8)}
           />
         )}
-        {step === 8 && company && person && (
+        {step === 8 && company && person && research && (
           <MeetingReportView
-            personName={person.name}
-            personTitle={person.title}
-            companyName={company.name}
+            company={company}
+            person={person}
+            research={research}
             meetingType={meetingType}
             onFinish={onClose}
           />

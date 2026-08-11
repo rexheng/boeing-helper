@@ -22,9 +22,8 @@ export function DemoVideo({ id, onStartDemo }: DemoVideoProps) {
               className="mt-5 text-lg leading-relaxed"
               style={{ color: "rgba(255,255,255,0.82)", maxWidth: "52ch" }}
             >
-              Pick the organisation and counterpart, set the engagement, watch research
-              assemble, review the meeting paper, prepare the invite and attendee line,
-              then hand off for RD and IBD review.
+              Select organisation and counterpart, draft the meeting paper, prepare the
+              invite and attendee line, then export for RD and IBD review.
             </p>
           </div>
 

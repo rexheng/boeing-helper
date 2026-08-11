@@ -44,7 +44,7 @@ const cases: UseCase[] = [
     lede: "Fleet and network conversations that start from the customer's actual position.",
     detail:
       "Organisation meeting papers and follow-up reports keep fleet, orders, and operational pressure in one shared record — from first invitation through post-meeting stakeholder tracking.",
-    outcome: "One shared view of the account across every touchpoint.",
+    outcome: "One meeting paper and follow-up report the account team and reviewers share.",
   },
 ]
 
@@ -64,8 +64,6 @@ function UseCaseRow({ item, flip }: { item: UseCase; flip: boolean }) {
           className="w-full object-cover"
           style={{
             aspectRatio: "4 / 3",
-            borderRadius: "var(--radius)",
-            boxShadow: "var(--shadow-card)",
           }}
         />
       </div>
@@ -85,17 +83,7 @@ function UseCaseRow({ item, flip }: { item: UseCase; flip: boolean }) {
         </p>
 
         <p className="mt-4 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          {item.detail}
-        </p>
-
-        <p
-          className="mt-6 pl-5 text-base font-medium"
-          style={{
-            color: "var(--boeing-navy)",
-            borderLeft: "2px solid var(--boeing-blue)",
-          }}
-        >
-          {item.outcome}
+          {item.detail} {item.outcome}
         </p>
       </div>
     </div>
@@ -111,8 +99,8 @@ export function UseCases({ id }: UseCasesProps) {
         <div ref={ref} className={`reveal ${visible ? "visible" : ""}`}>
           <SectionHeader
             eyebrow="Use Cases"
-            title="Built around the meetings with 60+ official delegations from allied nations."
-            subtitle="The same meeting-paper flow whether the counterpart sits in an MSPO bilateral, a government roundtable, or an airline leadership review."
+            title="Same paper flow for air shows, government talks, and airline reviews."
+            subtitle="Meeting papers, invitations, and attendee lines follow one structure whether the counterpart sits in an MSPO bilateral, a ministerial roundtable, or an airline leadership review."
           />
         </div>
 
