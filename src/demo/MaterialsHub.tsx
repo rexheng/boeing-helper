@@ -4,7 +4,6 @@ import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import {
-  accentColor,
   buildAttendeeDashboard,
   flattenAttendees,
   type AttendeeDashboardData,
