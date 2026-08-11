@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-server
+.env
+.cache
+.vercel
+.DS_Store
+*.log
+.manus-logs

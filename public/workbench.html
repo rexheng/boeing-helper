@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boeing Helper — Rebuild Workbench</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue: #0033A1;
+      --navy: #0A2240;
+      --sky: #005896;
+      --ice: #E3EFFA;
+      --muted: #F3F4F5;
+      --text: #253746;
+      --sec: #515F6B;
+      --border: #E9EBED;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--muted);
+      line-height: 1.5;
+    }
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 2rem 1.5rem;
+    }
+    header h1 { margin: 0; font-size: 1.75rem; letter-spacing: -0.02em; }
+    header p { margin: 0.5rem 0 0; color: rgba(255,255,255,0.75); max-width: 52rem; }
+    main { max-width: 72.5rem; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .status {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .pill {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .pill strong { display: block; color: var(--blue); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pill span { font-size: 1.125rem; font-weight: 600; }
+    section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    h2 { margin: 0 0 0.75rem; font-weight: 300; font-size: 1.75rem; color: var(--sky); }
+    h3 { margin: 1.25rem 0 0.5rem; color: var(--blue); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .shots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .shot {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--muted);
+    }
+    .shot img { width: 100%; display: block; aspect-ratio: 16/10; object-fit: cover; background: #ddd; }
+    .shot figcaption { padding: 0.75rem 1rem; font-size: 0.875rem; color: var(--sec); }
+    .shot .verdict { font-weight: 600; color: var(--text); }
+    .pass { color: #0a7a3e; }
+    .fail { color: #b42318; }
+    .wip { color: #9a6700; }
+    ul { margin: 0.5rem 0 0; padding-left: 1.2rem; color: var(--sec); }
+    .log { font-family: ui-monospace, monospace; font-size: 0.8rem; white-space: pre-wrap; background: var(--muted); padding: 1rem; border-radius: 8px; }
+    a { color: var(--blue); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Boeing Helper — Rebuild Workbench</h1>
+    <p>Live progress for the Manusman → Boeing Helper rebuild. Screenshots and critic verdicts accumulate here until every surface A/Bs as a real Boeing digital product.</p>
+  </header>
+  <main>
+    <div class="status">
+      <div class="pill"><strong>Design system</strong><span class="pass">Done</span></div>
+      <div class="pill"><strong>Landing</strong><span class="pass">v1 shipped</span></div>
+      <div class="pill"><strong>SEA demo data</strong><span class="pass">8 orgs / 32 bios</span></div>
+      <div class="pill"><strong>Demo UI</strong><span class="wip">Restyle in flight</span></div>
+      <div class="pill"><strong>Visual critic</strong><span class="wip">Pending screenshots</span></div>
+    </div>
+
+    <section>
+      <h2>Goals</h2>
+      <ul>
+        <li>Photography-led light landing matching boeing.com (Boeing blue #0033A1)</li>
+        <li>Brand “Boeing Helper” as hero-level signal</li>
+        <li>Full demo: org → contact → meeting → 3 agents (Internal &amp; Company / Industry / Country) → briefing + PDF → live overlays</li>
+        <li>Southeast Asia air-show demo data that feels real</li>
+        <li>Harsh visual A/B vs boeing.com until critics are wowed</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Screenshot timeline</h2>
+      <p style="color:var(--sec);margin:0 0 1rem">Critics append shots under <code>workbench/shots/</code>. Empty until the app is running and computer-use critic loops begin.</p>
+      <div class="shots" id="shots">
+        <figure class="shot">
+          <div style="aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;color:#66737E">Awaiting hero screenshot…</div>
+          <figcaption><span class="verdict wip">Pending</span> — Landing hero vs boeing.com</figcaption>
+        </figure>
+        <figure class="shot">
+          <div style="aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;color:#66737E">Awaiting demo chrome…</div>
+          <figcaption><span class="verdict wip">Pending</span> — Company select / enterprise briefing tool</figcaption>
+        </figure>
+        <figure class="shot">
+          <div style="aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;color:#66737E">Awaiting agent traces…</div>
+          <figcaption><span class="verdict wip">Pending</span> — Three parallel research agents</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>Critic log</h2>
+      <div class="log" id="log">2026-08-06 — Design system + landing + SEA data landed.
+2026-08-06 — Demo UI restyle agents dispatched (steps 1–4 and 5–7).
+2026-08-06 — Workbench created; awaiting running app screenshots.</div>
+    </section>
+  </main>
+</body>
+</html>

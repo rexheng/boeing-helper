@@ -1,0 +1,64 @@
+export interface Person {
+  id: string
+  companyId: string
+  name: string
+  title: string
+  headline: string
+  initial: string
+  linkedinUrl?: string
+  photoUrl?: string
+  seniority?: string
+  isCustom?: boolean
+  videoId?: string
+  videoStart?: number
+}
+
+export const people: Person[] = [
+  // Ministry of Defence Singapore / RSAF
+  { id: "chan-chun-sing", companyId: "mindef-sg", name: "Chan Chun Sing", title: "Minister for Defence", headline: "Former Chief of Army, Defence Minister since May 2025 — owns the 20-aircraft F-35 commitment and Singapore's 'diversified fleet' doctrine", initial: "C", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/2025_Chan_Chun_Sing_%28cropped%29.jpg/330px-2025_Chan_Chun_Sing_%28cropped%29.jpg", seniority: "Minister" },
+  { id: "kelvin-fan", companyId: "mindef-sg", name: "MG Kelvin Fan Sui Siong", title: "Chief of Air Force, RSAF", headline: "Calls F-35 and P-8A the RSAF's 'game-changers' — running AH-64D life extension, CH-47F fleet and a used-airframe C-130 refresh", initial: "K", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Portrait_of_Kelvin_Fan_in_2017.jpg/330px-Portrait_of_Kelvin_Fan_in_2017.jpg", seniority: "Service Chief" },
+  { id: "aaron-beng", companyId: "mindef-sg", name: "VADM Aaron Beng", title: "Chief of Defence Force, SAF", headline: "Joint-force chief pushing drones, counter-UAS and readiness lessons from Ukraine and the Red Sea into SAF force design", initial: "A", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Singapore_Chief_of_Defense_Vice_Admiral_Aaron_Beng_at_Munich_Security_Conference%2C_Germany_on_February_15%2C_2025_%28cropped%29.jpg/330px-Singapore_Chief_of_Defense_Vice_Admiral_Aaron_Beng_at_Munich_Security_Conference%2C_Germany_on_February_15%2C_2025_%28cropped%29.jpg", seniority: "Service Chief" },
+  { id: "ng-chad-son", companyId: "mindef-sg", name: "Ng Chad-Son", title: "Permanent Secretary (Defence Development)", headline: "Delivered F-35, P-8A and G550 programmes as DSTA chief executive — now MINDEF's acquisition and technology gatekeeper", initial: "N", seniority: "Permanent Secretary" },
+
+  // Ministry of Defense of the Republic of Indonesia (Kemhan RI)
+  { id: "sjafrie-sjamsoeddin", companyId: "mod-id", name: "Sjafrie Sjamsoeddin", title: "Minister of Defense", headline: "Prabowo's defence minister since Oct 2024 — pushing 'defensive active' doctrine, centralised procurement and hard budget discipline", initial: "S", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Sjafrie_Sjamsoeddin_2025_Portrait.png/330px-Sjafrie_Sjamsoeddin_2025_Portrait.png", seniority: "Minister" },
+  { id: "tonny-harjono", companyId: "mod-id", name: "ACM Mohamad Tonny Harjono", title: "Chief of Staff, Indonesian Air Force (KSAU)", headline: "Leading Rafale induction and a national radar build-out to close air-surveillance blind spots across the archipelago", initial: "T", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Kasau_Marsekal_TNI_Mohamad_Tonny_Harjono.jpg/330px-Kasau_Marsekal_TNI_Mohamad_Tonny_Harjono.jpg", seniority: "Service Chief" },
+  { id: "donny-ermawan", companyId: "mod-id", name: "Donny Ermawan Taufanto", title: "Deputy Minister of Defense", headline: "Retired air marshal handling budget execution and industrial cooperation — the man who scores offset and local-content offers", initial: "D", seniority: "Deputy Minister" },
+  { id: "rico-sirait", companyId: "mod-id", name: "Brig. Gen. Rico Ricardo Sirait", title: "Head of Defense Information Bureau (Infohan)", headline: "Ministry's public voice on procurement — framed the F-15EX exit as a price mismatch, not a policy shift", initial: "R", seniority: "Director" },
+
+  // Royal Thai Air Force
+  { id: "seksan-kantha", companyId: "rtaf", name: "ACM Seksan Kantha", title: "Commander-in-Chief, Royal Thai Air Force", headline: "In post since Oct 2025 — driving the 12-aircraft Gripen E/F squadron, transport recapitalisation and a 'technological force' restructure", initial: "S", seniority: "Service Chief" },
+  { id: "poonsak-piyarat", companyId: "rtaf", name: "AVM Poonsak Piyarat", title: "Director, Policy and Planning Office, RTAF", headline: "Writes the RTAF White Paper procurement cases — owns phasing, budget submissions and the FY2028 Gripen tranche proposal", initial: "P", seniority: "Planning Lead" },
+  { id: "adul-boonthamcharoen", companyId: "rtaf", name: "Gen. Adul Boonthamcharoen", title: "Minister of Defence, Kingdom of Thailand", headline: "Backs RTAF readiness spending but wants unit restructuring and personnel reform tied to every new platform", initial: "A", seniority: "Minister" },
+  { id: "sihasak-phuangketkeow", companyId: "rtaf", name: "Sihasak Phuangketkeow", title: "Deputy Prime Minister and Minister of Foreign Affairs", headline: "Career diplomat linking defence procurement to strategic partnerships — pressing for offsets with tangible industrial returns", initial: "S", seniority: "Minister" },
+
+  // Royal Malaysian Air Force / MINDEF Malaysia
+  { id: "norazlan-aris", companyId: "rmaf", name: "Gen. Tan Sri Muhamad Norazlan Aris", title: "Chief of Air Force (Panglima Tentera Udara)", headline: "21st RMAF chief and former Su-30MKM squadron commander — FA-50M induction in October, C-130 replacement is his stated priority", initial: "N", seniority: "Service Chief" },
+  { id: "khaled-nordin", companyId: "rmaf", name: "Dato' Seri Mohamed Khaled Nordin", title: "Minister of Defence, Malaysia", headline: "Sequencing CAP55 in tranches — FLIT-LCA Phase 2 first, MRCA acceleration under RMK13, full capability only around 2040", initial: "K", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Mohamed_Khaled_Nordin%2C_Malaysia_Minister_of_Defense%2C_at_the_International_Institute_for_Strategic_Studies_%28IISS%29_and_21st_Shangri-La_Dialogue_in_Singapore_on_June_1%2C_2024_%28cropped%29.jpg/330px-thumbnail.jpg", seniority: "Minister" },
+  { id: "nur-hafis", companyId: "rmaf", name: "Lt Gen. Dato' Nur Hafis Abdul Karim", title: "Deputy Chief of Air Force, RMAF", headline: "Runs force generation and training pipelines — owns the conversion plan taking crews from Hawk and MiG legacy fleets to FA-50M", initial: "H", seniority: "Deputy Chief" },
+  { id: "masro-kaliwon", companyId: "rmaf", name: "Lt Gen. Dato' Masro Kaliwon", title: "Air Operations Commander, RMAF", headline: "Owns readiness across Su-30MKM, F/A-18D and the 10-aircraft C-130 fleet, plus South China Sea maritime air patrols", initial: "M", seniority: "Operations" },
+
+  // Singapore Airlines
+  { id: "goh-choon-phong", companyId: "sia", name: "Goh Choon Phong", title: "Chief Executive Officer", headline: "CEO since 2011 — 31 777-9s on order, Air India stake integration, and an early-stage contest for 50+ next-decade widebodies", initial: "G", linkedinUrl: "https://linkedin.com/in/goh-choon-phong", seniority: "C-Suite" },
+  { id: "lee-lik-hsin", companyId: "sia", name: "Lee Lik Hsin", title: "EVP Commercial & Chief Commercial Officer", headline: "Former Scoot CEO running network, cargo and customer experience — owns the revenue case for every fleet decision", initial: "L", linkedinUrl: "https://linkedin.com/in/lee-lik-hsin", seniority: "C-Suite" },
+  { id: "tan-kai-ping", companyId: "sia", name: "Tan Kai Ping", title: "EVP Operations & Chief Operating Officer", headline: "Ex-CFO now running operations — absorbing 777-9 slippage by extending 777-300ERs and resequencing the cabin retrofit programme", initial: "T", linkedinUrl: "https://linkedin.com/in/tan-kai-ping", seniority: "C-Suite" },
+  { id: "chin-yau-seng", companyId: "sia", name: "Chin Yau Seng", title: "Chief Executive Officer, SIA Engineering Company", headline: "Runs Changi's MRO anchor — base maintenance, component JVs and the capacity question for 787 and future 777-9 heavy checks", initial: "C", linkedinUrl: "https://linkedin.com/in/chin-yau-seng", seniority: "C-Suite" },
+
+  // Garuda Indonesia
+  { id: "glenny-kairupan", companyId: "garuda", name: "Glenny Kairupan", title: "President Director & CEO", headline: "Turnaround CEO targeting 68 serviceable aircraft by year-end via heavy checks on 737-800NG, 777-300ER and A330 fleets", initial: "G", linkedinUrl: "https://linkedin.com/in/glenny-kairupan", seniority: "C-Suite" },
+  { id: "rosan-roeslani", companyId: "garuda", name: "Rosan Perkasa Roeslani", title: "Minister of Investment & CEO, Danantara Indonesia", headline: "Owns the sovereign fund holding Garuda and the 50-aircraft Boeing commitment written into the US-Indonesia tariff agreement", initial: "R", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Rosan_Perkasa_Roeslani%2C_Menteri_Investasi_dan_Hilirisasi_%282024%29.webp/330px-Rosan_Perkasa_Roeslani%2C_Menteri_Investasi_dan_Hilirisasi_%282024%29.webp.png", seniority: "Minister" },
+  { id: "rohan-hafas", companyId: "garuda", name: "Rohan Hafas", title: "Managing Director, Stakeholder Management, Danantara", headline: "Publicly flagged the seven-year delivery queue as the blocker on the 50-jet order — wants slots before capital", initial: "R", linkedinUrl: "https://linkedin.com/in/rohan-hafas", seniority: "Managing Director" },
+  { id: "andi-fahrurrozi", companyId: "garuda", name: "Andi Fahrurrozi", title: "President Director & CEO, GMF AeroAsia", headline: "Runs Indonesia's largest MRO through a quasi-reorganisation — chasing third-party 737 and widebody heavy-check volume", initial: "A", linkedinUrl: "https://linkedin.com/in/andi-fahrurrozi", seniority: "C-Suite" },
+
+  // Civil Aviation Authority of Vietnam
+  { id: "uong-viet-dung", companyId: "vietnam-caa", name: "Uong Viet Dung", title: "Director General, CAAV", headline: "Aircraft engineer turned regulator — implementing the revised Civil Aviation Law and scaling oversight for a fleet growing past 300", initial: "U", seniority: "Director General" },
+  { id: "do-hong-cam", companyId: "vietnam-caa", name: "Do Hong Cam", title: "Deputy Director General, CAAV", headline: "Handles air transport licensing and route rights — the gate for new narrowbody capacity entering the domestic market", initial: "D", seniority: "Deputy DG" },
+  { id: "ho-minh-tan", companyId: "vietnam-caa", name: "Ho Minh Tan", title: "Deputy Director General, CAAV", headline: "Owns safety oversight and ICAO-standard workforce build-up ahead of Long Thanh's opening and the 737 MAX induction wave", initial: "H", seniority: "Deputy DG" },
+  { id: "dang-ngoc-hoa", companyId: "vietnam-caa", name: "Dang Ngoc Hoa", title: "Chairman, Vietnam Airlines", headline: "Signed the 50-aircraft 737-8 order in Feb 2026 and is running a parallel campaign for 30 widebodies to hit five-star by 2030", initial: "D", linkedinUrl: "https://linkedin.com/in/dang-ngoc-hoa", seniority: "Chairman" },
+
+  // Philippine Air Force
+  { id: "arthur-cordura", companyId: "paf", name: "Lt Gen. Arthur M. Cordura", title: "Commanding General, Philippine Air Force", headline: "Steering Flight Plan 2040 from counter-insurgency to territorial defence — open to GBAD and unmanned options if MRF funding slips", initial: "A", photoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/7/75/Lt_General_Cordura.jpg/330px-Lt_General_Cordura.jpg", seniority: "Service Chief" },
+  { id: "gilberto-teodoro", companyId: "paf", name: "Gilberto Teodoro Jr.", title: "Secretary of National Defense", headline: "Returned Lockheed's $5.58B F-16 proposal over funding, not capability — demands financing creativity and absorbable capability", initial: "G", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Gilbert_Teodoro%2C_2023_official_portrait.jpg/330px-Gilbert_Teodoro%2C_2023_official_portrait.jpg", seniority: "Secretary" },
+  { id: "antonio-nafarrete", companyId: "paf", name: "Gen. Antonio Nafarrete", title: "Chief of Staff, Armed Forces of the Philippines", headline: "61st AFP chief since July 2026 — inherits Horizon 3 and the shift to the Comprehensive Archipelagic Defence Concept", initial: "N", photoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/LtGen_Nafarrete.jpg/330px-LtGen_Nafarrete.jpg", seniority: "Service Chief" },
+  { id: "jose-romualdez", companyId: "paf", name: "Jose Manuel Romualdez", title: "Ambassador of the Philippines to the United States", headline: "Says Manila is 'not closing doors' on US platforms but needs imaginative financing — the channel for FMS and EXIM structuring", initial: "J", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Portrait_of_Ambassador_of_the_Philippines_to_the_United_States_Jose_Manuel_Romualdez.jpg/330px-Portrait_of_Ambassador_of_the_Philippines_to_the_United_States_Jose_Manuel_Romualdez.jpg", seniority: "Ambassador" },
+]
