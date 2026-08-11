@@ -148,7 +148,7 @@ export function AttendeeExcelSheet({
                 const section = data.columns[colIdx]
                 if (!block) {
                   return (
-                    <FragmentRow key={`${section.id}-empty-${rowIdx}`} role="" name="" org="" travel="" seats={0} bg="#fff" />
+                    <FragmentRow key={`${section.id}-empty-${rowIdx}`} role="" name="" org="" travel="" bg="#fff" />
                   )
                 }
                 if (block.kind === "sub") {
@@ -167,18 +167,18 @@ export function AttendeeExcelSheet({
                   )
                 }
                 const bg = block.zebra ? ZEBRA : "#fff"
-                const name =
-                  block.seats > 1 && block.name
-                    ? `${block.name} (×${block.seats})`
-                    : block.name
+                const travelCell =
+                  block.travel && block.seats > 1
+                    ? `${block.travel}·${block.seats}`
+                    : block.travel
                 return (
                   <FragmentRow
                     key={`${section.id}-r-${rowIdx}`}
                     role={block.role}
-                    name={name}
+                    name={block.name}
                     org={block.org}
-                    travel={block.travel}
-                    seats={block.seats}
+                    travel={travelCell}
+                    note={block.seats > 1 ? `${block.seats} seats` : undefined}
                     bg={bg}
                   />
                 )
@@ -196,22 +196,23 @@ function FragmentRow({
   name,
   org,
   travel,
-  seats: _seats,
+  note,
   bg,
 }: {
   role: string
   name: string
   org: string
   travel: string
-  seats: number
+  note?: string
+  title?: string
   bg: string
 }) {
   return (
     <>
       <td className="px-0.5 py-0 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>{role}</td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }}>{name}</td>
+      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }} title={note}>{name}</td>
       <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>{org}</td>
-      <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>{travel}</td>
+      <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }} title={note}>{travel}</td>
     </>
   )
 }

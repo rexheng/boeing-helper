@@ -332,28 +332,35 @@ export function buildAttendeeDashboard(
     }
   }
 
+  const revised = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "2-digit",
+  })
+
   return {
     eventName,
     eventTitle: eventName.toUpperCase(),
-    revisedLabel: "Revised 2.28.25",
+    revisedLabel: `Revised ${revised}`,
     objectives,
     travelCounts,
     columns,
   }
 }
 
-export function flattenAttendees(data: AttendeeDashboardData) {
+export function flattenAttendees(data: AttendeeDashboardData, opts?: { filledOnly?: boolean }) {
+  const filledOnly = opts?.filledOnly ?? false
   return data.columns.flatMap((section) =>
     section.subsections.flatMap((sub) =>
       sub.rows
-        .filter((r) => r.name || r.count > 0)
+        .filter((r) => (filledOnly ? r.name || r.count > 0 : true))
         .map((r) => ({
           section: section.title,
           subsection: sub.title,
           role: r.roleLabel,
-          name: r.name || "—",
+          name: r.name || "",
           organization: r.organization || "",
-          travel: r.travel || "—",
+          travel: r.travel || "",
           count: r.count,
           notes: r.notes || "",
         })),

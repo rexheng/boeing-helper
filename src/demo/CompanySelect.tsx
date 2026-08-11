@@ -18,7 +18,6 @@ const visibleRegions = regions.filter((r) => companies.some((c) => c.regionId ==
 export function CompanySelect({ onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [activeRegion, setActiveRegion] = useState(visibleRegions[0]?.id ?? regions[0].id)
-  const [expandedCountry, setExpandedCountry] = useState<string | null>("singapore")
   const [lookupQuery, setLookupQuery] = useState("")
 
   const region = visibleRegions.find((r) => r.id === activeRegion) ?? visibleRegions[0]
@@ -29,6 +28,10 @@ export function CompanySelect({ onSelect }: Props) {
         companies.some((c) => c.regionId === region.id && c.country === country.id),
       ),
     [region],
+  )
+
+  const [expandedCountry, setExpandedCountry] = useState<string | null>(
+    () => countriesWithPartners[0]?.id ?? null,
   )
 
   const byCountry = useMemo(() => {
@@ -87,7 +90,14 @@ export function CompanySelect({ onSelect }: Props) {
               {selectedCompany.countryName} · {selectedCompany.industry}
             </p>
           </div>
-          <Check size={18} style={{ color: "var(--boeing-blue)" }} />
+          <button
+            type="button"
+            className="text-xs font-semibold cursor-pointer shrink-0"
+            style={{ color: "var(--boeing-blue)" }}
+            onClick={() => setSelected(null)}
+          >
+            Clear
+          </button>
         </div>
       )}
 

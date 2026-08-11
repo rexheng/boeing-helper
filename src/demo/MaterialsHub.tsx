@@ -253,7 +253,7 @@ export function MaterialsHub({
 }
 
 function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
-  const rows = flattenAttendees(data)
+  const rows = flattenAttendees(data, { filledOnly: false })
 
   return (
     <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 10 }}>
@@ -341,7 +341,7 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
         <table className="w-full border-collapse min-w-[720px]" style={{ fontSize: 10.5 }}>
           <thead>
             <tr>
-              {["Section", "Subsection", "Role", "Name", "Organization", "Travel"].map((h) => (
+              {["Section", "Subsection", "Role", "Name", "Organization", "I/D/L", "Seats", "Notes"].map((h) => (
                 <th
                   key={h}
                   className="text-left font-bold px-1.5 py-1 border text-white"
@@ -353,30 +353,27 @@ function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; even
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => {
-              const sectionColor =
-                r.section.startsWith("BDS") ? accentColor("navy")
-                  : r.section.startsWith("BGS") ? accentColor("steel")
-                    : r.section.startsWith("Boeing Global") ? accentColor("blue")
-                      : accentColor("green")
-              return (
-                <tr key={`${r.section}-${r.role}-${i}`} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
-                  <td className="px-1.5 py-1 border font-bold text-white" style={{ borderColor: GRID, background: sectionColor }}>
-                    {r.section.startsWith("BDS") ? "BDS"
-                      : r.section.startsWith("BGS") ? "BGS"
-                        : r.section.startsWith("Boeing Global") ? "Boeing Global"
-                          : "Exhibit Ops"}
-                  </td>
-                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#444" }}>{r.subsection}</td>
-                  <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{r.role}</td>
-                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{r.name}</td>
-                  <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.organization}</td>
-                  <td className="px-1.5 py-1 border text-center font-bold" style={{ borderColor: GRID, color: BLUE }}>
-                    {r.travel !== "—" ? r.travel : ""}
-                  </td>
-                </tr>
-              )
-            })}
+            {rows.map((r, i) => (
+              <tr key={`${r.section}-${r.role}-${i}`} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
+                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
+                  {r.section.startsWith("BDS") ? "BDS"
+                    : r.section.startsWith("BGS") ? "BGS"
+                      : r.section.startsWith("Boeing Global") ? "Boeing Global"
+                        : "Exhibit Ops"}
+                </td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#444" }}>{r.subsection}</td>
+                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{r.role}</td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{r.name}</td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.organization}</td>
+                <td className="px-1.5 py-1 border text-center font-bold" style={{ borderColor: GRID, color: BLUE }}>
+                  {r.travel}
+                </td>
+                <td className="px-1.5 py-1 border text-center font-bold tabular-nums" style={{ borderColor: GRID, color: NAVY }}>
+                  {r.count || ""}
+                </td>
+                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.notes}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

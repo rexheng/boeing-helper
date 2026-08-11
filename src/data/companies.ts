@@ -24,9 +24,8 @@ export interface RegionGroup {
 }
 
 /**
- * Boeing Global regional structure (boeing.com/global-presence):
- * Americas · Europe · Africa · Middle East · Asia-Pacific.
- * Demo prioritises Asia-Pacific with Southeast Asia first, then country + ministry/airline.
+ * Demo regional index — Asia-Pacific + Middle East partners with curated data.
+ * Southeast Asia is first. Only regions/countries with seeded partners are listed.
  */
 export const regions: RegionGroup[] = [
   {
@@ -70,30 +69,10 @@ export const regions: RegionGroup[] = [
   {
     id: "middle-east",
     name: "Middle East",
-    blurb: "Dubai and Riyadh presence — airline hubs, defence readiness, and distribution centres.",
+    blurb: "Dubai and Doha presence — airline hubs, defence readiness, and distribution centres.",
     countries: [
       { id: "uae", name: "United Arab Emirates", ministryHint: "Emirates" },
       { id: "qatar", name: "Qatar", ministryHint: "Qatar Airways" },
-      { id: "saudi", name: "Saudi Arabia", ministryHint: "Search for ministries and airlines" },
-    ],
-  },
-  {
-    id: "europe",
-    name: "Europe",
-    blurb: "UK, EU, and Türkiye — industrial partnerships, airline fleets, and NATO-aligned defence.",
-    countries: [
-      { id: "uk", name: "United Kingdom", ministryHint: "Search for ministries and airlines" },
-      { id: "germany", name: "Germany", ministryHint: "Search for ministries and airlines" },
-      { id: "france", name: "France", ministryHint: "Search for ministries and airlines" },
-    ],
-  },
-  {
-    id: "americas",
-    name: "Americas",
-    blurb: "Canada and Latin America — allied sustainment and commercial growth markets.",
-    countries: [
-      { id: "canada", name: "Canada", ministryHint: "Search for ministries and airlines" },
-      { id: "brazil", name: "Brazil", ministryHint: "Search for ministries and airlines" },
     ],
   },
 ]
@@ -592,12 +571,20 @@ export function searchPartnerDirectory(query: string): PartnerLookupEntry[] {
   const q = query.trim().toLowerCase()
   if (!q) return []
   const tokens = q.split(/\s+/).filter(Boolean)
-  return partnerDirectory.filter((p) => {
+  const matched = partnerDirectory.filter((p) => {
     const hay = [p.name, p.domain, p.tagline, p.industry, p.countryName, p.overview, ...p.aliases]
       .join(" ")
       .toLowerCase()
     return hay.includes(q) || tokens.every((token) => hay.includes(token))
   })
+  // SEA-first ranking for the demo’s primary theatre
+  const rank = (regionId: string) =>
+    regionId === "southeast-asia" ? 0
+      : regionId === "northeast-asia" ? 1
+        : regionId === "india" ? 2
+          : regionId === "anz" ? 3
+            : 4
+  return matched.sort((a, b) => rank(a.regionId) - rank(b.regionId) || a.name.localeCompare(b.name))
 }
 
 export function getPartnerById(id: string): PartnerLookupEntry | undefined {
