@@ -87,10 +87,10 @@ export function MaterialsHub({
       <div className="text-center mb-2">
         <p className="system-badge system-badge--dark mb-3">Step 06 · Materials</p>
         <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
-          Invitation and attendee dashboard
+          Attendee dashboard and invitation
         </h2>
         <p className="mt-3 max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
-          Letter for the counterpart, plus a role-and-objectives dashboard for the show cycle.
+          Role-and-objectives dashboard for the show cycle, plus a letter for the counterpart.
         </p>
       </div>
 
@@ -101,8 +101,8 @@ export function MaterialsHub({
       >
         {(
           [
-            { id: "invite" as const, label: "Invitation" },
             { id: "attendee" as const, label: "Attendee dashboard" },
+            { id: "invite" as const, label: "Invitation" },
           ] as const
         ).map((t) => (
           <button
