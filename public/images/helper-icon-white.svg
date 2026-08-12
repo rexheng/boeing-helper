@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Boeing Helper">
+  <g fill="#FFFFFF">
+    <path fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"
+      d="M72 24 A 28 28 0 1 0 78 68"/>
+    <path d="M42 82 C40 72 38 62 35 50 C31 34 24 20 16 8 L24 10 C30 22 36 36 39 50 L52 36 L52 26 L60 26 L60 44 L44 60 C46 68 48 76 50 84 Z"/>
+    <path d="M58 30 L66 28 L72 78 L64 80 Z"/>
+    <path d="M38 52 L70 44 L72 52 L40 60 Z"/>
+    <path d="M68 48 L94 58 L68 62 Z"/>
+  </g>
+</svg>

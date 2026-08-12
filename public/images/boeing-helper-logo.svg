@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 84" role="img" aria-label="Boeing Helper">
+  <g fill="#0033A1">
+    <g transform="translate(4,10) scale(1.55)">
+      <path d="M27,24.16a13.54,13.54,0,0,0-4.79-17c2.17-2.23,4.52-4.44,7-6.55A61,61,0,0,0,21,6.46,13.54,13.54,0,0,0,4.47,27.29c-2.59,5.61-3,10.11-.76,11.63,2.45,1.63,7.77-1.33,11-6.14,0,0-4.94,4.45-7.65,3.43-1.67-.63-1.67-3.19-.3-6.85a13.54,13.54,0,0,0,17.52-1.28l.48.9c5.9-.48,23.51-.95,23.51-.95C48.23,27.2,36.57,28,27,24.16ZM2.82,18.45A11.92,11.92,0,0,1,19.67,7.61,64.92,64.92,0,0,0,5.26,25.68,11.86,11.86,0,0,1,2.82,18.45ZM14.73,30.36a11.86,11.86,0,0,1-7.37-2.55c2.36-5.32,7.16-12.46,13.71-19.44a11.91,11.91,0,0,1,4.43,15.15,21.76,21.76,0,0,1-5.66-3.69l3.59,6.74A11.87,11.87,0,0,1,14.73,30.36Z"/>
+    </g>
+    <text x="82" y="36" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="28" font-style="italic" font-weight="700" letter-spacing="2">BOEING</text>
+    <text x="82" y="68" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="28" font-style="italic" font-weight="700" letter-spacing="2">HELPER</text>
+  </g>
+</svg>
