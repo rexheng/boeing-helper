@@ -1000,16 +1000,15 @@ a:hover { color: var(--boeing-blue); }
   max-width: 34ch;
 }
 
-/* ── Report docked workspace (mirrors attendee centrepiece) ── */
+/* ── Report docked workspace (mirrors attendee centrepiece; Word-faithful doc) ── */
 .docked-report-page .docked-workspace {
   height: min(78vh, 900px);
 }
 
 .docked-composer__debrief-brief {
   margin-top: 10px;
-  padding: 10px 10px 8px;
-  background: rgba(227, 239, 250, 0.55);
-  border: 1px solid rgba(0, 51, 161, 0.14);
+  padding: 8px 0 0;
+  border-top: 1px solid rgba(10, 34, 64, 0.08);
 }
 
 .docked-composer__debrief-meta {
@@ -1046,15 +1045,29 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .report-outline-sheet__page {
-  padding: 28px 32px 36px;
-  font-family: "Arial Narrow", Arial, sans-serif;
+  padding: 32px 40px 40px;
+  font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
   color: #000;
-  background:
-    linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+  background: #fff;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.report-outline-sheet__title {
+  padding: 6px 8px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.report-outline-sheet__title-input {
+  border-bottom: 1px solid transparent;
+}
+
+.report-outline-sheet__title-input:focus {
+  border-bottom-color: rgba(0, 51, 161, 0.35);
 }
 
 .report-outline-sheet__field {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   padding: 8px 10px;
   transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
@@ -1072,9 +1085,10 @@ a:hover { color: var(--boeing-blue); }
 .report-outline-sheet__input,
 .report-outline-sheet__static {
   width: 100%;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.55;
   color: #111;
+  font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
 }
 
 .report-outline-sheet__input {

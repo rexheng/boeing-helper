@@ -144,34 +144,40 @@ export function ReportDocxEditor({
 
   return (
     <div className={`report-docx-editor ${embedded ? "report-docx-editor--embedded" : "space-y-3"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-          Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd>{" "}
-          bold · Undo/Redo in chrome
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={handleWord}
-            disabled={!!busy}
-            className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-60"
-            style={{ background: BLUE }}
-          >
-            {busy === "docx" ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
-            Download Word
-          </button>
-          <button
-            type="button"
-            onClick={handlePdf}
-            disabled={!!busy}
-            className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold disabled:opacity-60"
-            style={{ border: `1px solid ${NAVY}`, color: NAVY, background: "#fff" }}
-          >
-            {busy === "pdf" ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-            Download PDF
-          </button>
+      {!embedded ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+            Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd>{" "}
+            bold · Undo/Redo in chrome
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleWord}
+              disabled={!!busy}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-60"
+              style={{ background: BLUE }}
+            >
+              {busy === "docx" ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
+              Download Word
+            </button>
+            <button
+              type="button"
+              onClick={handlePdf}
+              disabled={!!busy}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold disabled:opacity-60"
+              style={{ border: `1px solid ${NAVY}`, color: NAVY, background: "#fff" }}
+            >
+              {busy === "pdf" ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+              Download PDF
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <p className="text-[11px] m-0" style={{ color: "var(--text-secondary)" }}>
+          Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd> bold · Export from toolbar
+        </p>
+      )}
 
       {spotlight && (
         <div

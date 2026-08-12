@@ -12,11 +12,12 @@ export function applyReportHunks(
   for (const h of hunks) {
     if (h.op === "remove") continue
     const key =
-      h.field === "Executive Summary" ? "executiveSummary"
-        : h.field === "Engagement Title" ? "engagementTitle"
-          : h.field === "Engagement Body" ? "engagementBody"
-            : h.field === "Region" ? "regionLabel"
-              : null
+      h.field === "Executive Summary" || h.anchor === "executiveSummary" ? "executiveSummary"
+        : h.field === "Engagement Title" || h.anchor === "engagementTitle" ? "engagementTitle"
+          : h.field === "Engagement Body" || h.anchor === "engagementBody" ? "engagementBody"
+            : h.field === "Region" || h.anchor === "regionLabel" ? "regionLabel"
+              : h.field === "Show" || h.anchor === "showName" ? "showName"
+                : null
     if (key) next[key] = h.after
   }
   return next

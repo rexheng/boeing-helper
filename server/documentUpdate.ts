@@ -515,11 +515,14 @@ function fallbackAttendee(
 
 function isSampleReportPaste(paste: string): boolean {
   const markers = [
-    "Marcus Chen",
+    "Priya Natarajan",
     "chalet debrief",
-    "Campaign Desk · SEA",
-    "spare parts lead times",
+    "Show Ops · IBD SEA",
+    "spare-parts lead times",
     "training-slot visibility",
+    "Lock D-14 protocol list",
+    "Marcus Chen",
+    "spare parts lead times",
   ]
   return markers.some((m) => paste.includes(m))
 }
@@ -527,15 +530,16 @@ function isSampleReportPaste(paste: string): boolean {
 function curatedSampleReportUpdates(current: AirshowReportData): Record<string, unknown> {
   const summary =
     `At ${current.showName}, Boeing engaged senior counterparts on programme status, sustainment pacing, and next decision points. ` +
-    `The bilateral affirmed interest in a next-window sustainment brief with Boeing Global and BDS, while customer sat issues centred on spare-parts lead times and training-slot visibility. ` +
-    `Media exchange stayed on industrial participation; no new programme announcements.`
+    `The bilateral affirmed interest in a next-window sustainment brief with Boeing Global and BDS; customer sat issues centred on spare-parts lead times and training-slot visibility. ` +
+    `A one-page protocol list was requested ahead of the next bilateral, aligning with the D-14 GovOps freeze. Media exchange stayed on industrial participation; no new programme announcements.`
 
   const body = [
-    `Boeing regional team met for the bilateral. Customer confirmed sustainment as the pacing item and requested a clearer D-30 decision gate on the follow-on package.`,
-    `Raised sat issues: spare parts lead times; training-slot visibility. Asked for a one-page protocol list ahead of the next bilateral.`,
+    `Boeing regional team met for the MinDef bilateral. Customer confirmed sustainment as the pacing item and requested a clearer D-30 decision gate on the follow-on package.`,
+    `Raised sat issues: spare-parts lead times; training-slot visibility. Asked for a one-page protocol list ahead of the next bilateral (ties to Objective #5 / GovOps).`,
     `ACTION: Integrator — send follow-up pack within 5 business days`,
     `ACTION: CTL — update campaign background with sat issues raised`,
     `ACTION: In-country — propose next bilateral window (late March)`,
+    `ACTION: GovOps — draft one-page protocol list for D-14 freeze`,
   ].join("\n\n")
 
   return {
@@ -554,18 +558,20 @@ function fallbackReport(paste: string, current: AirshowReportData) {
         sentiment: "Positive",
         score: 78,
         outcomes: [
-          "Affirmed interest in next-window sustainment brief",
-          "Sat issues captured: spare parts lead times; training-slot visibility",
-          "Protocol list requested ahead of next bilateral",
+          "Affirmed interest in next-window sustainment brief with Boeing Global + BDS",
+          "Sat issues captured: spare-parts lead times; training-slot visibility",
+          "Protocol list requested — aligns with D-14 GovOps freeze",
         ],
         actions: [
           "ACTION: Integrator — send follow-up pack within 5 business days",
           "ACTION: CTL — update campaign background with sat issues raised",
           "ACTION: In-country — propose next bilateral window (late March)",
+          "ACTION: GovOps — draft one-page protocol list for D-14 freeze",
         ],
         narrativeBullets: [
-          "Constructive bilateral; sustainment remains pacing item",
+          "Constructive MinDef bilateral; sustainment remains pacing item",
           "Media Q&A stayed on industrial participation",
+          "Protocol list requested ahead of next bilateral",
         ],
       },
       proposedDocument: proposed,
