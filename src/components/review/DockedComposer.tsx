@@ -315,7 +315,12 @@ export function DockedComposer({
                       <div className="min-w-0 flex-1 text-left">
                         <p className="docked-composer__hunk-field">{executiveHeadline(h, isReport)}</p>
                         <p className="docked-composer__hunk-detail">
-                          <ReviewDiffText before={h.before} after={h.after} op={h.op} />
+                          <ReviewDiffText
+                            before={h.before}
+                            after={h.after}
+                            op={h.op}
+                            maxChars={isReport ? 110 : 160}
+                          />
                         </p>
                       </div>
                     </button>

@@ -185,7 +185,6 @@ export function ReportDocxEditor({
           role="status"
         >
           Spotlight · {spotlight}
-          <span>Switch to Outline for field-level review</span>
         </div>
       )}
 

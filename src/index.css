@@ -1044,16 +1044,30 @@ a:hover { color: var(--boeing-blue); }
   color: var(--boeing-navy);
 }
 
+.report-outline-sheet {
+  background: #e8edf2;
+  border: 1px solid rgba(10, 34, 64, 0.12);
+  padding: 18px 16px 22px;
+}
+
 .report-outline-sheet__page {
-  padding: 32px 40px 40px;
+  padding: 36px 44px 44px;
   font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
   color: #000;
   background: #fff;
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
+  min-height: 520px;
+  border: 1px solid rgba(10, 34, 64, 0.1);
 }
 
-.report-outline-sheet__title {
+.report-outline-sheet__doc-title {
+  margin: 0 0 28px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #000;
   padding: 6px 8px;
   transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
@@ -1066,20 +1080,20 @@ a:hover { color: var(--boeing-blue); }
   border-bottom-color: rgba(0, 51, 161, 0.35);
 }
 
-.report-outline-sheet__field {
-  margin-bottom: 18px;
+.report-outline-sheet__section {
+  margin-bottom: 20px;
   padding: 8px 10px;
   transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
-.report-outline-sheet__label {
-  margin: 0 0 6px;
-  font-size: 10px;
+.report-outline-sheet__heading {
+  margin: 0 0 8px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--boeing-navy);
-  font-family: var(--font-ui);
+  color: #000;
+  font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
 }
 
 .report-outline-sheet__input,
@@ -1094,6 +1108,15 @@ a:hover { color: var(--boeing-blue); }
 .report-outline-sheet__input {
   display: block;
   min-height: 1.4em;
+}
+
+.report-outline-sheet__proprietary {
+  margin: 36px 0 0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--boeing-navy);
 }
 
 .report-docx-editor--embedded {

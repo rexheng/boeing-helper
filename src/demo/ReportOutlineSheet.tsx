@@ -3,28 +3,29 @@ import { CellInput } from "../components/CellInput"
 import type { AirshowReportData } from "../utils/templateExport"
 
 const NAVY = "#0A2240"
-const GRID = "#9AA3AD"
 
-const FIELDS: Array<{
+const BODY_FIELDS: Array<{
   key: keyof AirshowReportData
   label: string
   multiline?: boolean
   rows?: number
   uppercase?: boolean
-  /** Omit from stacked field list when rendered elsewhere (e.g. title). */
-  hideInList?: boolean
+  centered?: boolean
 }> = [
-  { key: "showName", label: "Show", multiline: false, hideInList: true },
-  { key: "executiveSummary", label: "Executive Summary", multiline: true, rows: 6 },
-  { key: "regionLabel", label: "Region", multiline: false, uppercase: true },
-  { key: "engagementTitle", label: "Engagement Title", multiline: false },
-  { key: "engagementBody", label: "Engagement Body", multiline: true, rows: 10 },
+  { key: "executiveSummary", label: "Executive Summary", multiline: true, rows: 7 },
+  { key: "regionLabel", label: "Region", multiline: false, uppercase: true, centered: true },
+  { key: "engagementTitle", label: "Engagement", multiline: false },
+  { key: "engagementBody", label: "", multiline: true, rows: 11 },
 ]
 
 function fieldMatches(paths: string[], key: keyof AirshowReportData, label: string) {
   return paths.some((p) => {
     const t = p.trim()
-    return t === key || t === label || t.toLowerCase() === key.toLowerCase()
+    if (t === key || t.toLowerCase() === key.toLowerCase()) return true
+    if (label && t === label) return true
+    if (key === "engagementTitle" && (t === "Engagement Title" || t === "Engagement")) return true
+    if (key === "engagementBody" && t === "Engagement Body") return true
+    return false
   })
 }
 
@@ -77,34 +78,21 @@ export function ReportOutlineSheet({
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{
-        border: `1px solid ${GRID}`,
-        background: "#fff",
-        zoom,
-      }}
+      style={{ zoom }}
     >
-      <div
-        className="flex items-center justify-between gap-2 px-3 py-1.5 text-[11px] font-semibold"
-        style={{ background: NAVY, color: "#fff" }}
-      >
-        <span>Air Show Summary Report</span>
-        <span style={{ color: "#A8C5E8" }}>Editable outline · syncs to Word on Apply</span>
-      </div>
-
       <article className="report-outline-sheet__page">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-8">
           <img src="/templates/boeing-logo-doc.png" alt="Boeing" className="h-7 object-contain" />
         </div>
 
         <h3
           data-report-field="showName"
-          className={`text-center font-bold text-[12px] mb-8 tracking-wide report-outline-sheet__title ${
+          className={`report-outline-sheet__doc-title ${
             titleActive ? "sheet-row-highlight" : reviewing ? "sheet-row-dim" : ""
           }`}
-          style={{ color: "#000" }}
         >
           {editable ? (
-            <span className="inline-flex flex-wrap items-baseline justify-center gap-1">
+            <span className="inline-flex flex-wrap items-baseline justify-center gap-1.5">
               <CellInput
                 value={data.showName}
                 onCommit={(v) => patch("showName", v)}
@@ -112,10 +100,10 @@ export function ReportOutlineSheet({
                 aria-label="Show name"
                 style={{
                   fontWeight: 700,
-                  fontSize: 12,
+                  fontSize: 13,
                   textAlign: "center",
-                  minWidth: "12ch",
-                  maxWidth: "36ch",
+                  minWidth: "14ch",
+                  maxWidth: "40ch",
                 }}
               />
               <span>Summary Report</span>
@@ -125,16 +113,26 @@ export function ReportOutlineSheet({
           )}
         </h3>
 
-        {FIELDS.filter((f) => !f.hideInList).map((f) => {
+        {BODY_FIELDS.map((f) => {
           const active = fieldMatches(highlightPaths, f.key, f.label)
           const dim = reviewing && !active
           return (
             <section
               key={f.key}
               data-report-field={f.key}
-              className={`report-outline-sheet__field ${active ? "sheet-row-highlight" : ""} ${dim ? "sheet-row-dim" : ""}`}
+              className={`report-outline-sheet__section ${active ? "sheet-row-highlight" : ""} ${dim ? "sheet-row-dim" : ""}`}
             >
-              <p className="report-outline-sheet__label">{f.label}</p>
+              {f.label ? (
+                <p
+                  className="report-outline-sheet__heading"
+                  style={{
+                    textAlign: f.centered ? "center" : undefined,
+                    letterSpacing: f.uppercase ? "0.08em" : undefined,
+                  }}
+                >
+                  {f.label}
+                </p>
+              ) : null}
               {editable ? (
                 <CellInput
                   multiline={f.multiline}
@@ -142,15 +140,16 @@ export function ReportOutlineSheet({
                   value={data[f.key]}
                   onCommit={(v) => patch(f.key, f.uppercase ? v.toUpperCase() : v)}
                   className="report-outline-sheet__input"
-                  aria-label={f.label}
+                  aria-label={f.label || f.key}
                   style={{
                     textTransform: f.uppercase ? "uppercase" : undefined,
-                    minHeight: f.multiline && f.rows ? f.rows * 18 : undefined,
+                    minHeight: f.multiline && f.rows ? f.rows * 17 : undefined,
                     resize: f.multiline ? "vertical" : undefined,
-                    fontWeight: f.key === "engagementTitle" ? 700 : undefined,
-                    letterSpacing: f.uppercase ? "0.06em" : undefined,
-                    textAlign: f.key === "regionLabel" ? "center" : undefined,
-                    color: f.key === "regionLabel" ? NAVY : undefined,
+                    fontWeight: f.key === "engagementTitle" || f.uppercase ? 700 : undefined,
+                    letterSpacing: f.uppercase ? "0.1em" : undefined,
+                    textAlign: f.centered || f.key === "engagementTitle" ? "center" : undefined,
+                    color: f.key === "regionLabel" || f.key === "engagementTitle" ? NAVY : "#111",
+                    fontSize: f.key === "engagementTitle" ? 12 : undefined,
                   }}
                 />
               ) : (
@@ -159,10 +158,10 @@ export function ReportOutlineSheet({
                   style={{
                     whiteSpace: "pre-wrap",
                     textTransform: f.uppercase ? "uppercase" : undefined,
-                    fontWeight: f.key === "engagementTitle" ? 700 : undefined,
-                    letterSpacing: f.uppercase ? "0.06em" : undefined,
-                    textAlign: f.key === "regionLabel" ? "center" : undefined,
-                    color: f.key === "regionLabel" ? NAVY : undefined,
+                    fontWeight: f.key === "engagementTitle" || f.uppercase ? 700 : undefined,
+                    letterSpacing: f.uppercase ? "0.1em" : undefined,
+                    textAlign: f.centered || f.key === "engagementTitle" ? "center" : undefined,
+                    color: f.key === "regionLabel" || f.key === "engagementTitle" ? NAVY : "#111",
                   }}
                 >
                   {data[f.key]}
@@ -172,9 +171,7 @@ export function ReportOutlineSheet({
           )
         })}
 
-        <p className="text-center text-[10px] font-bold mt-10 tracking-[0.14em]" style={{ color: NAVY }}>
-          BOEING PROPRIETARY
-        </p>
+        <p className="report-outline-sheet__proprietary">BOEING PROPRIETARY</p>
       </article>
     </div>
   )

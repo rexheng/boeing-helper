@@ -184,7 +184,7 @@ export function MeetingReportView({
               <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Report display">
                 {(
                   [
-                    { id: "outline" as const, label: "Outline", icon: List },
+                    { id: "outline" as const, label: "Report", icon: List },
                     { id: "word" as const, label: "Word", icon: FileText },
                   ] as const
                 ).map((v, i) => {
