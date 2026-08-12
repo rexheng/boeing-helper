@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react"
-import { Download, FileText, LayoutTemplate, Type } from "lucide-react"
+import { FileText, LayoutTemplate, Type } from "lucide-react"
 import { Button } from "../components/Button"
 import { ChangelogDrawer } from "../components/review/ChangelogDrawer"
 import { DockedComposer } from "../components/review/DockedComposer"
@@ -34,6 +34,11 @@ const NAVY = "#0A2240"
 const GRID = "#9AA3AD"
 
 type ReportView = "sheet" | "word"
+
+const PANEL_IDS: Record<ReportView, string> = {
+  sheet: "report-panel-sheet",
+  word: "report-panel-word",
+}
 
 export function MeetingReportView({
   company,
@@ -88,23 +93,15 @@ export function MeetingReportView({
 
   const onHighlightPaths = useCallback((paths: string[]) => {
     setHighlightPaths(paths.map((p) => reportHunkAnchor({ anchor: p, path: p, field: p })))
+    if (paths.length > 0) setReportView("sheet")
   }, [])
 
-  const onManualChange = useCallback(
-    (next: AirshowReportData) => {
-      setSummary(next.executiveSummary)
-      setNotes(next.engagementBody)
-      setEngagementTitle(next.engagementTitle)
-      setRegionLabel(next.regionLabel)
-      recordAccept({
-        source: "manual",
-        target: "report",
-        summary: "Manual report edit",
-        hunks: [],
-      })
-    },
-    [recordAccept],
-  )
+  const onManualChange = useCallback((next: AirshowReportData) => {
+    setSummary(next.executiveSummary)
+    setNotes(next.engagementBody)
+    setEngagementTitle(next.engagementTitle)
+    setRegionLabel(next.regionLabel)
+  }, [])
 
   const handleWordExport = async () => {
     await exportAirshowReportDocx(reportDoc)
@@ -118,7 +115,7 @@ export function MeetingReportView({
           Summary report
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          Paste a debrief email, review proposed changes on the live report sheet, then open Word when you need full editing.
+          Paste a Reading debrief, click proposed changes to spotlight them on the report sheet, then Export Word when ready.
         </p>
       </div>
 
@@ -179,7 +176,9 @@ export function MeetingReportView({
                       key={v.id}
                       type="button"
                       role="tab"
+                      id={`report-tab-${v.id}`}
                       aria-selected={active}
+                      aria-controls={PANEL_IDS[v.id]}
                       onClick={() => setReportView(v.id)}
                       className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
                       style={{
@@ -206,26 +205,31 @@ export function MeetingReportView({
 
               <button
                 type="button"
-                onClick={handleWordExport}
+                onClick={() => setReportView("word")}
                 className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
                 style={{ background: "#fff", color: BLUE, border: `1px solid ${BLUE}` }}
+              >
+                <Type size={13} />
+                Word editor
+              </button>
+              <button
+                type="button"
+                onClick={handleWordExport}
+                className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
+                style={{ background: BLUE, color: "#fff", border: `1px solid ${BLUE}` }}
               >
                 <FileText size={13} />
                 Export Word
               </button>
-              <button
-                type="button"
-                onClick={() => setReportView("word")}
-                className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
-                style={{ background: BLUE, color: "#fff", border: `1px solid ${BLUE}` }}
-              >
-                <Download size={13} />
-                Open Word
-              </button>
             </div>
           </div>
 
-          <div className="docked-workspace__sheet-body">
+          <div
+            className="docked-workspace__sheet-body"
+            role="tabpanel"
+            id={PANEL_IDS[reportView]}
+            aria-labelledby={`report-tab-${reportView}`}
+          >
             {reportView === "sheet" ? (
               <ReportFieldSheet
                 data={reportDoc}
