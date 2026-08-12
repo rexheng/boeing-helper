@@ -20,7 +20,7 @@ const cases: UseCase[] = [
     index: "01",
     title: "MSPO 2026",
     image: "/images/usecase-airshow.jpg",
-    alt: "Commercial airliner on the apron ahead of an international aerospace event",
+    alt: "Military fighter jet on static display with exhibition crowds at a defense industry show",
     lede: "Sixty-plus official delegations. A schedule that still moves the night before.",
     detail:
       "Campaign and country teams build a briefing per counterpart before the chalet and bilateral calendar locks — who is attending, what they have asked for previously, and where open commitments sit. Every pack follows the same structure so a colleague can pick up a meeting at short notice.",
