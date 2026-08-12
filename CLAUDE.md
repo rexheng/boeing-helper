@@ -15,6 +15,10 @@ Interactive landing page and demo for **Boeing Helper** — an internal Boeing t
 - Fonts: IBM Plex Sans, Ubuntu
 - Light institutional aerospace aesthetic — not dark glass SaaS
 
+## Brand assets
+- **Do not recreate** user-provided logos/icons if the actual files are unavailable (descriptions only). Stop and ask for a real file upload under `public/images/` instead.
+- Prefer the user’s exact assets over AI-generated or hand-drawn stand-ins unless they explicitly request a recreation.
+
 ## Commands
 ```bash
 npm run dev
