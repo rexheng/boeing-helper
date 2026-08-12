@@ -86,7 +86,7 @@ export function ReviewPanel({
       hunks: selectedHunks,
       allHunkCount: result.hunks.length,
       debrief: result.debrief || {},
-      summary: result.summary || "Accepted LLM updates",
+      summary: result.summary || "Approved updates",
     })
     setResult(null)
     setPaste("")
@@ -106,7 +106,7 @@ export function ReviewPanel({
         </h3>
       </div>
       <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-        Paste freeform text. Groq builds a debrief, then proposes document updates you review before applying.
+        Paste freeform text. Assistant builds a debrief, then proposes document updates you review before applying.
       </p>
       <textarea
         value={paste}

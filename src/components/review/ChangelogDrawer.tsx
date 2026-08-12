@@ -45,7 +45,7 @@ export function ChangelogDrawer({
             <div className="p-4 space-y-3">
               {entries.length === 0 && (
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  No accepted changes yet. Manual edits and approved LLM updates appear here.
+                  No accepted changes yet. Manual edits and approved updates appear here.
                 </p>
               )}
               {entries.map((e) => (
@@ -53,7 +53,7 @@ export function ChangelogDrawer({
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-xs font-semibold" style={{ color: NAVY }}>{e.summary}</p>
                     <span className="text-[10px] uppercase tracking-wider shrink-0" style={{ color: BLUE }}>
-                      {e.source}
+                      {e.source === "llm" ? "assistant" : e.source}
                     </span>
                   </div>
                   <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>

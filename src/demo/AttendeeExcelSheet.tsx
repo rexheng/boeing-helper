@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { CellInput, cellInput } from "../components/CellInput"
 import {
@@ -119,9 +119,20 @@ export function AttendeeExcelSheet({
   highlightPaths?: string[]
 }) {
   const editable = Boolean(onChange)
+  const sheetRef = useRef<HTMLDivElement>(null)
   const title = (eventLabel || data.eventTitle).toUpperCase()
   const columns = useMemo(() => data.columns.map(flattenSection), [data.columns])
   const maxRows = Math.max(...columns.map((c) => c.length), 0)
+
+  useEffect(() => {
+    if (!highlightPaths?.length) return
+    const root = sheetRef.current
+    if (!root) return
+    const first =
+      root.querySelector<HTMLElement>(".sheet-row-highlight[data-row-id]") ||
+      root.querySelector<HTMLElement>(".sheet-row-highlight")
+    first?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+  }, [highlightPaths])
 
   const travelRows = [
     { code: "I", label: "International Travel Required", n: data.travelCounts.I },
@@ -148,6 +159,7 @@ export function AttendeeExcelSheet({
 
   return (
     <div
+      ref={sheetRef}
       className="w-full overflow-x-auto bg-white origin-top-left"
       style={{
         border: `1px solid ${GRID}`,

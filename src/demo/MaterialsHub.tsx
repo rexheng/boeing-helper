@@ -118,7 +118,8 @@ export function MaterialsHub({
   }, [])
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className={`pb-12 ${tab === "attendee" ? "space-y-4 docked-attendee-page" : "space-y-6"}`}>
+      {tab !== "attendee" && (
       <div className="text-center mb-2">
         <p className="system-badge system-badge--dark mb-3">Step 06 · Materials</p>
         <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
@@ -128,7 +129,9 @@ export function MaterialsHub({
           Letter for the counterpart, plus a role-and-objectives dashboard for the show cycle.
         </p>
       </div>
+      )}
 
+      {tab !== "attendee" && (
       <div
         className="flex gap-1.5 p-1.5 mx-auto max-w-md"
         style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)" }}
@@ -157,6 +160,7 @@ export function MaterialsHub({
           </button>
         ))}
       </div>
+      )}
 
       {tab === "invite" && (
         <div className="space-y-4">
@@ -237,6 +241,39 @@ export function MaterialsHub({
       )}
 
       {tab === "attendee" && (
+        <div className="space-y-3">
+          <div className="docked-attendee-intro">
+            <div>
+              <p className="docked-attendee-intro__eyebrow">Attendee dashboard</p>
+              <h3 className="docked-attendee-intro__title">Roster and live updates</h3>
+            </div>
+            <div
+              className="inline-flex"
+              style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)", padding: 3 }}
+              role="tablist"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={false}
+                onClick={() => setTab("invite")}
+                className="cursor-pointer rounded-sm px-3 py-1.5 font-ui text-xs font-medium"
+                style={{ background: "#fff", color: "var(--text-secondary)", border: "1px solid var(--border-hover)" }}
+              >
+                Invitation
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected
+                className="cursor-pointer rounded-sm px-3 py-1.5 font-ui text-xs font-medium"
+                style={{ background: BLUE, color: "#fff", border: `1px solid ${BLUE}` }}
+              >
+                Attendee dashboard
+              </button>
+            </div>
+          </div>
+
         <div className="docked-workspace">
           <DockedComposer
             target="attendees"
@@ -356,6 +393,7 @@ export function MaterialsHub({
               )}
             </div>
           </div>
+        </div>
         </div>
       )}
 

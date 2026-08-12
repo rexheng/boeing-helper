@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Check, Loader2, Mail, Sparkles, X } from "lucide-react"
+import { Check, Loader2, Mail, X } from "lucide-react"
 import type {
   DocumentDebrief,
   DocumentUpdateResponse,
@@ -40,6 +40,7 @@ export function DockedComposer({
   const [phase, setPhase] = useState<Phase>("compose")
   const [chips, setChips] = useState<{ id: string; label: string; kind: "add" | "upd" | "rm" }[]>([])
   const [activeHunkId, setActiveHunkId] = useState<string | null>(null)
+  const [showHunks, setShowHunks] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const selectedHunks = useMemo(() => {
@@ -52,8 +53,7 @@ export function DockedComposer({
       onHighlightPaths([])
       return
     }
-    const paths = selectedHunks.map((h) => h.path)
-    onHighlightPaths(paths)
+    onHighlightPaths(selectedHunks.map((h) => h.path))
   }, [result, phase, selectedHunks, onHighlightPaths])
 
   const runGenerate = async () => {
@@ -67,6 +67,7 @@ export function DockedComposer({
     setPhase("extracting")
     setChips([])
     setResult(null)
+    setShowHunks(false)
     try {
       const res = await fetch("/api/document-update", {
         method: "POST",
@@ -88,9 +89,7 @@ export function DockedComposer({
         kind: (h.op === "add" ? "add" : h.op === "remove" ? "rm" : "upd") as "add" | "upd" | "rm",
       }))
       setChips(staged)
-
-      // Let extraction chips animate before revealing the review list
-      await wait(Math.min(900 + staged.length * 120, 1800))
+      await wait(Math.min(1000 + staged.length * 110, 1900))
 
       setResult(data)
       const init: Record<string, boolean> = {}
@@ -98,6 +97,8 @@ export function DockedComposer({
       setSelected(init)
       setPhase("review")
       if (data.hunks[0]) setActiveHunkId(data.hunks[0].id)
+      // cascade hunks after phase paint
+      requestAnimationFrame(() => setShowHunks(true))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Update failed")
       setPhase("compose")
@@ -120,27 +121,29 @@ export function DockedComposer({
       debrief: result.debrief || {},
       summary: result.summary || "Accepted roster updates",
     })
-    setResult(null)
-    setPaste("")
-    setChips([])
-    setPhase("compose")
-    setActiveHunkId(null)
-    onHighlightPaths([])
+    resetToCompose(true)
   }
 
   const reject = () => {
+    resetToCompose(false)
+    onRejectAll?.()
+  }
+
+  const resetToCompose = (clearPaste: boolean) => {
     setResult(null)
+    if (clearPaste) setPaste("")
     setChips([])
     setPhase("compose")
     setActiveHunkId(null)
+    setShowHunks(false)
     onHighlightPaths([])
-    onRejectAll?.()
   }
 
   return (
     <aside className="docked-composer flex flex-col h-full min-h-0" aria-label="Update roster from email or notes">
       <header className="docked-composer__hero shrink-0">
-        <p className="docked-composer__eyebrow">Boeing Helper</p>
+        <div className="docked-composer__hero-glow" aria-hidden />
+        <p className="docked-composer__brand">Boeing Helper</p>
         <h3 className="docked-composer__title">Update roster</h3>
         <p className="docked-composer__sub">
           Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster.
@@ -148,8 +151,8 @@ export function DockedComposer({
       </header>
 
       <div className="docked-composer__body flex flex-col min-h-0 flex-1">
-        {phase === "compose" && (
-          <>
+        {(phase === "compose" || phase === "extracting") && (
+          <div className={`docked-composer__paste-wrap ${phase === "extracting" ? "is-scanning" : ""}`}>
             <label className="sr-only" htmlFor="docked-paste">Email or notes</label>
             <textarea
               id="docked-paste"
@@ -159,63 +162,74 @@ export function DockedComposer({
               placeholder="Paste email, roster notes, or freeform travel updates…"
               className="docked-composer__textarea"
               spellCheck={false}
+              readOnly={phase === "extracting"}
             />
-            <div className="docked-composer__actions shrink-0">
-              <button
-                type="button"
-                onClick={runGenerate}
-                disabled={busy}
-                className="docked-composer__primary"
-              >
-                {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                Propose updates
-              </button>
-              <button
-                type="button"
-                className="docked-composer__ghost"
-                onClick={() => {
-                  setPaste(SAMPLE_ATTENDEE_UPDATE_EMAIL)
-                  setError(null)
-                  requestAnimationFrame(() => textareaRef.current?.focus())
-                }}
-              >
-                <Mail size={13} />
-                Use sample email
-              </button>
-            </div>
-          </>
+            {phase === "extracting" && (
+              <div className="docked-composer__extract-overlay" aria-live="polite">
+                <div className="docked-composer__extract-label">
+                  <Loader2 size={13} className="animate-spin" />
+                  Reading paste…
+                </div>
+                <div className="docked-composer__scan" />
+                <div className="docked-composer__chips">
+                  {chips.map((c, i) => (
+                    <div
+                      key={c.id}
+                      className={`docked-composer__chip docked-composer__chip--${c.kind}`}
+                      style={{ animationDelay: `${0.06 + i * 0.09}s` }}
+                    >
+                      {c.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {phase === "extracting" && (
-          <div className="docked-composer__extract" aria-live="polite">
-            <div className="docked-composer__extract-label">
-              <Loader2 size={13} className="animate-spin" />
-              Reading paste…
-            </div>
-            <div className="docked-composer__scan" />
-            <div className="docked-composer__chips">
-              {chips.map((c, i) => (
-                <div
-                  key={c.id}
-                  className={`docked-composer__chip docked-composer__chip--${c.kind}`}
-                  style={{ animationDelay: `${0.08 + i * 0.1}s` }}
-                >
-                  {c.label}
-                </div>
-              ))}
-            </div>
+        {phase === "compose" && (
+          <div className="docked-composer__actions shrink-0">
+            <button type="button" onClick={runGenerate} disabled={busy} className="docked-composer__primary">
+              Propose updates
+            </button>
+            <button
+              type="button"
+              className="docked-composer__ghost"
+              onClick={() => {
+                setPaste(SAMPLE_ATTENDEE_UPDATE_EMAIL)
+                setError(null)
+                requestAnimationFrame(() => textareaRef.current?.focus())
+              }}
+            >
+              <Mail size={13} />
+              Use sample email
+            </button>
           </div>
         )}
 
         {phase === "review" && result && (
           <div className="docked-composer__review flex flex-col min-h-0 flex-1">
-            <DebriefStrip debrief={result.debrief} summary={result.summary} count={result.hunks.length} />
-            <ul className="docked-composer__hunks flex-1 min-h-0 overflow-y-auto">
-              {result.hunks.map((h) => {
+            <div className="docked-composer__debrief shrink-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="docked-composer__debrief-title">Proposed changes</p>
+                <span className="docked-composer__count">{result.hunks.length}</span>
+              </div>
+              {result.summary && !/fallback|groq|score/i.test(result.summary) && (
+                <p className="docked-composer__debrief-sum">{result.summary}</p>
+              )}
+              {result.summary && /fallback/i.test(result.summary) && (
+                <p className="docked-composer__debrief-sum">
+                  Mapped {result.hunks.length} field update{result.hunks.length === 1 ? "" : "s"} from the pasted note.
+                </p>
+              )}
+            </div>
+
+            <ul className={`docked-composer__hunks flex-1 min-h-0 overflow-y-auto ${showHunks ? "is-in" : ""}`}>
+              {result.hunks.map((h, i) => {
                 const on = selected[h.id] !== false
                 const active = activeHunkId === h.id
                 return (
-                  <li key={h.id}>
+                  <li key={h.id} style={{ animationDelay: `${0.04 + i * 0.045}s` }}>
                     <button
                       type="button"
                       className={`docked-composer__hunk ${on ? "is-on" : "is-off"} ${active ? "is-active" : ""}`}
@@ -239,7 +253,6 @@ export function DockedComposer({
                           {h.field}
                           <span className="docked-composer__op">{h.op}</span>
                         </p>
-                        <p className="docked-composer__hunk-path">{h.path}</p>
                         <ReviewDiffText before={h.before} after={h.after} op={h.op} />
                       </div>
                     </button>
@@ -258,35 +271,27 @@ export function DockedComposer({
                 <Check size={14} />
                 Accept selected ({selectedHunks.length})
               </button>
-              <button
-                type="button"
-                className="docked-composer__ghost"
-                onClick={() => {
-                  if (!result) return
-                  const all: Record<string, boolean> = {}
-                  for (const h of result.hunks) all[h.id] = true
-                  setSelected(all)
-                }}
-              >
-                Select all
-              </button>
               <button type="button" className="docked-composer__ghost" onClick={reject}>
                 <X size={13} />
                 Reject
               </button>
-              <button
-                type="button"
-                className="docked-composer__link"
-                onClick={() => {
-                  setPhase("compose")
-                  setResult(null)
-                  setChips([])
-                  setActiveHunkId(null)
-                  onHighlightPaths([])
-                }}
-              >
-                Edit paste
-              </button>
+              <div className="docked-composer__quiet">
+                <button
+                  type="button"
+                  className="docked-composer__link"
+                  onClick={() => {
+                    if (!result) return
+                    const all: Record<string, boolean> = {}
+                    for (const h of result.hunks) all[h.id] = true
+                    setSelected(all)
+                  }}
+                >
+                  Select all
+                </button>
+                <button type="button" className="docked-composer__link" onClick={() => resetToCompose(false)}>
+                  Edit paste
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -296,32 +301,6 @@ export function DockedComposer({
         )}
       </div>
     </aside>
-  )
-}
-
-function DebriefStrip({
-  debrief,
-  summary,
-  count,
-}: {
-  debrief: DocumentDebrief
-  summary: string
-  count: number
-}) {
-  return (
-    <div className="docked-composer__debrief shrink-0">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="docked-composer__debrief-title">Proposed changes</p>
-        <span className="docked-composer__count">{count}</span>
-      </div>
-      {summary && <p className="docked-composer__debrief-sum">{summary}</p>}
-      {(debrief?.sentiment || typeof debrief?.score === "number") && (
-        <p className="docked-composer__meta">
-          {debrief.sentiment && <span>{debrief.sentiment}</span>}
-          {typeof debrief.score === "number" && <span>Score {debrief.score}</span>}
-        </p>
-      )}
-    </div>
   )
 }
 
