@@ -1122,38 +1122,35 @@ a:hover { color: var(--boeing-blue); }
 .report-docx-editor--embedded {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   min-height: 100%;
 }
 
-.report-docx-spotlight {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--boeing-navy);
-  background: #FFE58A;
-  border-left: 3px solid var(--boeing-blue);
+.report-docx-host.is-field-focus {
+  outline: 2px solid rgba(0, 51, 161, 0.28);
+  outline-offset: -2px;
+}
+
+.report-docx-host.is-field-applied {
+  outline: 2px solid rgba(47, 107, 79, 0.4);
+  outline-offset: -2px;
+}
+
+.report-docx-in-highlight {
+  background-color: #FFE58A !important;
+  box-shadow: inset 3px 0 0 var(--boeing-blue);
   animation: sheetPulse 1.2s ease-in-out 1;
 }
 
-.report-docx-spotlight span {
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text-secondary);
+.report-docx-in-highlight.is-applied,
+.sheet-is-applied .report-docx-in-highlight {
+  background-color: #D7F0E3 !important;
+  box-shadow: inset 3px 0 0 #2F6B4F;
+  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
 }
 
-.report-docx-spotlight.is-applied {
-  background: #D7F0E3;
-  border-left-color: #2F6B4F;
-  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
+.report-docx-spotlight {
+  display: none;
 }
 
 @keyframes sheetPulse {

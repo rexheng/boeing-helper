@@ -33,11 +33,64 @@ function editorPlainText(editor: { query?: (q: { type: string }) => unknown } | 
 function fieldLabel(key?: string) {
   if (!key) return ""
   if (key === "executiveSummary" || key === "Executive Summary") return "Executive Summary"
-  if (key === "engagementBody" || key === "Engagement Body") return "Engagement Body"
-  if (key === "engagementTitle" || key === "Engagement Title") return "Engagement Title"
-  if (key === "regionLabel" || key === "Region") return "Region"
-  if (key === "showName" || key === "Show") return "Show"
+  if (key === "engagementBody" || key === "Engagement Body") return "Engagement"
+  if (key === "engagementTitle" || key === "Engagement Title") return "Engagement"
+  if (key === "regionLabel" || key === "Region") return "ASIA PACIFIC"
+  if (key === "showName" || key === "Show") return "Summary Report"
   return key
+}
+
+function searchSnippets(data: AirshowReportData, key?: string): string[] {
+  if (!key) return []
+  if (key === "executiveSummary" || key === "Executive Summary") {
+    return ["Executive Summary", data.executiveSummary.slice(0, 48)]
+  }
+  if (key === "engagementBody" || key === "Engagement Body") {
+    return [data.engagementTitle, data.engagementBody.slice(0, 48), "ACTION:"]
+  }
+  if (key === "engagementTitle" || key === "Engagement Title") {
+    return [data.engagementTitle]
+  }
+  if (key === "regionLabel" || key === "Region") {
+    return [data.regionLabel, "ASIA PACIFIC"]
+  }
+  if (key === "showName" || key === "Show") {
+    return [data.showName, "Summary Report"]
+  }
+  return [fieldLabel(key)]
+}
+
+function clearInDocHighlights(root: HTMLElement) {
+  root.querySelectorAll(".report-docx-in-highlight").forEach((el) => {
+    el.classList.remove("report-docx-in-highlight", "is-applied", "sheet-row-highlight")
+  })
+  root.classList.remove("sheet-is-reviewing", "sheet-is-applied")
+}
+
+/** Best-effort: find a rendered Word paragraph/heading and pulse it in place. */
+function pulseInDocument(root: HTMLElement, snippets: string[], mode?: "focus" | "applied") {
+  clearInDocHighlights(root)
+  if (!snippets.length) return
+  root.classList.add(mode === "applied" ? "sheet-is-applied" : "sheet-is-reviewing")
+
+  const candidates = Array.from(
+    root.querySelectorAll<HTMLElement>("p, h1, h2, h3, h4, td, span, div"),
+  )
+
+  for (const snippet of snippets) {
+    const needle = snippet.trim()
+    if (needle.length < 3) continue
+    const hit = candidates.find((el) => {
+      const t = (el.textContent || "").replace(/\s+/g, " ").trim()
+      return t.includes(needle) && t.length < 800
+    })
+    if (hit) {
+      hit.classList.add("report-docx-in-highlight", "sheet-row-highlight")
+      if (mode === "applied") hit.classList.add("is-applied")
+      hit.scrollIntoView({ behavior: "smooth", block: "nearest" })
+      return
+    }
+  }
 }
 
 export function ReportDocxEditor({
@@ -56,6 +109,7 @@ export function ReportDocxEditor({
   highlightMode?: "focus" | "applied"
 }) {
   const ref = useRef<DocxEditorRef>(null)
+  const hostRef = useRef<HTMLDivElement>(null)
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<"load" | "docx" | "pdf" | null>("load")
@@ -82,6 +136,24 @@ export function ReportDocxEditor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reloadKey forces rebuild from latest data
   }, [reloadKey])
+
+  useEffect(() => {
+    const root = hostRef.current
+    if (!root) return
+    if (!highlightField) {
+      clearInDocHighlights(root)
+      return
+    }
+    const snippets = searchSnippets(data, highlightField)
+    const run = () => pulseInDocument(root, snippets, highlightMode)
+    run()
+    const t1 = window.setTimeout(run, 280)
+    const t2 = window.setTimeout(run, 700)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+  }, [highlightField, highlightMode, buffer, data, busy])
 
   const handleWord = async () => {
     setBusy("docx")
@@ -140,11 +212,9 @@ export function ReportDocxEditor({
     }
   }
 
-  const spotlight = fieldLabel(highlightField)
-
   return (
     <div className={`report-docx-editor ${embedded ? "report-docx-editor--embedded" : "space-y-3"}`}>
-      {!embedded ? (
+      {!embedded && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
             Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd>{" "}
@@ -173,19 +243,6 @@ export function ReportDocxEditor({
             </button>
           </div>
         </div>
-      ) : (
-        <p className="text-[11px] m-0" style={{ color: "var(--text-secondary)" }}>
-          Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd> bold · Export from toolbar
-        </p>
-      )}
-
-      {spotlight && (
-        <div
-          className={`report-docx-spotlight ${highlightMode === "applied" ? "is-applied" : "is-focus"}`}
-          role="status"
-        >
-          Spotlight · {spotlight}
-        </div>
       )}
 
       {error && (
@@ -193,8 +250,15 @@ export function ReportDocxEditor({
       )}
 
       <div
-        className="report-docx-host bg-white overflow-hidden"
-        style={{ border: "1px solid var(--surface-border)", minHeight: embedded ? 420 : 560 }}
+        ref={hostRef}
+        className={[
+          "report-docx-host bg-white overflow-auto",
+          highlightField && highlightMode === "focus" ? "sheet-is-reviewing is-field-focus" : "",
+          highlightField && highlightMode === "applied" ? "sheet-is-applied is-field-applied" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={{ border: "1px solid #9AA3AD", minHeight: embedded ? 480 : 560 }}
       >
         {busy === "load" && !buffer && (
           <div className="flex items-center justify-center gap-2 py-24 text-sm" style={{ color: NAVY }}>

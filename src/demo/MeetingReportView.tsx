@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react"
-import { Download, FileText, List, Minus, Plus } from "lucide-react"
+import { Download, Minus, Plus } from "lucide-react"
 import { Button } from "../components/Button"
 import { ChangelogDrawer } from "../components/review/ChangelogDrawer"
 import { DockedComposer } from "../components/review/DockedComposer"
@@ -11,7 +11,6 @@ import { applyReportHunks } from "../utils/applyReviewHunks"
 import { changelogScope } from "../utils/changelogStorage"
 import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
 import { buildAirshowReportDocx, type AirshowReportData } from "../utils/templateExport"
-import { ReportOutlineSheet } from "./ReportOutlineSheet"
 
 const ReportDocxEditor = lazy(() =>
   import("./ReportDocxEditor").then((m) => ({ default: m.ReportDocxEditor })),
@@ -32,8 +31,6 @@ const GRID = "#9AA3AD"
 const ZOOM_MIN = 0.75
 const ZOOM_MAX = 1.5
 const ZOOM_STEP = 0.1
-
-type ReportView = "outline" | "word"
 
 function downloadBuffer(buf: ArrayBuffer, filename: string) {
   const blob = new Blob([new Uint8Array(buf)], {
@@ -75,7 +72,6 @@ export function MeetingReportView({
   const [engagementTitle, setEngagementTitle] = useState(`${meetingType}: ${person.title}`)
   const [regionLabel, setRegionLabel] = useState("ASIA PACIFIC REGION")
   const [reloadKey, setReloadKey] = useState(0)
-  const [reportView, setReportView] = useState<ReportView>("outline")
   const [zoom, setZoom] = useState(1)
   const [highlightPaths, setHighlightPaths] = useState<string[]>([])
   const [appliedFlash, setAppliedFlash] = useState<string[]>([])
@@ -105,23 +101,8 @@ export function MeetingReportView({
     setRegionLabel(next.regionLabel)
   }, [])
 
-  const onManualChange = useCallback(
-    (next: AirshowReportData) => {
-      applyDoc(next)
-      setReloadKey((k) => k + 1)
-      recordAccept({
-        source: "manual",
-        target: "report",
-        summary: "Manual report edit",
-        hunks: [],
-      })
-    },
-    [applyDoc, recordAccept],
-  )
-
   const onHighlightPaths = useCallback((paths: string[]) => {
     setHighlightPaths(paths)
-    if (paths.length) setReportView("outline")
   }, [])
 
   const bumpZoom = (dir: 1 | -1) => {
@@ -161,7 +142,6 @@ export function MeetingReportView({
             const anchors = hunks.map((h) => h.anchor || fieldKeyFromLabel(h.field)).filter(Boolean) as string[]
             setAppliedFlash(anchors)
             setHighlightPaths([])
-            setReportView("outline")
             window.setTimeout(() => setAppliedFlash([]), 2200)
             recordAccept({
               source: "llm",
@@ -181,35 +161,9 @@ export function MeetingReportView({
         <div className="docked-workspace__sheet">
           <div className="docked-workspace__toolbar">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Report display">
-                {(
-                  [
-                    { id: "outline" as const, label: "Report", icon: List },
-                    { id: "word" as const, label: "Word", icon: FileText },
-                  ] as const
-                ).map((v, i) => {
-                  const Icon = v.icon
-                  const active = reportView === v.id
-                  return (
-                    <button
-                      key={v.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => setReportView(v.id)}
-                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
-                      style={{
-                        background: active ? NAVY : "#fff",
-                        color: active ? "#fff" : NAVY,
-                        borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
-                      }}
-                    >
-                      <Icon size={12} />
-                      {v.label}
-                    </button>
-                  )
-                })}
-              </div>
+              <p className="text-[11px] font-semibold m-0" style={{ color: NAVY }}>
+                Air Show Summary Report
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -246,33 +200,23 @@ export function MeetingReportView({
           </div>
 
           <div className="docked-workspace__sheet-body">
-            {reportView === "outline" ? (
-              <ReportOutlineSheet
-                data={reportDoc}
-                onChange={onManualChange}
-                zoom={zoom}
-                highlightPaths={highlightPaths.length ? highlightPaths : appliedFlash}
-                highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
-              />
-            ) : (
-              <div style={{ zoom }}>
-                <Suspense
-                  fallback={
-                    <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
-                      Loading Word editor…
-                    </div>
-                  }
-                >
-                  <ReportDocxEditor
-                    data={reportDoc}
-                    reloadKey={reloadKey}
-                    embedded
-                    highlightField={highlightPaths[0] || appliedFlash[0]}
-                    highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
-                  />
-                </Suspense>
-              </div>
-            )}
+            <div style={{ zoom }}>
+              <Suspense
+                fallback={
+                  <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+                    Loading Word editor…
+                  </div>
+                }
+              >
+                <ReportDocxEditor
+                  data={reportDoc}
+                  reloadKey={reloadKey}
+                  embedded
+                  highlightField={highlightPaths[0] || appliedFlash[0]}
+                  highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>
