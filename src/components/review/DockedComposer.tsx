@@ -8,8 +8,66 @@ import type {
 } from "../../types/documentReview"
 import { ReviewDiffText } from "./ReviewDiffText"
 import { SAMPLE_ATTENDEE_UPDATE_EMAIL } from "../../demo/sampleAttendeeUpdateEmail"
+import { SAMPLE_REPORT_UPDATE_EMAIL } from "../../demo/sampleReportUpdateEmail"
 
 type Phase = "compose" | "extracting" | "review" | "applied"
+
+const COPY: Record<
+  ReviewTarget,
+  {
+    aria: string
+    titleCompose: string
+    titleReview: string
+    titleApplied: string
+    subCompose: string
+    subReview: string
+    subApplied: string
+    placeholder: string
+    applyLabel: (n: number) => string
+    victoryTitle: (n: number) => string
+    victorySub: (n: number) => string
+    sample: string
+    sampleLabel: string
+    acceptFallbackSummary: string
+  }
+> = {
+  attendees: {
+    aria: "Update roster from email or notes",
+    titleCompose: "Update roster",
+    titleReview: "Review updates",
+    titleApplied: "Roster updated",
+    subCompose:
+      "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster.",
+    subReview: "Select what to apply. Click a change to spotlight it on the live sheet.",
+    subApplied: "Changes are on the roster. Paste another note anytime.",
+    placeholder: "Paste email, roster notes, or freeform travel updates…",
+    applyLabel: (n) => `Apply ${n} to roster`,
+    victoryTitle: (n) => `Applied ${n} update${n === 1 ? "" : "s"} to the roster`,
+    victorySub: (n) =>
+      `${n} change${n === 1 ? "" : "s"} ${n === 1 ? "is" : "are"} live on the sheet and logged in Changelog.`,
+    sample: SAMPLE_ATTENDEE_UPDATE_EMAIL,
+    sampleLabel: "Use sample email",
+    acceptFallbackSummary: "Accepted roster updates",
+  },
+  report: {
+    aria: "Update summary report from email or notes",
+    titleCompose: "Update report",
+    titleReview: "Review updates",
+    titleApplied: "Report updated",
+    subCompose:
+      "Paste an email or freeform debrief — we’ll propose report updates you review before anything hits the Word document.",
+    subReview: "Select what to apply. Click a change to spotlight it in the live report.",
+    subApplied: "Changes are on the report. Paste another note anytime.",
+    placeholder: "Paste email, bilateral notes, or freeform debrief text…",
+    applyLabel: (n) => `Apply ${n} to report`,
+    victoryTitle: (n) => `Applied ${n} update${n === 1 ? "" : "s"} to the report`,
+    victorySub: (n) =>
+      `${n} change${n === 1 ? "" : "s"} ${n === 1 ? "is" : "are"} live on the document and logged in Changelog.`,
+    sample: SAMPLE_REPORT_UPDATE_EMAIL,
+    sampleLabel: "Use sample debrief",
+    acceptFallbackSummary: "Accepted report updates",
+  },
+}
 
 export function DockedComposer({
   target,
@@ -32,7 +90,8 @@ export function DockedComposer({
   }) => void
   onRejectAll?: () => void
 }) {
-  const [paste, setPaste] = useState(SAMPLE_ATTENDEE_UPDATE_EMAIL)
+  const copy = COPY[target]
+  const [paste, setPaste] = useState(copy.sample)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<DocumentUpdateResponse | null>(null)
@@ -92,7 +151,7 @@ export function DockedComposer({
 
       const staged = data.hunks.slice(0, 8).map((h) => ({
         id: h.id,
-        label: chipLabel(h),
+        label: chipLabel(h, target),
         kind: (h.op === "add" ? "add" : h.op === "remove" ? "rm" : "upd") as "add" | "upd" | "rm",
       }))
       setChips(staged)
@@ -126,7 +185,7 @@ export function DockedComposer({
       hunks: selectedHunks,
       allHunkCount: result.hunks.length,
       debrief: result.debrief || {},
-      summary: result.summary || "Accepted roster updates",
+      summary: result.summary || copy.acceptFallbackSummary,
     })
     setAppliedCount(n)
     setResult(null)
@@ -154,31 +213,35 @@ export function DockedComposer({
   }
 
   return (
-    <aside className="docked-composer flex flex-col h-full min-h-0" aria-label="Update roster from email or notes">
+    <aside className="docked-composer flex flex-col h-full min-h-0" aria-label={copy.aria}>
       <header className="docked-composer__hero shrink-0">
         <p className="docked-composer__brand">Boeing Helper</p>
         <h3 className="docked-composer__title">
-          {phase === "review" ? "Review updates" : phase === "applied" ? "Roster updated" : "Update roster"}
+          {phase === "review"
+            ? copy.titleReview
+            : phase === "applied"
+              ? copy.titleApplied
+              : copy.titleCompose}
         </h3>
         <p className="docked-composer__sub">
           {phase === "review"
-            ? "Select what to apply. Click a change to spotlight it on the live sheet."
+            ? copy.subReview
             : phase === "applied"
-              ? "Changes are on the roster. Paste another note anytime."
-              : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."}
+              ? copy.subApplied
+              : copy.subCompose}
         </p>
       </header>
 
       <div className="docked-composer__body flex flex-col min-h-0 flex-1">
         {(phase === "compose" || phase === "extracting") && (
           <div className={`docked-composer__paste-wrap ${phase === "extracting" ? "is-scanning" : ""}`}>
-            <label className="sr-only" htmlFor="docked-paste">Email or notes</label>
+            <label className="sr-only" htmlFor={`docked-paste-${target}`}>Email or notes</label>
             <textarea
-              id="docked-paste"
+              id={`docked-paste-${target}`}
               ref={textareaRef}
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
-              placeholder="Paste email, roster notes, or freeform travel updates…"
+              placeholder={copy.placeholder}
               className="docked-composer__textarea"
               spellCheck={false}
               readOnly={phase === "extracting"}
@@ -215,13 +278,13 @@ export function DockedComposer({
               type="button"
               className="docked-composer__link"
               onClick={() => {
-                setPaste(SAMPLE_ATTENDEE_UPDATE_EMAIL)
+                setPaste(copy.sample)
                 setError(null)
                 requestAnimationFrame(() => textareaRef.current?.focus())
               }}
             >
               <Mail size={12} />
-              Use sample email
+              {copy.sampleLabel}
             </button>
           </div>
         )}
@@ -229,12 +292,8 @@ export function DockedComposer({
         {phase === "applied" && (
           <div className="docked-composer__victory" aria-live="polite">
             <CheckCircle2 size={28} style={{ color: "#2F6B4F" }} />
-            <p className="docked-composer__victory-title">
-              Applied {appliedCount} update{appliedCount === 1 ? "" : "s"} to the roster
-            </p>
-            <p className="docked-composer__victory-sub">
-              {appliedCount} change{appliedCount === 1 ? "" : "s"} {appliedCount === 1 ? "is" : "are"} live on the sheet and logged in Changelog.
-            </p>
+            <p className="docked-composer__victory-title">{copy.victoryTitle(appliedCount)}</p>
+            <p className="docked-composer__victory-sub">{copy.victorySub(appliedCount)}</p>
             <button type="button" className="docked-composer__primary" onClick={() => resetToCompose(true)}>
               Update from another note
             </button>
@@ -275,10 +334,10 @@ export function DockedComposer({
                           toggle(h.id)
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        aria-label={`Include change: ${executiveHeadline(h)}`}
+                        aria-label={`Include change: ${executiveHeadline(h, target)}`}
                       />
                       <div className="min-w-0 flex-1 text-left">
-                        <p className="docked-composer__hunk-field">{executiveHeadline(h)}</p>
+                        <p className="docked-composer__hunk-field">{executiveHeadline(h, target)}</p>
                         <p className="docked-composer__hunk-detail">
                           <ReviewDiffText before={h.before} after={h.after} op={h.op} />
                         </p>
@@ -297,7 +356,7 @@ export function DockedComposer({
                 className="docked-composer__primary"
               >
                 <Check size={14} />
-                Apply {selectedHunks.length} to roster
+                {copy.applyLabel(selectedHunks.length)}
               </button>
               <button type="button" className="docked-composer__ghost" onClick={reject}>
                 <X size={13} />
@@ -320,7 +379,8 @@ export function DockedComposer({
   )
 }
 
-function executiveHeadline(h: ReviewHunk) {
+function executiveHeadline(h: ReviewHunk, target: ReviewTarget) {
+  if (target === "report") return reportHeadline(h)
   if (h.op === "remove") {
     const who = h.before.split("·")[0]?.trim() || h.field
     return `Remove ${who}`
@@ -344,6 +404,20 @@ function executiveHeadline(h: ReviewHunk) {
   return h.field
 }
 
+function reportHeadline(h: ReviewHunk) {
+  if (/executive/i.test(h.field)) return "Refresh executive summary"
+  if (/engagement title/i.test(h.field)) return "Retitle engagement"
+  if (/engagement body/i.test(h.field) || /notes/i.test(h.field)) return "Rewrite engagement notes"
+  if (/region/i.test(h.field)) return "Update region label"
+  if (/action/i.test(h.field)) {
+    const owner = h.after.match(/ACTION:\s*([^—\n-]+)/i)?.[1]?.trim()
+    return owner ? `Add action · ${owner}` : "Add follow-up action"
+  }
+  if (h.op === "add") return `Add ${h.field}`
+  if (h.op === "remove") return `Remove ${h.field}`
+  return h.field
+}
+
 function roleSuffix(h: ReviewHunk) {
   const role = h.path.split(" / ").slice(-1)[0]
   if (!role || /objective/i.test(role)) return ""
@@ -352,8 +426,8 @@ function roleSuffix(h: ReviewHunk) {
   return ""
 }
 
-function chipLabel(h: ReviewHunk) {
-  return executiveHeadline(h).slice(0, 48)
+function chipLabel(h: ReviewHunk, target: ReviewTarget) {
+  return executiveHeadline(h, target).slice(0, 48)
 }
 
 function wait(ms: number) {
