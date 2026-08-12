@@ -19,7 +19,7 @@ export function Hero({ onStartDemo }: HeroProps) {
       <header className="site-header">
         <div className="constrain site-header__inner">
           <a href="#top" className="site-header__logo flex items-center">
-            <HelperLogo variant="white" height={26} />
+            <HelperLogo variant="white" height={28} />
           </a>
 
           <nav className="site-header__nav" aria-label="Primary">
@@ -46,16 +46,22 @@ export function Hero({ onStartDemo }: HeroProps) {
         <div className="hero__scrim" />
 
         <div className="hero__content">
-          <div className="constrain hero__copy animate-[fadeInUp_0.9s_ease-out_both]">
+          <div className="constrain animate-[fadeInUp_0.9s_ease-out_both]">
+            <p className="system-badge mb-5">Boeing Internal Tool</p>
+
             <h1 className="hero__brand">
-              <HelperLogo variant="white" height={56} className="hero__brand-logo" />
+              <HelperLogo variant="white" height={72} className="hero__brand-logo" />
             </h1>
 
-            <p className="hero__sub">
-              Meeting briefs and papers updated live for every engagement
+            <p className="hero__headline">
+              Meeting papers, biographies, and programme context for IBD engagements.
             </p>
 
-            <div className="hero__actions">
+            <p className="hero__sub">
+              Consolidate organisation, biography, and programme context before the engagement.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 mt-9">
               <Button variant="primary" onClick={onStartDemo}>
                 Start preparation
               </Button>
