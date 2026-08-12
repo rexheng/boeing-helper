@@ -50,7 +50,7 @@ export const meetingTypes: MeetingType[] = [
   {
     id: "other",
     label: "Other",
-    subtitle: "Describe the engagement context in your own words",
+    subtitle: "Enter a custom meeting type",
     icon: "message-circle",
   },
 ]

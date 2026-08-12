@@ -31,7 +31,7 @@ export const regions: RegionGroup[] = [
   {
     id: "southeast-asia",
     name: "Southeast Asia",
-    blurb: "Boeing SEA hub in Singapore — commercial growth and defence partnerships across ASEAN.",
+    blurb: "ASEAN commercial and defence partners.",
     countries: [
       { id: "singapore", name: "Singapore", ministryHint: "MINDEF · Singapore Airlines" },
       { id: "indonesia", name: "Indonesia", ministryHint: "Kemhan RI · Garuda Indonesia" },
@@ -44,7 +44,7 @@ export const regions: RegionGroup[] = [
   {
     id: "northeast-asia",
     name: "Northeast Asia",
-    blurb: "Japan and Republic of Korea — mature fleets, industrial partnerships, and alliance sustainment.",
+    blurb: "Japan and Republic of Korea partners.",
     countries: [
       { id: "japan", name: "Japan", ministryHint: "Japan Airlines" },
       { id: "korea", name: "Republic of Korea", ministryHint: "Korean Air" },
@@ -53,7 +53,7 @@ export const regions: RegionGroup[] = [
   {
     id: "india",
     name: "India",
-    blurb: "New Delhi HQ with Bengaluru engineering depth — Make-in-India defence and commercial fleet rebuild.",
+    blurb: "India commercial and defence partners.",
     countries: [
       { id: "india", name: "India", ministryHint: "Air India" },
     ],
@@ -61,7 +61,7 @@ export const regions: RegionGroup[] = [
   {
     id: "anz",
     name: "Australia & New Zealand",
-    blurb: "Australia–NZ–South Pacific hub — defence cooperation and airline fleet renewals.",
+    blurb: "Australia and New Zealand partners.",
     countries: [
       { id: "australia", name: "Australia", ministryHint: "Department of Defence · Qantas" },
     ],
@@ -69,7 +69,7 @@ export const regions: RegionGroup[] = [
   {
     id: "middle-east",
     name: "Middle East",
-    blurb: "Dubai and Doha presence — airline hubs, defence readiness, and distribution centres.",
+    blurb: "Middle East airline and defence partners.",
     countries: [
       { id: "uae", name: "United Arab Emirates", ministryHint: "Emirates" },
       { id: "qatar", name: "Qatar", ministryHint: "Qatar Airways" },

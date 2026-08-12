@@ -93,10 +93,10 @@ export function MeetingPaperView({
         <div>
           <p className="system-badge system-badge--dark">Meeting Paper</p>
           <h2 className="mt-2 text-2xl md:text-3xl font-bold" style={{ color: NAVY }}>
-            BDS / BGS air-show format
+            Meeting paper
           </h2>
           <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-            Matches the Boeing Meeting Paper template — export Word or PDF for the trip book.
+            Boeing Meeting Paper template. Export Word or PDF.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

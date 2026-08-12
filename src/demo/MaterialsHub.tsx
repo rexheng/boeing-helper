@@ -44,7 +44,7 @@ export function MaterialsHub({
       ? "Singapore Airshow 2026"
       : meetingType
   const [eventName, setEventName] = useState(defaultEvent)
-  const [showcase, setShowcase] = useState("P-8A pathway and rotorcraft sustainment support")
+  const [showcase, setShowcase] = useState("Programme focus")
   const [senderName, setSenderName] = useState("Rex Heng")
   const senderTitle = "Regional Integrator, International Business Development"
   const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
@@ -87,7 +87,7 @@ export function MaterialsHub({
           Invitation and attendee dashboard
         </h2>
         <p className="mt-3 max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
-          Letter for the counterpart, plus a role-and-objectives dashboard for the show cycle.
+          Invitation letter and attendee dashboard.
         </p>
       </div>
 

@@ -61,7 +61,7 @@ export default function App() {
                   style={{ height: 28, width: "auto" }}
                   decoding="async"
                 />
-                <p className="mt-3 text-lg font-light">Loading demo…</p>
+                <p className="mt-3 text-lg font-light">Loading…</p>
               </div>
             </div>
           }

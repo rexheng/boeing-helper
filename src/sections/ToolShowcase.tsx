@@ -20,7 +20,7 @@ const capabilities: Capability[] = [
     title: "Briefing Intelligence",
     image: "/images/capability-briefing.jpg",
     alt: "Colleagues reviewing printed briefing material at a table",
-    desc: "One consolidated read-ahead per engagement — company position, industry landscape, and country context, assembled before you leave for the show.",
+    desc: "Organisation, industry, and country context in one briefing.",
     points: [
       "Fleet, order book, and programme status",
       "Industry and competitor movement",
@@ -32,7 +32,7 @@ const capabilities: Capability[] = [
     image: "/images/capability-bio.jpg",
     alt: "Portrait of an executive in a glass-walled office",
     focus: "50% 18%",
-    desc: "Know who is in the room before you shake hands. Career history, portfolio, public positions, and the concerns they have raised on record.",
+    desc: "Biography, portfolio, public positions, and known concerns.",
     points: [
       "Appointment history and reporting lines",
       "Stated priorities and recent remarks",
@@ -43,7 +43,7 @@ const capabilities: Capability[] = [
     title: "Live Meeting Overlay",
     image: "/images/capability-live.jpg",
     alt: "Delegates taking notes during a conference session",
-    desc: "Keep the briefing at hand while the meeting runs. Recall a figure, a programme name, or a follow-up commitment without breaking the conversation.",
+    desc: "On-screen access to key facts, talking points, and follow-ups during the meeting.",
     points: [
       "Key facts on a single keystroke",
       "Talking points and questions to expect",
@@ -60,8 +60,8 @@ export function ToolShowcase({ id }: ToolShowcaseProps) {
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Capabilities"
-          title="Everything your team needs before the room fills."
-          subtitle="Boeing Helper pulls preparation into one place so account teams, campaign leads, and executives arrive with the same picture of the counterpart."
+          title="Capabilities for meeting preparation"
+          subtitle="One shared briefing for account, campaign, and executive reviewers."
         />
 
         <div className={`grid gap-6 md:grid-cols-3 stagger ${visible ? "visible" : ""}`}>
