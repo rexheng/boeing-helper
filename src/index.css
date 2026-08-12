@@ -641,10 +641,27 @@ a:hover { color: var(--boeing-blue); }
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 12px;
-  background: linear-gradient(180deg, rgba(10, 34, 64, 0.04) 0%, rgba(247, 250, 252, 0.92) 38%, rgba(247, 250, 252, 0.97) 100%);
-  backdrop-filter: blur(1px);
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(10, 34, 64, 0.12) 0%, rgba(247, 250, 252, 0.94) 32%, rgba(247, 250, 252, 0.98) 100%);
+  backdrop-filter: blur(2px);
   animation: dockOverlayIn 0.28s var(--ease-out-expo);
+  z-index: 3;
+}
+
+.docked-composer__extract-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+  background: #fff;
+  border: 1px solid rgba(10, 34, 64, 0.12);
+  padding: 8px 12px;
+  width: fit-content;
+  box-shadow: 0 6px 18px rgba(10, 34, 64, 0.08);
 }
 
 @keyframes dockOverlayIn {
@@ -737,32 +754,22 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .sheet-is-reviewing .sheet-row-dim {
-  opacity: 0.42;
+  opacity: 0.34;
   transition: opacity 0.2s ease;
 }
 
 .sheet-is-reviewing .sheet-row-highlight {
   opacity: 1;
-  outline: 1px solid rgba(0, 51, 161, 0.28);
+  outline: 2px solid rgba(0, 51, 161, 0.45);
   position: relative;
   z-index: 1;
+  animation: sheetPulse 1.1s ease-in-out 3;
 }
 
 .docked-composer__error {
   margin: 0;
   font-size: 12px;
   color: #B91C1C;
-}
-
-.docked-composer__extract-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--boeing-navy);
 }
 
 .docked-composer__scan {
@@ -924,43 +931,51 @@ a:hover { color: var(--boeing-blue); }
   gap: 6px;
 }
 
+@keyframes sheetPulse {
+  0%, 100% {
+    background-color: #F3E7B4;
+    box-shadow: inset 3px 0 0 var(--boeing-blue);
+  }
+  50% {
+    background-color: #EAD78A;
+    box-shadow: inset 4px 0 0 var(--boeing-blue), 0 0 0 2px rgba(0, 51, 161, 0.12);
+  }
+}
+
 .sheet-row-highlight {
-  background-color: #FFE58A !important;
+  background-color: #F3E7B4 !important;
   box-shadow: inset 3px 0 0 var(--boeing-blue);
-  animation: sheetPulse 1.2s ease-in-out 1;
+  animation: sheetPulse 1.1s ease-in-out 2;
+}
+
+.docked-composer__select-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.docked-composer__hunk:focus-visible {
+  outline: 2px solid rgba(0, 51, 161, 0.45);
+  outline-offset: 1px;
 }
 
 .sheet-is-applied .sheet-row-highlight {
   opacity: 1;
-  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
-  background-color: #D7F0E3 !important;
+  animation: sheetAppliedPulse 0.7s var(--ease-out-expo) both;
+  background-color: #E6F3EC !important;
   box-shadow: inset 3px 0 0 #2F6B4F;
-  outline: 2px solid rgba(47, 107, 79, 0.35);
+  outline: 1px solid rgba(47, 107, 79, 0.28);
 }
 
 .sheet-is-applied .sheet-row-dim {
-  opacity: 0.4;
+  opacity: 0.55;
 }
 
 @keyframes sheetAppliedPulse {
-  0% { background-color: #FFE58A; transform: scale(1); }
-  35% { background-color: #B8E6C9; }
-  100% { background-color: #D7F0E3; }
+  0% { background-color: #F3E7B4; transform: scale(1); }
+  40% { background-color: #C9E6D4; }
+  100% { background-color: #E6F3EC; }
 }
-
-
-.sheet-is-reviewing .sheet-row-dim {
-  opacity: 0.34;
-  transition: opacity 0.2s ease;
-}
-
-.sheet-is-reviewing .sheet-row-highlight {
-  opacity: 1;
-  outline: 2px solid rgba(0, 51, 161, 0.45);
-  position: relative;
-  z-index: 1;
-}
-
 
 .docked-composer__hunks {
   padding-bottom: 12px;
@@ -998,4 +1013,59 @@ a:hover { color: var(--boeing-blue); }
   line-height: 1.45;
   color: var(--text-secondary);
   max-width: 34ch;
+}
+
+/* Air Show Summary Report — field sheet (Word twin for highlight sync) */
+.report-field-sheet__input {
+  display: block;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--boeing-navy);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 4px 0;
+  resize: vertical;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.report-field-sheet__input:hover {
+  border-color: rgba(10, 34, 64, 0.12);
+  background: #fafcfe;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.report-field-sheet__input:focus {
+  outline: none;
+  border-color: var(--boeing-blue);
+  background: #fff;
+  padding-left: 8px;
+  padding-right: 8px;
+  box-shadow: 0 0 0 3px rgba(0, 51, 161, 0.1);
+}
+
+.report-field-sheet__section {
+  transition: opacity 0.2s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.docked-report-page {
+  padding-bottom: 5.5rem;
+}
+
+.docked-report-page .docked-workspace {
+  height: min(78vh, 920px);
+}
+
+.docked-report-page .docked-workspace__sheet-body {
+  padding: 10px 12px 14px;
+  background:
+    linear-gradient(180deg, #eef3f8 0%, #f7fafc 28%, #fff 100%);
+}
+
+@media (max-width: 960px) {
+  .docked-report-page .docked-workspace {
+    height: auto;
+  }
 }

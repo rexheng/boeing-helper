@@ -2,6 +2,7 @@ import type { AttendeeDashboardData, TravelCode } from "../data/attendeeDashboar
 import { withRecountedTravel } from "../data/attendeeDashboard"
 import type { AirshowReportData } from "../utils/templateExport"
 import type { ReviewHunk } from "../types/documentReview"
+import { resolveReportSectionKey } from "./reportSectionAnchor"
 
 /** Apply only selected report field hunks onto the current report. */
 export function applyReportHunks(
@@ -11,12 +12,7 @@ export function applyReportHunks(
   const next = { ...current }
   for (const h of hunks) {
     if (h.op === "remove") continue
-    const key =
-      h.field === "Executive Summary" ? "executiveSummary"
-        : h.field === "Engagement Title" ? "engagementTitle"
-          : h.field === "Engagement Body" ? "engagementBody"
-            : h.field === "Region" ? "regionLabel"
-              : null
+    const key = resolveReportSectionKey(h)
     if (key) next[key] = h.after
   }
   return next

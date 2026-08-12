@@ -283,20 +283,21 @@ function applyAttendeeUpdates(
   return { proposed, hunks }
 }
 
+const REPORT_FIELD_ANCHORS: Array<[keyof AirshowReportData, string, string]> = [
+  ["executiveSummary", "Executive Summary", "executiveSummary"],
+  ["engagementTitle", "Engagement Title", "engagementTitle"],
+  ["engagementBody", "Engagement Body", "engagementBody"],
+  ["regionLabel", "Region", "regionLabel"],
+]
+
 function applyReportUpdates(
   current: AirshowReportData,
   report: Record<string, unknown>,
 ): { proposed: AirshowReportData; hunks: Hunk[] } {
   const proposed = { ...current }
   const hunks: Hunk[] = []
-  const map: Array<[keyof AirshowReportData, string]> = [
-    ["executiveSummary", "Executive Summary"],
-    ["engagementTitle", "Engagement Title"],
-    ["engagementBody", "Engagement Body"],
-    ["regionLabel", "Region"],
-  ]
   let i = 0
-  for (const [key, label] of map) {
+  for (const [key, label, anchor] of REPORT_FIELD_ANCHORS) {
     if (report[key] === undefined) continue
     const before = String(current[key] ?? "")
     const after = String(report[key] ?? "")
@@ -304,14 +305,82 @@ function applyReportUpdates(
     proposed[key] = after
     hunks.push({
       id: `h-${i++}`,
-      path: "Air Show Report",
+      path: `Air Show Report / ${label}`,
       field: label,
       before,
       after,
       op: "update",
+      anchor,
     })
   }
   return { proposed, hunks }
+}
+
+function isSampleReportPaste(paste: string): boolean {
+  const markers = [
+    "bilateral debrief (MinDef SG)",
+    "D-30 technical exchange",
+    "Programme Sustainment & Decision Gates",
+    "Priya Natarajan",
+    "lock the next bilateral window",
+  ]
+  return markers.filter((m) => paste.includes(m)).length >= 2
+}
+
+function curatedSampleReport(current: AirshowReportData): {
+  debrief: Record<string, unknown>
+  proposedDocument: AirshowReportData
+  hunks: Hunk[]
+  summary: string
+} {
+  const executiveSummary =
+    "Singapore Airshow 2026 delivered a focused bilateral with MinDef Singapore on programme sustainment and near-term decision points. Discussion centred on logistics footprint, training pipeline sequencing, and a proposed D-30 technical exchange. Boeing committed to a follow-up pack within five business days and will lock the next bilateral window with in-country."
+  const engagementTitle =
+    "Bilateral: Minister’s Office — Programme Sustainment & Decision Gates"
+  const engagementBody = [
+    "Boeing SEA met with the minister’s office during Singapore Airshow 2026. Customer priorities raised: sustainment timeline clarity; logistics footprint options; training pipeline sequencing ahead of the next gate.",
+    "ACTION: Integrator — issue follow-up pack within 5 business days (include sat issues + D-30 tech-exchange outline)",
+    "ACTION: CTL — update campaign background with sustainment and logistics points raised",
+    "ACTION: In-country — confirm next bilateral window before D-30 freeze",
+    "ACTION: GovOps — align protocol list owners for any leadership follow-on",
+  ].join("\n\n")
+
+  const { proposed, hunks } = applyReportUpdates(current, {
+    executiveSummary,
+    engagementTitle,
+    engagementBody,
+    regionLabel: current.regionLabel,
+  })
+
+  return {
+    debrief: {
+      sentiment: "Positive",
+      score: 84,
+      outcomes: [
+        "Productive bilateral on programme sustainment and decision gates.",
+        "Customer interest confirmed for a D-30 technical exchange.",
+        "Media ambient positive; no corporate response required.",
+      ],
+      actions: [
+        "ACTION: Integrator — issue follow-up pack within 5 business days",
+        "ACTION: CTL — update campaign background with sustainment and logistics points",
+        "ACTION: In-country — confirm next bilateral window before D-30 freeze",
+        "ACTION: GovOps — align protocol list owners for leadership follow-on",
+      ],
+      people: [
+        { name: "Priya Natarajan", role: "Show Ops", organization: "IBD SEA" },
+        { name: "Rex Heng", role: "Regional Focal", organization: "Boeing SEA" },
+      ],
+      narrativeBullets: [
+        "Retitled engagement to Minister’s Office sustainment bilateral.",
+        "Executive summary tightened around D-30 technical exchange.",
+        "Four ACTION owners locked for Friday leadership pack.",
+      ],
+    },
+    proposedDocument: proposed,
+    hunks,
+    summary: "Three report field updates from Show Ops bilateral debrief.",
+  }
 }
 
 function isSampleAttendeePaste(paste: string): boolean {
@@ -512,17 +581,32 @@ function fallbackAttendee(
 }
 
 function fallbackReport(paste: string, current: AirshowReportData) {
+  if (isSampleReportPaste(paste)) {
+    return curatedSampleReport(current)
+  }
+
   const snippet = paste.trim().slice(0, 400)
   const actions = [...paste.matchAll(/ACTION[:\s]+([^\n]+)/gi)].map((m) => `ACTION: ${m[1].trim()}`)
+  const titleMatch =
+    paste.match(/ENGAGEMENT TITLE\s*\nUse:\s*[“"]?([^”"\n]+)[”"]?/i) ||
+    paste.match(/Use:\s*[“"]([^”"]+)[”"]/i)
+  const summaryBlock = paste.match(
+    /EXECUTIVE SUMMARY[^\n]*\n([\s\S]*?)(?=\nENGAGEMENT NOTES|\nACTION:|\nSentiment:|$)/i,
+  )
   const body = [
     current.engagementBody.split("\n\n")[0],
     snippet ? `Notes captured: ${snippet}` : "",
     ...(actions.length ? actions : ["ACTION: Integrator — confirm follow-up within 5 business days"]),
   ].filter(Boolean).join("\n\n")
 
-  const report = {
-    executiveSummary: `${current.executiveSummary}\n\nDebrief addendum (from pasted notes): ${snippet.slice(0, 220)}`,
+  const report: Record<string, unknown> = {
+    executiveSummary: summaryBlock
+      ? summaryBlock[1].trim().replace(/\s+/g, " ").slice(0, 900)
+      : `${current.executiveSummary}\n\nDebrief addendum (from pasted notes): ${snippet.slice(0, 220)}`,
     engagementBody: body,
+  }
+  if (titleMatch?.[1]) {
+    report.engagementTitle = titleMatch[1].trim()
   }
   const { proposed, hunks } = applyReportUpdates(current, report)
   return {
@@ -535,7 +619,9 @@ function fallbackReport(paste: string, current: AirshowReportData) {
     },
     proposedDocument: proposed,
     hunks,
-    summary: "Debrief applied to report fields.",
+    summary: hunks.length
+      ? `Proposed ${hunks.length} report field update(s) from pasted notes.`
+      : "No report changes inferred from paste.",
   }
 }
 
@@ -591,6 +677,11 @@ export async function documentUpdateHandler(req: Request, res: Response): Promis
 
   if (target === "report") {
     const current = currentDocument as AirshowReportData
+    // Deterministic demo path for the synthetic sample debrief (mirrors attendee sample).
+    if (isSampleReportPaste(paste)) {
+      res.json(curatedSampleReport(current))
+      return
+    }
     if (!process.env.GROQ_API_KEY) {
       res.json(fallbackReport(paste, current))
       return

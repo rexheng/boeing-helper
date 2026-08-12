@@ -9,7 +9,7 @@ export interface ReviewHunk {
   before: string
   after: string
   op: HunkOp
-  /** Optional sheet anchor (attendee row id) for highlight sync */
+  /** Optional sheet/document anchor (attendee row id or report section id) for highlight sync */
   anchor?: string
 }
 
