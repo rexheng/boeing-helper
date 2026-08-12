@@ -41,26 +41,14 @@ export interface AttendeeDashboardData {
   columns: AttendeeSection[]
 }
 
-const ACCENT = {
-  navy: "#0A2240",
-  blue: "#0033A1",
-  steel: "#1F4F8A",
-  green: "#2F6B4F",
-} as const
-
-const SUB_HEADER = {
-  navy: "#163A63",
-  blue: "#1A4A9C",
-  steel: "#2A5F9E",
-  green: "#3D8B63",
-} as const
+import { EXCEL_ACCENT, EXCEL_SUB } from "../utils/attendeeExcelTheme"
 
 export function accentColor(key: AttendeeSection["accent"]) {
-  return ACCENT[key]
+  return `#${EXCEL_ACCENT[key]}`
 }
 
 export function subHeaderColor(key: AttendeeSection["accent"]) {
-  return SUB_HEADER[key]
+  return `#${EXCEL_SUB[key]}`
 }
 
 function sectionCount(section: AttendeeSection) {

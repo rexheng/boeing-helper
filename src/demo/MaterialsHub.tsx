@@ -72,7 +72,7 @@ export function MaterialsHub({
   const handleExcelDownload = async () => {
     const { downloadAttendeeDashboardExcel } = await import("../utils/attendeeExcelExport")
     const name = eventName || dashboard.eventName
-    downloadAttendeeDashboardExcel({
+    await downloadAttendeeDashboardExcel({
       ...dashboard,
       eventName: name,
       eventTitle: name.toUpperCase(),

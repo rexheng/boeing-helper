@@ -1,18 +1,22 @@
 import { useMemo } from "react"
 import {
-  accentColor,
   sectionCount,
-  subHeaderColor,
   subsectionCount,
   type AttendeeDashboardData,
   type AttendeeSection,
 } from "../data/attendeeDashboard"
+import {
+  EXCEL,
+  EXCEL_ACCENT,
+  EXCEL_SUB,
+} from "../utils/attendeeExcelTheme"
 
-const BLUE = "#0033A1"
-const NAVY = "#0A2240"
-const GRID = "#7A8490"
-const ZEBRA = "#EEF2F6"
-const LEGEND = "#D6DEE8"
+const BLUE = `#${EXCEL.blue}`
+const NAVY = `#${EXCEL.navy}`
+const GRID = `#${EXCEL.grid}`
+const ZEBRA = `#${EXCEL.zebra}`
+const LEGEND = `#${EXCEL.legend}`
+const REVISED = `#${EXCEL.revised}`
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
 
 type FlatBlock =
@@ -86,7 +90,7 @@ export function AttendeeExcelSheet({
             <th colSpan={3} className="text-left font-bold text-[11px] text-white px-1 py-1 border sticky top-0" style={{ background: NAVY, borderColor: GRID }}>
               Participant List
             </th>
-            <th colSpan={2} className="text-right font-bold text-[10px] text-white px-1 py-1 border sticky top-0" style={{ background: "#8B1E2D", borderColor: GRID }}>
+            <th colSpan={2} className="text-right font-bold text-[10px] text-white px-1 py-1 border sticky top-0" style={{ background: REVISED, borderColor: GRID }}>
               {data.revisedLabel}
             </th>
           </tr>
@@ -106,10 +110,10 @@ export function AttendeeExcelSheet({
             return (
               <tr key={o.rank} style={{ background: idx % 2 ? ZEBRA : "#fff" }}>
                 <td className="px-1 py-0 border font-bold text-center" style={{ borderColor: GRID, color: NAVY }}>{o.rank}</td>
-                <td colSpan={7} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>{o.text}</td>
+                <td colSpan={7} className="px-1 py-0 border" style={{ borderColor: GRID, color: `#${EXCEL.text}` }}>{o.text}</td>
                 <td colSpan={4} className="px-1 py-0 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{o.bdsLead}</td>
                 <td className="px-1 py-0 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{t.code}</td>
-                <td colSpan={2} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>{t.label}</td>
+                <td colSpan={2} className="px-1 py-0 border" style={{ borderColor: GRID, color: `#${EXCEL.text}` }}>{t.label}</td>
                 <td className="px-1 py-0 border font-bold text-right" style={{ borderColor: GRID, color: NAVY }}>{t.n}</td>
               </tr>
             )
@@ -121,7 +125,7 @@ export function AttendeeExcelSheet({
                 key={col.id}
                 colSpan={4}
                 className="px-1 py-0.5 border font-bold uppercase text-white text-[9px]"
-                style={{ background: accentColor(col.accent), borderColor: GRID }}
+                style={{ background: `#${EXCEL_ACCENT[col.accent]}`, borderColor: GRID }}
               >
                 <div className="flex items-start justify-between gap-1">
                   <span>{col.title}</span>
@@ -157,7 +161,7 @@ export function AttendeeExcelSheet({
                       key={`${section.id}-s-${rowIdx}`}
                       colSpan={4}
                       className="px-1 py-0 border font-bold text-white text-[8.5px]"
-                      style={{ background: subHeaderColor(section.accent), borderColor: GRID }}
+                      style={{ background: `#${EXCEL_SUB[section.accent]}`, borderColor: GRID }}
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span>{block.title}</span>
@@ -210,8 +214,8 @@ function FragmentRow({
   return (
     <>
       <td className="px-0.5 py-0 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>{role}</td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }} title={note}>{name}</td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>{org}</td>
+      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: `#${EXCEL.text}`, background: bg }} title={note}>{name}</td>
+      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: `#${EXCEL.textMuted}`, background: bg }}>{org}</td>
       <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }} title={note}>{travel}</td>
     </>
   )
