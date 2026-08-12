@@ -394,7 +394,7 @@ export function DockedComposer({
                             before={h.before}
                             after={h.after}
                             op={h.op}
-                            maxChars={target === "report" ? 140 : 220}
+                            maxChars={target === "report" ? 96 : 220}
                           />
                         </p>
                       </div>

@@ -933,17 +933,17 @@ a:hover { color: var(--boeing-blue); }
 
 @keyframes sheetPulse {
   0%, 100% {
-    background-color: #FFE58A;
+    background-color: #F3E7B4;
     box-shadow: inset 3px 0 0 var(--boeing-blue);
   }
   50% {
-    background-color: #FFCF4D;
-    box-shadow: inset 4px 0 0 var(--boeing-blue), 0 0 0 3px rgba(255, 214, 102, 0.55);
+    background-color: #EAD78A;
+    box-shadow: inset 4px 0 0 var(--boeing-blue), 0 0 0 2px rgba(0, 51, 161, 0.12);
   }
 }
 
 .sheet-row-highlight {
-  background-color: #FFE58A !important;
+  background-color: #F3E7B4 !important;
   box-shadow: inset 3px 0 0 var(--boeing-blue);
   animation: sheetPulse 1.1s ease-in-out 2;
 }
