@@ -58,7 +58,7 @@ export function MaterialsHub({
   const [zoom, setZoom] = useState(1.05)
   const [showEmpty, setShowEmpty] = useState(true)
   const [highlightPaths, setHighlightPaths] = useState<string[]>([])
-  const [isReviewing, setIsReviewing] = useState(false)
+  const [appliedFlash, setAppliedFlash] = useState<string[]>([])
 
   const [dashboard, setDashboard] = useState<AttendeeDashboardData>(() =>
     buildAttendeeDashboard(company, person, meetingType, countryName),
@@ -263,6 +263,10 @@ export function MaterialsHub({
                 allHunkCount,
               )
               setDashboard(next)
+              const anchors = hunks.map((h) => h.anchor || h.path).filter(Boolean)
+              setAppliedFlash(anchors)
+              setHighlightPaths([])
+              window.setTimeout(() => setAppliedFlash([]), 2200)
               recordAccept({
                 source: "llm",
                 target: "attendees",
@@ -354,7 +358,8 @@ export function MaterialsHub({
                   eventLabel={eventName}
                   zoom={zoom}
                   onChange={onManualChange}
-                  highlightPaths={highlightPaths}
+                  highlightPaths={highlightPaths.length ? highlightPaths : appliedFlash}
+                  highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
                 />
               ) : (
                 <div className="space-y-2" style={{ zoom }}>

@@ -115,12 +115,14 @@ export function AttendeeExcelSheet({
   onChange,
   zoom = 1,
   highlightPaths,
+  highlightMode,
 }: {
   data: AttendeeDashboardData
   eventLabel: string
   onChange?: (next: AttendeeDashboardData) => void
   zoom?: number
   highlightPaths?: string[]
+  highlightMode?: "focus" | "applied"
 }) {
   const editable = Boolean(onChange)
   const sheetRef = useRef<HTMLDivElement>(null)
@@ -169,7 +171,11 @@ export function AttendeeExcelSheet({
   return (
     <div
       ref={sheetRef}
-      className={`w-full overflow-x-auto bg-white origin-top-left${highlightPaths?.length ? " sheet-is-reviewing" : ""}`}
+      className={[
+        "w-full overflow-x-auto bg-white origin-top-left",
+        highlightPaths?.length && highlightMode === "focus" ? "sheet-is-reviewing" : "",
+        highlightPaths?.length && highlightMode === "applied" ? "sheet-is-applied" : "",
+      ].filter(Boolean).join(" ")}
       style={{
         border: `1px solid ${GRID}`,
         fontFamily: FONT,

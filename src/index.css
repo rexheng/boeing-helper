@@ -928,11 +928,24 @@ a:hover { color: var(--boeing-blue); }
   animation: sheetPulse 1.2s ease-in-out 1;
 }
 
-@keyframes sheetPulse {
-  0% { background-color: #FFF3BF; }
-  40% { background-color: #FFE58A; }
-  100% { background-color: #FFE08A; }
+.sheet-is-applied .sheet-row-highlight {
+  opacity: 1;
+  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
+  background-color: #D7F0E3 !important;
+  box-shadow: inset 3px 0 0 #2F6B4F;
+  outline: 2px solid rgba(47, 107, 79, 0.35);
 }
+
+.sheet-is-applied .sheet-row-dim {
+  opacity: 0.4;
+}
+
+@keyframes sheetAppliedPulse {
+  0% { background-color: #FFE58A; transform: scale(1); }
+  35% { background-color: #B8E6C9; }
+  100% { background-color: #D7F0E3; }
+}
+
 
 .sheet-is-reviewing .sheet-row-dim {
   opacity: 0.34;

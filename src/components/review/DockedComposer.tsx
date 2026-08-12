@@ -18,7 +18,6 @@ export function DockedComposer({
   onHighlightPaths,
   onAccept,
   onRejectAll,
-  onReviewingChange,
 }: {
   target: ReviewTarget
   currentDocument: unknown
@@ -32,7 +31,6 @@ export function DockedComposer({
     summary: string
   }) => void
   onRejectAll?: () => void
-  onReviewingChange?: (reviewing: boolean) => void
 }) {
   const [paste, setPaste] = useState(SAMPLE_ATTENDEE_UPDATE_EMAIL)
   const [busy, setBusy] = useState(false)
