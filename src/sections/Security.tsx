@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { FileUp, Building2, Newspaper, ArrowDown } from "lucide-react"
+import { useEffect, useState, type ReactNode } from "react"
+import { FileUp, Building2, Newspaper } from "lucide-react"
 import { SectionHeader } from "../components/SectionHeader"
 import { useInView } from "../hooks/useInView"
 
@@ -25,7 +25,7 @@ export function Security({ id }: SecurityProps) {
   }, [visible])
 
   return (
-    <section id={id} className="section">
+    <section id={id} className="section section--muted">
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Data integrity"
@@ -33,92 +33,92 @@ export function Security({ id }: SecurityProps) {
           subtitle="Collect in parallel. Assemble with citations. Check before the room."
         />
 
-        <div
-          className="relative"
-          style={{
-            borderRadius: "var(--radius)",
-            border: "1px solid var(--surface-border)",
-            background: "var(--bg-muted)",
-            overflow: "hidden",
-          }}
-        >
-          {/* subtle institutional grid */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.35]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(10,34,64,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(10,34,64,0.04) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-            }}
-          />
-
-          <div className="relative p-5 sm:p-8 lg:p-10">
-            {/* ===== STAGE 1: COLLECT ===== */}
-            <StageLabel n="01" label="Collect" drawn={drawn} delay={0} />
-
+        <div className="grid gap-0 lg:grid-cols-[4.5rem_minmax(0,1fr)]">
+          {/* Desktop spine */}
+          <div className="relative hidden lg:block" aria-hidden>
             <div
-              className="mt-4"
+              className="absolute left-1/2 top-3 bottom-3 w-0.5 -translate-x-1/2 origin-top"
               style={{
-                opacity: drawn ? 1 : 0,
-                transform: drawn ? "translateY(0)" : "translateY(10px)",
-                transition: "opacity 0.5s ease 0.08s, transform 0.55s var(--ease-out-expo) 0.08s",
+                background: "var(--boeing-blue)",
+                transform: drawn ? "translateX(-50%) scaleY(1)" : "translateX(-50%) scaleY(0)",
+                transition: "transform 0.9s var(--ease-out-expo) 0.1s",
               }}
-            >
+            />
+            {["01", "02", "03"].map((n, i) => (
               <div
-                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                key={n}
+                className="absolute left-1/2 -translate-x-1/2 flex h-10 w-10 items-center justify-center font-mono text-sm font-bold tabular-nums"
                 style={{
-                  background: "var(--boeing-navy)",
-                  borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                  top: i === 0 ? "0.15rem" : i === 1 ? "42%" : "78%",
+                  background: "var(--boeing-blue)",
+                  color: "#fff",
+                  borderRadius: "2px",
+                  opacity: drawn ? 1 : 0,
+                  transition: `opacity 0.4s ease ${180 + i * 160}ms`,
+                  boxShadow: "0 0 0 6px var(--bg-muted)",
                 }}
               >
-                <p
-                  className="font-ui text-[11px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: "#fff" }}
-                >
-                  Three sources · same moment
-                </p>
-                <span
-                  className="font-ui text-[10px] font-bold uppercase tracking-[0.14em] px-2.5 py-1"
+                {n}
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-10 sm:space-y-12">
+            {/* ===== 01 COLLECT ===== */}
+            <Phase
+              n="01"
+              title="Collect"
+              drawn={drawn}
+              delay={80}
+              lead="Three sources. Captured simultaneously."
+            >
+              <div className="grid gap-3 lg:grid-cols-[1.35fr_1fr_1fr]">
+                {/* Elevated uploads — intentionally larger */}
+                <div
+                  className="relative p-5 sm:p-6"
                   style={{
-                    background: "var(--boeing-cyan-bright)",
-                    color: "var(--boeing-navy)",
-                    borderRadius: "2px",
+                    background: "#fff",
+                    border: "2px solid var(--boeing-blue)",
+                    borderRadius: "var(--radius-sm)",
+                    boxShadow: "0 8px 28px rgba(0, 51, 161, 0.12)",
+                    opacity: drawn ? 1 : 0,
+                    transform: drawn ? "translateY(0)" : "translateY(10px)",
+                    transition:
+                      "opacity 0.45s ease 0.16s, transform 0.5s var(--ease-out-expo) 0.16s",
                   }}
                 >
-                  In parallel
-                </span>
-              </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <FileUp size={22} strokeWidth={1.5} style={{ color: "var(--boeing-blue)" }} />
+                    <span
+                      className="font-ui text-[10px] font-bold uppercase tracking-[0.14em] px-2.5 py-1"
+                      style={{ background: "var(--boeing-blue)", color: "#fff", borderRadius: "2px" }}
+                    >
+                      Elevated
+                    </span>
+                  </div>
+                  <p
+                    className="mt-4 font-ui text-[11px] font-bold uppercase tracking-[0.14em]"
+                    style={{ color: "var(--boeing-blue)" }}
+                  >
+                    Primary · Uploads
+                  </p>
+                  <p className="mt-2 text-lg font-semibold leading-snug" style={{ color: "var(--boeing-navy)" }}>
+                    Your campaign pack
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    Notes, letters, and files attached for this meeting — treated as first authority.
+                  </p>
+                </div>
 
-              <div
-                className="grid gap-0 lg:grid-cols-3"
-                style={{
-                  background: "#fff",
-                  border: "1px solid var(--surface-border)",
-                  borderTop: "none",
-                  borderRadius: "0 0 var(--radius-sm) var(--radius-sm)",
-                }}
-              >
-                <SourceCell
+                <SourceSlim
                   drawn={drawn}
-                  delay={120}
-                  elevated
-                  icon={FileUp}
-                  kicker="Primary"
-                  title="Uploads"
-                  body="Campaign packs and notes you attach"
-                  className="border-b lg:border-b-0 lg:border-r"
-                />
-                <SourceCell
-                  drawn={drawn}
-                  delay={200}
+                  delay={220}
                   icon={Building2}
                   kicker="Internal"
                   title="Boeing knowledge"
-                  body="Account, programme, prior meetings"
-                  className="border-b lg:border-b-0 lg:border-r"
+                  body="Account and programme records"
                 />
-                <SourceCell
+                <SourceSlim
                   drawn={drawn}
                   delay={280}
                   icon={Newspaper}
@@ -127,119 +127,120 @@ export function Security({ id }: SecurityProps) {
                   body="Filings, statements, defence press"
                 />
               </div>
-            </div>
+            </Phase>
 
-            <FlowJoin drawn={drawn} delay={360} />
-
-            {/* ===== STAGE 2: ASSEMBLE ===== */}
-            <StageLabel n="02" label="Assemble" drawn={drawn} delay={400} />
-
-            <div
-              className="mt-4 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]"
-              style={{
-                opacity: drawn ? 1 : 0,
-                transform: drawn ? "translateY(0)" : "translateY(10px)",
-                transition: "opacity 0.5s ease 0.42s, transform 0.55s var(--ease-out-expo) 0.42s",
-              }}
+            {/* ===== 02 ASSEMBLE ===== */}
+            <Phase
+              n="02"
+              title="Assemble"
+              drawn={drawn}
+              delay={360}
+              lead="Conflicts resolve by precedence — then every claim keeps its label."
             >
               <div
-                className="px-5 py-5 sm:px-6 sm:py-6"
-                style={{
-                  background: "var(--boeing-navy)",
-                  borderRadius: "var(--radius-sm)",
-                }}
-              >
-                <p
-                  className="font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: "var(--boeing-cyan-bright)" }}
-                >
-                  Briefing output
-                </p>
-                <p className="mt-3 text-xl font-semibold leading-snug" style={{ color: "#fff" }}>
-                  One pack. Every claim labelled.
-                </p>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
-                  Precedence when sources conflict: uploads → internal → published.
-                </p>
-              </div>
-
-              {/* Sample citation — proof of the thesis */}
-              <div
-                className="px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-center"
+                className="overflow-hidden"
                 style={{
                   background: "#fff",
                   border: "1px solid var(--surface-border)",
-                  borderLeft: "3px solid var(--boeing-blue)",
                   borderRadius: "var(--radius-sm)",
+                  opacity: drawn ? 1 : 0,
+                  transform: drawn ? "translateY(0)" : "translateY(10px)",
+                  transition:
+                    "opacity 0.5s ease 0.4s, transform 0.55s var(--ease-out-expo) 0.4s",
                 }}
               >
-                <p
-                  className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Example claim
-                </p>
-                <p
-                  className="mt-2 text-[15px] font-semibold leading-snug"
-                  style={{ color: "var(--boeing-navy)" }}
-                >
-                  31 × 777-9 on order
-                </p>
                 <div
-                  className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs"
-                  style={{ color: "var(--text-secondary)" }}
+                  className="grid sm:grid-cols-[auto_1fr_auto] items-stretch"
+                  style={{ borderBottom: "1px solid var(--surface-border)" }}
                 >
-                  <span style={{ color: "var(--boeing-blue)", fontWeight: 600 }}>
-                    Aviation Week
-                  </span>
-                  <span aria-hidden style={{ color: "var(--surface-border)" }}>
-                    |
-                  </span>
-                  <span>May 2026</span>
-                  <span aria-hidden style={{ color: "var(--surface-border)" }}>
-                    |
-                  </span>
-                  <span
-                    className="font-ui uppercase tracking-[0.1em] text-[10px] font-bold"
+                  <ConflictSide
+                    label="Upload"
+                    value="31"
+                    tone="win"
+                    note="Campaign pack"
+                  />
+                  <div
+                    className="flex flex-col items-center justify-center px-4 py-4 text-center"
+                    style={{ background: "var(--bg-muted)" }}
+                  >
+                    <p
+                      className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Claim
+                    </p>
+                    <p className="mt-1 text-sm font-semibold" style={{ color: "var(--boeing-navy)" }}>
+                      777-9 on order
+                    </p>
+                    <p
+                      className="mt-3 font-ui text-[10px] font-bold uppercase tracking-[0.12em] px-2.5 py-1"
+                      style={{ background: "var(--boeing-ice)", color: "var(--boeing-blue)" }}
+                    >
+                      Upload wins
+                    </p>
+                  </div>
+                  <ConflictSide
+                    label="Press"
+                    value="28"
+                    tone="lose"
+                    note="Trade report"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
+                  <p
+                    className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
                     style={{ color: "var(--boeing-blue)" }}
                   >
-                    Published
+                    Precedence
+                  </p>
+                  <PrecedenceChip n="1" label="Uploads" strong />
+                  <span style={{ color: "var(--text-muted)" }} aria-hidden>
+                    →
                   </span>
+                  <PrecedenceChip n="2" label="Internal" />
+                  <span style={{ color: "var(--text-muted)" }} aria-hidden>
+                    →
+                  </span>
+                  <PrecedenceChip n="3" label="Published" />
                 </div>
               </div>
-            </div>
+            </Phase>
 
-            <FlowJoin drawn={drawn} delay={520} />
-
-            {/* ===== STAGE 3: REVIEW ===== */}
-            <StageLabel n="03" label="Review" drawn={drawn} delay={560} />
-
-            <div
-              className="mt-4 grid gap-px sm:grid-cols-3 overflow-hidden"
-              style={{
-                background: "var(--surface-border)",
-                border: "1px solid var(--surface-border)",
-                borderRadius: "var(--radius-sm)",
-                opacity: drawn ? 1 : 0,
-                transform: drawn ? "translateY(0)" : "translateY(8px)",
-                transition: "opacity 0.5s ease 0.58s, transform 0.55s var(--ease-out-expo) 0.58s",
-              }}
+            {/* ===== 03 REVIEW ===== */}
+            <Phase
+              n="03"
+              title="Review"
+              drawn={drawn}
+              delay={560}
+              lead="Open any figure. Export the same citations in the PDF."
             >
-              {[
-                { t: "Open the source", d: "Tap any figure in the briefing" },
-                { t: "Export the pack", d: "Same citations in the PDF" },
-                { t: "Take it to the room", d: "Only after you have checked it" },
-              ].map((item) => (
-                <div key={item.t} className="px-5 py-5" style={{ background: "#fff" }}>
-                  <p className="text-sm font-semibold" style={{ color: "var(--boeing-navy)" }}>
-                    {item.t}
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    {item.d}
-                  </p>
-                </div>
-              ))}
-            </div>
+              <div
+                className="grid sm:grid-cols-3 gap-px overflow-hidden"
+                style={{
+                  background: "var(--surface-border)",
+                  border: "1px solid var(--surface-border)",
+                  borderRadius: "var(--radius-sm)",
+                  opacity: drawn ? 1 : 0,
+                  transition: "opacity 0.5s ease 0.58s",
+                }}
+              >
+                {[
+                  { t: "Open the source", d: "From the briefing on screen" },
+                  { t: "Export the pack", d: "Citations travel with the PDF" },
+                  { t: "Into the room", d: "Only after you have checked it" },
+                ].map((item) => (
+                  <div key={item.t} className="px-5 py-5" style={{ background: "#fff" }}>
+                    <p className="text-sm font-semibold" style={{ color: "var(--boeing-navy)" }}>
+                      {item.t}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      {item.d}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Phase>
           </div>
         </div>
       </div>
@@ -247,100 +248,87 @@ export function Security({ id }: SecurityProps) {
   )
 }
 
-function StageLabel({
+function Phase({
   n,
-  label,
+  title,
+  lead,
+  children,
   drawn,
   delay,
 }: {
   n: string
-  label: string
-  drawn: boolean
-  delay: number
-}) {
-  return (
-    <div
-      className="flex items-baseline gap-3"
-      style={{
-        opacity: drawn ? 1 : 0,
-        transition: `opacity 0.4s ease ${delay}ms`,
-      }}
-    >
-      <span
-        className="font-mono text-sm tabular-nums font-semibold"
-        style={{ color: "var(--boeing-blue)" }}
-      >
-        {n}
-      </span>
-      <h3
-        className="text-base font-bold uppercase tracking-[0.12em]"
-        style={{ color: "var(--boeing-navy)", fontSize: "0.8125rem" }}
-      >
-        {label}
-      </h3>
-      <div className="flex-1 h-px" style={{ background: "var(--surface-border)" }} />
-    </div>
-  )
-}
-
-function SourceCell({
-  drawn,
-  delay,
-  elevated,
-  icon: Icon,
-  kicker,
-  title,
-  body,
-  className = "",
-}: {
-  drawn: boolean
-  delay: number
-  elevated?: boolean
-  icon: typeof FileUp
-  kicker: string
   title: string
-  body: string
-  className?: string
+  lead: string
+  children: ReactNode
+  drawn: boolean
+  delay: number
 }) {
   return (
-    <div
-      className={`relative px-5 py-5 sm:px-6 sm:py-6 ${className}`}
+    <section
       style={{
-        background: elevated ? "var(--boeing-ice)" : "#fff",
-        borderColor: "var(--surface-border)",
-        boxShadow: elevated ? "inset 0 3px 0 0 var(--boeing-blue)" : undefined,
         opacity: drawn ? 1 : 0,
         transform: drawn ? "translateY(0)" : "translateY(8px)",
         transition: `opacity 0.45s ease ${delay}ms, transform 0.5s var(--ease-out-expo) ${delay}ms`,
       }}
     >
-      {elevated && (
+      <div className="mb-4 flex items-baseline gap-3 lg:gap-4">
         <span
-          className="absolute top-4 right-4 font-ui text-[9px] font-bold uppercase tracking-[0.14em] px-2 py-0.5"
-          style={{
-            background: "var(--boeing-blue)",
-            color: "#fff",
-            borderRadius: "2px",
-          }}
+          className="lg:hidden font-mono text-sm font-bold tabular-nums px-2 py-1"
+          style={{ background: "var(--boeing-blue)", color: "#fff", borderRadius: "2px" }}
         >
-          Elevated
+          {n}
         </span>
-      )}
-      <Icon
-        size={18}
-        strokeWidth={1.5}
-        style={{ color: elevated ? "var(--boeing-blue)" : "var(--boeing-navy)" }}
-      />
+        <h3
+          className="font-bold uppercase tracking-[0.14em]"
+          style={{ color: "var(--boeing-navy)", fontSize: "0.8125rem" }}
+        >
+          {title}
+        </h3>
+        <div className="hidden sm:block flex-1 h-px" style={{ background: "var(--surface-border)" }} />
+      </div>
+      <p className="mb-4 text-base font-medium leading-snug" style={{ color: "var(--boeing-navy)" }}>
+        {lead}
+      </p>
+      {children}
+    </section>
+  )
+}
+
+function SourceSlim({
+  drawn,
+  delay,
+  icon: Icon,
+  kicker,
+  title,
+  body,
+}: {
+  drawn: boolean
+  delay: number
+  icon: typeof FileUp
+  kicker: string
+  title: string
+  body: string
+}) {
+  return (
+    <div
+      className="p-5"
+      style={{
+        background: "#fff",
+        border: "1px solid var(--surface-border)",
+        borderRadius: "var(--radius-sm)",
+        opacity: drawn ? 1 : 0,
+        transform: drawn ? "translateY(0)" : "translateY(10px)",
+        transition: `opacity 0.45s ease ${delay}ms, transform 0.5s var(--ease-out-expo) ${delay}ms`,
+      }}
+    >
+      <Icon size={18} strokeWidth={1.5} style={{ color: "var(--boeing-navy)" }} />
       <p
         className="mt-3 font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
-        style={{ color: elevated ? "var(--boeing-blue)" : "var(--text-muted)" }}
+        style={{ color: "var(--text-muted)" }}
       >
         {kicker}
       </p>
-      <p
-        className="mt-1.5 text-[15px] font-semibold"
-        style={{ color: "var(--boeing-navy)" }}
-      >
+      <p className="mt-1.5 text-[15px] font-semibold" style={{ color: "var(--boeing-navy)" }}>
         {title}
       </p>
       <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -350,20 +338,60 @@ function SourceCell({
   )
 }
 
-function FlowJoin({ drawn, delay }: { drawn: boolean; delay: number }) {
+function ConflictSide({
+  label,
+  value,
+  tone,
+  note,
+}: {
+  label: string
+  value: string
+  tone: "win" | "lose"
+  note: string
+}) {
+  const win = tone === "win"
   return (
-    <div className="flex justify-center py-4" aria-hidden>
-      <div
-        className="flex flex-col items-center"
+    <div
+      className="px-5 py-5 text-center sm:text-left min-w-[7.5rem]"
+      style={{
+        background: win ? "var(--boeing-ice)" : "#fff",
+        borderRight: win ? "1px solid var(--surface-border)" : undefined,
+        borderLeft: !win ? "1px solid var(--surface-border)" : undefined,
+      }}
+    >
+      <p
+        className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
+        style={{ color: win ? "var(--boeing-blue)" : "var(--text-muted)" }}
+      >
+        {label}
+      </p>
+      <p
+        className="mt-2 font-mono text-3xl font-semibold tabular-nums leading-none"
+        style={{ color: win ? "var(--boeing-blue)" : "var(--text-secondary)", opacity: win ? 1 : 0.55 }}
+      >
+        {value}
+      </p>
+      <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+        {note}
+      </p>
+    </div>
+  )
+}
+
+function PrecedenceChip({ n, label, strong }: { n: string; label: string; strong?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--boeing-navy)" }}>
+      <span
+        className="font-mono text-[10px] font-bold tabular-nums px-1.5 py-0.5"
         style={{
-          opacity: drawn ? 1 : 0,
-          transition: `opacity 0.35s ease ${delay}ms`,
+          background: strong ? "var(--boeing-blue)" : "var(--bg-muted)",
+          color: strong ? "#fff" : "var(--text-muted)",
+          borderRadius: "2px",
         }}
       >
-        <div className="w-px h-3" style={{ background: "var(--boeing-blue)" }} />
-        <ArrowDown size={18} strokeWidth={2} style={{ color: "var(--boeing-blue)" }} />
-        <div className="w-px h-3" style={{ background: "var(--boeing-blue)" }} />
-      </div>
-    </div>
+        {n}
+      </span>
+      <span className={strong ? "font-semibold" : undefined}>{label}</span>
+    </span>
   )
 }
