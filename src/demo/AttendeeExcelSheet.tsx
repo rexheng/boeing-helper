@@ -1,5 +1,6 @@
 import { useMemo } from "react"
-import type { CSSProperties } from "react"
+import type { MouseEvent as ReactMouseEvent } from "react"
+import { CellInput, cellInput } from "../components/CellInput"
 import {
   accentColor,
   addAttendeeRow,
@@ -19,17 +20,6 @@ const GRID = "#7A8490"
 const ZEBRA = "#EEF2F6"
 const LEGEND = "#D6DEE8"
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
-
-const cellInput: CSSProperties = {
-  width: "100%",
-  border: "none",
-  background: "transparent",
-  outline: "none",
-  font: "inherit",
-  padding: 0,
-  margin: 0,
-  color: "inherit",
-}
 
 type FlatBlock =
   | { kind: "sub"; subsectionId: string; title: string; count: number }
@@ -116,6 +106,11 @@ export function AttendeeExcelSheet({
         zoom,
       }}
     >
+      {editable && (
+        <div className="px-2 py-1 text-[9px] font-semibold" style={{ background: LEGEND, color: NAVY, borderBottom: `1px solid ${GRID}` }}>
+          Click any Role / Name / Organization / I·D·L cell to edit · Enter commits · Esc cancels · hover Role for × remove · + on subsection to add
+        </div>
+      )}
       <table className="w-full border-collapse min-w-[1100px]" style={{ tableLayout: "fixed" }}>
         <colgroup>
           {colWidths.map((w, i) => (
@@ -156,15 +151,15 @@ export function AttendeeExcelSheet({
                 <td className="px-1 py-0 border font-bold text-center" style={{ borderColor: GRID, color: NAVY }}>{o.rank}</td>
                 <td colSpan={7} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>
                   {editable ? (
-                    <input
+                    <CellInput
                       value={o.text}
-                      onChange={(e) => {
+                      onCommit={(text) => {
                         const objectives = data.objectives.map((obj) =>
-                          obj.rank === o.rank ? { ...obj, text: e.target.value } : obj,
+                          obj.rank === o.rank ? { ...obj, text } : obj,
                         )
                         onChange?.({ ...data, objectives })
                       }}
-                      style={cellInput}
+                      aria-label={`Objective ${o.rank}`}
                     />
                   ) : (
                     o.text
@@ -172,15 +167,16 @@ export function AttendeeExcelSheet({
                 </td>
                 <td colSpan={4} className="px-1 py-0 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
                   {editable ? (
-                    <input
+                    <CellInput
                       value={o.bdsLead}
-                      onChange={(e) => {
+                      onCommit={(bdsLead) => {
                         const objectives = data.objectives.map((obj) =>
-                          obj.rank === o.rank ? { ...obj, bdsLead: e.target.value } : obj,
+                          obj.rank === o.rank ? { ...obj, bdsLead } : obj,
                         )
                         onChange?.({ ...data, objectives })
                       }}
-                      style={{ ...cellInput, fontWeight: 700 }}
+                      style={{ fontWeight: 700 }}
+                      aria-label={`BD&S lead ${o.rank}`}
                     />
                   ) : (
                     o.bdsLead
@@ -259,7 +255,7 @@ export function AttendeeExcelSheet({
                 const bg = block.zebra ? ZEBRA : "#fff"
                 return (
                   <EditableRow
-                    key={`${section.id}-r-${rowIdx}`}
+                    key={`${section.id}-${block.rowId}`}
                     role={block.role}
                     name={block.name}
                     org={block.org}
@@ -326,41 +322,69 @@ function EditableRow({
     )
   }
 
+  const focusCell = (e: ReactMouseEvent<HTMLTableCellElement>) => {
+    const input = e.currentTarget.querySelector("input, select") as HTMLElement | null
+    input?.focus()
+  }
+
   return (
     <>
-      <td className="px-0.5 py-0 border font-bold align-top relative group" style={{ borderColor: GRID, color: NAVY, background: bg }}>
-        <input value={role} onChange={(e) => onPatch({ roleLabel: e.target.value })} style={{ ...cellInput, fontWeight: 700 }} />
+      <td
+        className="px-0.5 py-0.5 border font-bold align-top relative group excel-edit-cell"
+        style={{ borderColor: GRID, color: NAVY, background: bg, cursor: "text", minHeight: 18 }}
+        onClick={focusCell}
+      >
+        <CellInput
+          value={role}
+          onCommit={(v) => onPatch({ roleLabel: v })}
+          style={{ fontWeight: 700, minHeight: 16 }}
+          aria-label="Role"
+        />
         <button
           type="button"
           title="Remove row"
-          onClick={onRemove}
-          className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 cursor-pointer text-[9px] px-0.5"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 cursor-pointer text-[9px] px-0.5 z-10"
           style={{ color: "#8B1E2D", background: bg }}
         >
           ×
         </button>
       </td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }}>
-        <input
+      <td
+        className="px-0.5 py-0.5 border align-top excel-edit-cell"
+        style={{ borderColor: GRID, color: "#222", background: bg, cursor: "text" }}
+        onClick={focusCell}
+      >
+        <CellInput
           value={name}
-          onChange={(e) => {
-            const nextName = e.target.value
-            onPatch({ name: nextName, count: nextName.trim() ? Math.max(seats, 1) : seats })
-          }}
-          style={cellInput}
+          onCommit={(nextName) => onPatch({ name: nextName, count: nextName.trim() ? Math.max(seats, 1) : seats })}
+          style={{ minHeight: 16 }}
+          aria-label="Name"
         />
       </td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>
-        <input value={org} onChange={(e) => onPatch({ organization: e.target.value })} style={cellInput} />
+      <td
+        className="px-0.5 py-0.5 border align-top excel-edit-cell"
+        style={{ borderColor: GRID, color: "#555", background: bg, cursor: "text" }}
+        onClick={focusCell}
+      >
+        <CellInput value={org} onCommit={(v) => onPatch({ organization: v })} style={{ minHeight: 16 }} aria-label="Organization" />
       </td>
-      <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>
+      <td
+        className="px-0.5 py-0.5 border text-center font-bold align-top excel-edit-cell"
+        style={{ borderColor: GRID, color: BLUE, background: bg, cursor: "pointer" }}
+        onClick={focusCell}
+      >
         <select
           value={travel}
           onChange={(e) => {
             const v = e.target.value as TravelCode | ""
             onPatch({ travel: v, count: v ? Math.max(seats, 1) : seats })
           }}
-          style={{ ...cellInput, textAlign: "center", fontWeight: 700, color: BLUE, cursor: "pointer" }}
+          style={{ ...cellInput, textAlign: "center", fontWeight: 700, color: BLUE, cursor: "pointer", minHeight: 16 }}
+          aria-label="Travel code"
         >
           <option value="">—</option>
           <option value="I">I</option>

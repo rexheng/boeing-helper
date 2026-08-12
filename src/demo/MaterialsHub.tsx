@@ -6,18 +6,14 @@ import { ReviewPanel } from "../components/review/ReviewPanel"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import {
-  addAttendeeRow,
   buildAttendeeDashboard,
-  flattenAttendees,
-  removeAttendeeRow,
-  updateAttendeeRow,
   type AttendeeDashboardData,
-  type TravelCode,
 } from "../data/attendeeDashboard"
 import { useDocumentReview } from "../hooks/useDocumentReview"
 import { applyAttendeeHunks } from "../utils/applyReviewHunks"
 import { changelogScope } from "../utils/changelogStorage"
 import { AttendeeExcelSheet } from "./AttendeeExcelSheet"
+import { AttendeeDataSheet } from "./AttendeeDataSheet"
 
 interface MaterialsHubProps {
   company: Company
@@ -34,8 +30,6 @@ type InviteClose = "meeting" | "special" | "contact"
 const BLUE = "#0033A1"
 const NAVY = "#0A2240"
 const GRID = "#9AA3AD"
-const ZEBRA = "#EEF2F6"
-const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
 
 const ZOOM_MIN = 0.75
 const ZOOM_MAX = 1.5
@@ -63,6 +57,7 @@ export function MaterialsHub({
   const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
   const [zoom, setZoom] = useState(1.15)
   const [showLlm, setShowLlm] = useState(false)
+  const [showEmpty, setShowEmpty] = useState(true)
 
   const [dashboard, setDashboard] = useState<AttendeeDashboardData>(() =>
     buildAttendeeDashboard(company, person, meetingType, countryName),
@@ -358,267 +353,23 @@ export function MaterialsHub({
               onChange={(next) => onManualChange(next)}
             />
           ) : (
-            <ListDashboard
-              data={dashboard}
-              eventLabel={eventName}
-              zoom={zoom}
-              onChange={(next) => onManualChange(next)}
-            />
+            <div className="space-y-2" style={{ zoom }}>
+              <label className="inline-flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color: NAVY }}>
+                <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
+                Show empty role slots
+              </label>
+              <AttendeeDataSheet
+                data={dashboard}
+                showEmpty={showEmpty}
+                onChange={(next) => onManualChange(next)}
+              />
+            </div>
           )}
         </div>
       )}
 
       <div className="flex justify-end">
         <Button onClick={onContinue}>Continue to report</Button>
-      </div>
-    </div>
-  )
-}
-
-function ListDashboard({
-  data,
-  eventLabel,
-  zoom = 1,
-  onChange,
-}: {
-  data: AttendeeDashboardData
-  eventLabel: string
-  zoom?: number
-  onChange?: (next: AttendeeDashboardData) => void
-}) {
-  const [showEmpty, setShowEmpty] = useState(true)
-  const rows = flattenAttendees(data, { filledOnly: !showEmpty })
-  const editable = Boolean(onChange)
-
-  return (
-    <div
-      className="bg-white origin-top-left"
-      style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 10, zoom }}
-    >
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th colSpan={2} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: BLUE, borderColor: GRID }}>
-              Attendee List Template
-            </th>
-            <th colSpan={2} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID }}>
-              {(eventLabel || data.eventName).toUpperCase()}
-            </th>
-            <th colSpan={1} className="text-left font-bold text-[11px] text-white px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID }}>
-              Participant List
-            </th>
-            <th colSpan={1} className="text-right font-bold text-[10px] px-1.5 py-1 border" style={{ background: NAVY, borderColor: GRID, color: "#F8D7DA" }}>
-              {data.revisedLabel}
-            </th>
-          </tr>
-        </thead>
-      </table>
-
-      <div className="px-2 py-1.5 flex justify-between gap-2" style={{ borderBottom: `1px solid ${GRID}` }}>
-        <label className="inline-flex items-center gap-2 text-[10px] font-semibold cursor-pointer" style={{ color: NAVY }}>
-          <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
-          Show empty role slots
-        </label>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_0.9fr]">
-        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr style={{ background: NAVY, color: "#fff" }}>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "16%" }}>#</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Top 5 Objectives</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "22%" }}>BD&amp;S Leads</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.objectives.map((o) => (
-              <tr key={o.rank} style={{ background: o.rank % 2 ? "#fff" : ZEBRA }}>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>Objective {o.rank}:</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none"
-                      value={o.text}
-                      onChange={(e) => {
-                        const objectives = data.objectives.map((obj) =>
-                          obj.rank === o.rank ? { ...obj, text: e.target.value } : obj,
-                        )
-                        onChange?.({ ...data, objectives })
-                      }}
-                    />
-                  ) : o.text}
-                </td>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none font-bold"
-                      value={o.bdsLead}
-                      onChange={(e) => {
-                        const objectives = data.objectives.map((obj) =>
-                          obj.rank === o.rank ? { ...obj, bdsLead: e.target.value } : obj,
-                        )
-                        onChange?.({ ...data, objectives })
-                      }}
-                    />
-                  ) : o.bdsLead}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr style={{ background: BLUE, color: "#fff" }}>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Key</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Travel</th>
-              <th className="text-right font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>#</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(
-              [
-                { code: "I", label: "International Travel Required", n: data.travelCounts.I },
-                { code: "D", label: "Domestic / Regional Travel Required", n: data.travelCounts.D },
-                { code: "L", label: "Local Attendee, No Travel", n: data.travelCounts.L },
-              ] as const
-            ).map((row, i) => (
-              <tr key={row.code} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
-                <td className="px-1.5 py-1 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{row.code}</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{row.label}</td>
-                <td className="px-1.5 py-1 border text-right font-bold" style={{ borderColor: GRID, color: NAVY }}>{row.n}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse min-w-[720px]" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr>
-              {["Section", "Subsection", "Role", "Name", "Organization", "I/D/L", "Seats", "Notes", ""].map((h) => (
-                <th
-                  key={h || "actions"}
-                  className="text-left font-bold px-1.5 py-1 border text-white"
-                  style={{ background: NAVY, borderColor: GRID }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={r.rowId} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
-                  {r.section.startsWith("BDS") ? "BDS"
-                    : r.section.startsWith("BGS") ? "BGS"
-                      : r.section.startsWith("Boeing Global") ? "Boeing Global"
-                        : "Exhibit Ops"}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#444" }}>{r.subsection}</td>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none font-bold"
-                      value={r.role}
-                      onChange={(e) => onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, { roleLabel: e.target.value }))}
-                    />
-                  ) : r.role}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none"
-                      value={r.name}
-                      onChange={(e) => {
-                        const name = e.target.value
-                        onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, {
-                          name,
-                          count: name.trim() ? Math.max(r.count, 1) : r.count,
-                        }))
-                      }}
-                    />
-                  ) : r.name}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none"
-                      value={r.organization}
-                      onChange={(e) => onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, { organization: e.target.value }))}
-                    />
-                  ) : r.organization}
-                </td>
-                <td className="px-1.5 py-1 border text-center font-bold" style={{ borderColor: GRID, color: BLUE }}>
-                  {editable ? (
-                    <select
-                      value={r.travel}
-                      className="bg-transparent outline-none font-bold text-center w-full"
-                      style={{ color: BLUE }}
-                      onChange={(e) => {
-                        const travel = e.target.value as TravelCode | ""
-                        onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, {
-                          travel,
-                          count: travel ? Math.max(r.count, 1) : r.count,
-                        }))
-                      }}
-                    >
-                      <option value="">—</option>
-                      <option value="I">I</option>
-                      <option value="D">D</option>
-                      <option value="L">L</option>
-                    </select>
-                  ) : r.travel}
-                </td>
-                <td className="px-1.5 py-1 border text-center font-bold tabular-nums" style={{ borderColor: GRID, color: NAVY }}>
-                  {editable ? (
-                    <input
-                      type="number"
-                      min={0}
-                      className="w-12 bg-transparent outline-none text-center font-bold"
-                      value={r.count || 0}
-                      onChange={(e) => onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, { count: Number(e.target.value) || 0 }))}
-                    />
-                  ) : (r.count || "")}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>
-                  {editable ? (
-                    <input
-                      className="w-full bg-transparent outline-none"
-                      value={r.notes}
-                      onChange={(e) => onChange?.(updateAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId, { notes: e.target.value }))}
-                    />
-                  ) : r.notes}
-                </td>
-                <td className="px-1 py-1 border text-center" style={{ borderColor: GRID }}>
-                  {editable && (
-                    <div className="inline-flex gap-1">
-                      <button
-                        type="button"
-                        title="Add row in subsection"
-                        className="cursor-pointer text-[10px] font-bold px-1"
-                        style={{ color: BLUE }}
-                        onClick={() => onChange?.(addAttendeeRow(data, r.sectionId, r.subsectionId))}
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        title="Remove row"
-                        className="cursor-pointer text-[10px] font-bold px-1"
-                        style={{ color: "#8B1E2D" }}
-                        onClick={() => onChange?.(removeAttendeeRow(data, r.sectionId, r.subsectionId, r.rowId))}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   )

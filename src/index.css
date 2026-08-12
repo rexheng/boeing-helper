@@ -447,3 +447,28 @@ a:hover { color: var(--boeing-blue); }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #C5CDD4; border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* Attendee datasheet + Word editor chrome */
+.attendee-datasheet .dsg-container {
+  --dsg-border-color: #9AA3AD;
+  --dsg-header-text-color: #0A2240;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+.report-docx-host .boeing-docx-editor,
+.report-docx-host .docx-editor {
+  min-height: 560px;
+  height: min(72vh, 820px);
+}
+
+.report-docx-host .docx-editor__viewport,
+.report-docx-host [class*="viewport"] {
+  max-height: min(64vh, 720px);
+}
+
+.excel-edit-cell:focus-within {
+  outline: 1px solid #0033A1;
+  outline-offset: -1px;
+  background: #F3F8FF !important;
+}
