@@ -466,9 +466,3 @@ a:hover { color: var(--boeing-blue); }
 .report-docx-host [class*="viewport"] {
   max-height: min(64vh, 720px);
 }
-
-.excel-edit-cell:focus-within {
-  outline: 1px solid #0033A1;
-  outline-offset: -1px;
-  background: #F3F8FF !important;
-}
