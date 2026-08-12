@@ -171,7 +171,7 @@ export function DockedComposer({
       }))
       if (staged.length) setChips(staged)
 
-      const minMs = 1700
+      const minMs = 2000
       const elapsed = performance.now() - started
       if (elapsed < minMs) await wait(minMs - elapsed)
 

@@ -112,7 +112,9 @@ export function ReportFieldSheet({
           {data.showName}
         </h3>
         <p className="m-0 mt-1 text-[11px]" style={{ color: "var(--text-secondary)" }}>
-          Click a proposed change to spotlight the matching section. Edits sync into Word export.
+          {reviewing
+            ? "Spotlighted section matches the selected proposed change."
+            : "Paste a debrief on the left — proposed changes spotlight sections here before you apply."}
         </p>
       </header>
 

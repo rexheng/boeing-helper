@@ -93,8 +93,9 @@ export function MeetingReportView({
   const pdfFallback = `Executive Summary\n${summary}\n\n${regionLabel}\n${engagementTitle}\n${notes}`
 
   const onHighlightPaths = useCallback((paths: string[]) => {
-    setHighlightPaths(paths.map((p) => reportHunkAnchor({ anchor: p, path: p, field: p })))
-    if (paths.length > 0) setReportView("sheet")
+    const next = paths.map((p) => reportHunkAnchor({ anchor: p, path: p, field: p })).filter(Boolean)
+    setHighlightPaths(next)
+    if (next.length > 0) setReportView("sheet")
   }, [])
 
   const onManualChange = useCallback((next: AirshowReportData) => {
