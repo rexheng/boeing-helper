@@ -24,10 +24,6 @@ const faqs = [
     q: "Can I take the briefing into a meeting offline?",
     a: "Yes. Export any briefing to PDF from the review step for offline use.",
   },
-  {
-    q: "What do the live meeting overlays do?",
-    a: "They keep counterpart background, key figures, and expected questions within reach during the meeting — without leaving the meeting view.",
-  },
 ]
 
 export function FAQ({ id }: FAQProps) {

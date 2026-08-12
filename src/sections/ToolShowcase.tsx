@@ -40,14 +40,14 @@ const capabilities: Capability[] = [
     ],
   },
   {
-    title: "Live Meeting Overlay",
+    title: "Meeting materials",
     image: "/images/capability-live.jpg",
     alt: "Delegates taking notes during a conference session",
-    desc: "On-screen access to key facts, talking points, and follow-ups during the meeting.",
+    desc: "Meeting paper, invitation, and attendee dashboard ready to export.",
     points: [
-      "Key facts on a single keystroke",
-      "Talking points and questions to expect",
-      "Follow-ups captured as they are agreed",
+      "Meeting paper in Boeing template format",
+      "Invitation letter and attendee dashboard",
+      "Word, PDF, and Excel export",
     ],
   },
 ]
