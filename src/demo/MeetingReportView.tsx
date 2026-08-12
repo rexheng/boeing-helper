@@ -116,7 +116,7 @@ export function MeetingReportView({
           Summary report
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          Paste a Reading debrief, click proposed changes to spotlight them on the report sheet, then Export Word when ready.
+          Paste an email or freeform debrief. Reading paste proposes changes you click to spotlight on the live report sheet — then apply and Export Word.
         </p>
       </div>
 
@@ -139,11 +139,11 @@ export function MeetingReportView({
             setNotes(next.engagementBody)
             setEngagementTitle(next.engagementTitle)
             setRegionLabel(next.regionLabel)
-            const anchors = hunks.map((h) => reportHunkAnchor(h))
+            const anchors = hunks.map((h) => reportHunkAnchor(h)).filter(Boolean)
             setAppliedFlash(anchors)
             setHighlightPaths([])
             setReportView("sheet")
-            window.setTimeout(() => setAppliedFlash([]), 2200)
+            window.setTimeout(() => setAppliedFlash([]), 2600)
             recordAccept({
               source: "llm",
               target: "report",

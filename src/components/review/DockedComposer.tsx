@@ -311,6 +311,30 @@ export function DockedComposer({
               {result.summary && !/fallback|groq|score/i.test(result.summary) && (
                 <p className="docked-composer__debrief-sum">{result.summary}</p>
               )}
+              <div className="docked-composer__select-row">
+                <button
+                  type="button"
+                  className="docked-composer__link"
+                  onClick={() => {
+                    const init: Record<string, boolean> = {}
+                    for (const h of result.hunks) init[h.id] = true
+                    setSelected(init)
+                  }}
+                >
+                  Select all
+                </button>
+                <button
+                  type="button"
+                  className="docked-composer__link"
+                  onClick={() => {
+                    const init: Record<string, boolean> = {}
+                    for (const h of result.hunks) init[h.id] = false
+                    setSelected(init)
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
             </div>
 
             <ul className={`docked-composer__hunks flex-1 min-h-0 overflow-y-auto ${showHunks ? "is-in" : ""}`}>
@@ -319,12 +343,20 @@ export function DockedComposer({
                 const active = activeHunkId === h.id
                 return (
                   <li key={h.id} style={{ animationDelay: `${0.04 + i * 0.045}s` }}>
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       className={`docked-composer__hunk ${on ? "is-on" : "is-off"} ${active ? "is-active" : ""}`}
                       onClick={() => {
                         setActiveHunkId(h.id)
                         onHighlightPaths([h.anchor || h.path])
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          setActiveHunkId(h.id)
+                          onHighlightPaths([h.anchor || h.path])
+                        }
                       }}
                     >
                       <input
@@ -340,10 +372,15 @@ export function DockedComposer({
                       <div className="min-w-0 flex-1 text-left">
                         <p className="docked-composer__hunk-field">{executiveHeadline(h, target)}</p>
                         <p className="docked-composer__hunk-detail">
-                          <ReviewDiffText before={h.before} after={h.after} op={h.op} />
+                          <ReviewDiffText
+                            before={h.before}
+                            after={h.after}
+                            op={h.op}
+                            maxChars={target === "report" ? 140 : 220}
+                          />
                         </p>
                       </div>
-                    </button>
+                    </div>
                   </li>
                 )
               })}
