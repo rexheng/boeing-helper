@@ -924,6 +924,11 @@ a:hover { color: var(--boeing-blue); }
   gap: 6px;
 }
 
+@keyframes sheetPulse {
+  0%, 100% { background-color: #FFE58A; }
+  50% { background-color: #FFD666; }
+}
+
 .sheet-row-highlight {
   background-color: #FFE58A !important;
   box-shadow: inset 3px 0 0 var(--boeing-blue);

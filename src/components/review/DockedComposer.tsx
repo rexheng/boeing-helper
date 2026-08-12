@@ -55,14 +55,14 @@ const COPY: Record<
     titleReview: "Review updates",
     titleApplied: "Report updated",
     subCompose:
-      "Paste an email or freeform debrief — we’ll propose report updates you review before anything hits the Word document.",
+      "Paste an email or freeform debrief — we’ll propose report updates you review before anything hits the live report sheet.",
     subReview: "Select what to apply. Click a change to spotlight it in the live report.",
     subApplied: "Changes are on the report. Paste another note anytime.",
     placeholder: "Paste email, bilateral notes, or freeform debrief text…",
     applyLabel: (n) => `Apply ${n} to report`,
     victoryTitle: (n) => `Applied ${n} update${n === 1 ? "" : "s"} to the report`,
     victorySub: (n) =>
-      `${n} change${n === 1 ? "" : "s"} ${n === 1 ? "is" : "are"} live on the document and logged in Changelog.`,
+      `${n} change${n === 1 ? "" : "s"} ${n === 1 ? "is" : "are"} live on the report sheet and logged in Changelog.`,
     sample: SAMPLE_REPORT_UPDATE_EMAIL,
     sampleLabel: "Use sample debrief",
     acceptFallbackSummary: "Accepted report updates",
@@ -114,13 +114,14 @@ export function DockedComposer({
       return
     }
     const active = result.hunks.find((h) => h.id === activeHunkId)
-    if (active) {
+    // When the active hunk is deselected, fall through to the first selected hunk
+    if (active && selected[active.id] !== false) {
       onHighlightPaths([active.anchor || active.path])
       return
     }
     const firstOn = selectedHunks[0]
     onHighlightPaths(firstOn ? [firstOn.anchor || firstOn.path] : [])
-  }, [result, phase, activeHunkId, selectedHunks, onHighlightPaths])
+  }, [result, phase, activeHunkId, selected, selectedHunks, onHighlightPaths])
 
   const runGenerate = async () => {
     if (!paste.trim()) {

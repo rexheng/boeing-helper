@@ -15,7 +15,8 @@ import {
   exportAirshowReportDocx,
   type AirshowReportData,
 } from "../utils/templateExport"
-import { ReportFieldSheet, reportHunkAnchor } from "./ReportFieldSheet"
+import { ReportFieldSheet } from "./ReportFieldSheet"
+import { reportHunkAnchor } from "../utils/reportSectionAnchor"
 
 const DocxTemplateEditor = lazy(() =>
   import("./DocxTemplateEditor").then((m) => ({ default: m.DocxTemplateEditor })),

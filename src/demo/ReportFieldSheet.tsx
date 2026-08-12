@@ -1,20 +1,20 @@
 import { useEffect, useRef } from "react"
 import type { AirshowReportData } from "../utils/templateExport"
+import {
+  resolveReportSectionKey,
+  type ReportSectionKey,
+} from "../utils/reportSectionAnchor"
+
+export { reportHunkAnchor, resolveReportSectionKey } from "../utils/reportSectionAnchor"
+export type ReportSectionAnchor = ReportSectionKey
 
 const NAVY = "#0A2240"
 const BLUE = "#0033A1"
 const GRID = "#9AA3AD"
 const FONT = "'IBM Plex Sans', 'Ubuntu', system-ui, sans-serif"
 
-export type ReportSectionAnchor =
-  | "executiveSummary"
-  | "regionLabel"
-  | "engagementTitle"
-  | "engagementBody"
-  | "showName"
-
 const SECTION_META: Array<{
-  anchor: ReportSectionAnchor
+  anchor: ReportSectionKey
   label: string
   key: keyof AirshowReportData
 }> = [
@@ -32,11 +32,8 @@ function matchesHighlight(paths: string[] | undefined, anchor: string, label: st
     if (t === anchor || t === label) return true
     if (t.toLowerCase() === label.toLowerCase()) return true
     if (t === `Air Show Report / ${label}`) return true
-    if (t.includes(anchor) || anchor.includes(t)) return true
-    const low = t.toLowerCase()
-    if (low.includes(label.toLowerCase())) return true
-    if (low.includes(anchor.toLowerCase())) return true
-    return false
+    const resolved = resolveReportSectionKey({ anchor: t, path: t, field: t })
+    return resolved === anchor
   })
 }
 
@@ -184,28 +181,4 @@ export function ReportFieldSheet({
       </div>
     </div>
   )
-}
-
-/** Map review hunk field / path / anchor → section id used by ReportFieldSheet. */
-export function reportHunkAnchor(h: { field?: string; path?: string; anchor?: string }): string {
-  const known = new Set([
-    "executiveSummary",
-    "regionLabel",
-    "engagementTitle",
-    "engagementBody",
-    "showName",
-  ])
-  if (h.anchor && known.has(h.anchor)) return h.anchor
-
-  const hay = `${h.anchor || ""} ${h.field || ""} ${h.path || ""}`.toLowerCase()
-  if (hay.includes("executive")) return "executiveSummary"
-  if (hay.includes("engagement title") || (hay.includes("title") && hay.includes("engagement"))) {
-    return "engagementTitle"
-  }
-  if (hay.includes("engagement body") || hay.includes("notes") || hay.includes("action")) {
-    return "engagementBody"
-  }
-  if (hay.includes("region")) return "regionLabel"
-  if (hay.includes("show")) return "showName"
-  return h.anchor && known.has(h.anchor) ? h.anchor : "engagementBody"
 }
