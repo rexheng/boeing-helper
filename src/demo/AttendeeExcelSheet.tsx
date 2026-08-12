@@ -160,7 +160,7 @@ export function AttendeeExcelSheet({
   return (
     <div
       ref={sheetRef}
-      className="w-full overflow-x-auto bg-white origin-top-left"
+      className={`w-full overflow-x-auto bg-white origin-top-left${highlightPaths?.length ? " sheet-is-reviewing" : ""}`}
       style={{
         border: `1px solid ${GRID}`,
         fontFamily: FONT,
@@ -373,7 +373,7 @@ function EditableRow({
 }) {
   const travelDisplay =
     travel && seats > 1 ? `${travel}·${seats}` : travel
-  const hl = highlight ? " sheet-row-highlight" : ""
+  const hl = highlight ? " sheet-row-highlight" : " sheet-row-dim"
   // Omit inline bg when highlighted so sheetPulse can paint the cells
   const cellBg = highlight ? undefined : bg
   const idAttrs = { "data-subsection-id": subsectionId, "data-row-id": rowId }

@@ -42,7 +42,7 @@ export function MaterialsHub({
   countryName,
   onContinue,
 }: MaterialsHubProps) {
-  const [tab, setTab] = useState<Tab>("invite")
+  const [tab, setTab] = useState<Tab>("attendee")
   const [attendeeView, setAttendeeView] = useState<AttendeeView>("excel")
   const [close, setClose] = useState<InviteClose>("meeting")
   const defaultEvent = /mspo/i.test(meetingType)
@@ -241,40 +241,7 @@ export function MaterialsHub({
       )}
 
       {tab === "attendee" && (
-        <div className="space-y-3">
-          <div className="docked-attendee-intro">
-            <div>
-              <p className="docked-attendee-intro__eyebrow">Attendee dashboard</p>
-              <h3 className="docked-attendee-intro__title">Roster and live updates</h3>
-            </div>
-            <div
-              className="inline-flex"
-              style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)", padding: 3 }}
-              role="tablist"
-            >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={false}
-                onClick={() => setTab("invite")}
-                className="cursor-pointer rounded-sm px-3 py-1.5 font-ui text-xs font-medium"
-                style={{ background: "#fff", color: "var(--text-secondary)", border: "1px solid var(--border-hover)" }}
-              >
-                Invitation
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected
-                className="cursor-pointer rounded-sm px-3 py-1.5 font-ui text-xs font-medium"
-                style={{ background: BLUE, color: "#fff", border: `1px solid ${BLUE}` }}
-              >
-                Attendee dashboard
-              </button>
-            </div>
-          </div>
-
-        <div className="docked-workspace">
+        <div className={`docked-workspace ${highlightPaths.length > 0 ? "is-reviewing" : ""}`}>
           <DockedComposer
             target="attendees"
             currentDocument={dashboard}
@@ -307,34 +274,44 @@ export function MaterialsHub({
 
           <div className="docked-workspace__sheet">
             <div className="docked-workspace__toolbar">
-              <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
-                {(
-                  [
-                    { id: "excel" as const, label: "Excel", icon: LayoutGrid },
-                    { id: "list" as const, label: "List", icon: List },
-                  ] as const
-                ).map((v, i) => {
-                  const Icon = v.icon
-                  const active = attendeeView === v.id
-                  return (
-                    <button
-                      key={v.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => setAttendeeView(v.id)}
-                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
-                      style={{
-                        background: active ? NAVY : "#fff",
-                        color: active ? "#fff" : NAVY,
-                        borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
-                      }}
-                    >
-                      <Icon size={12} />
-                      {v.label}
-                    </button>
-                  )
-                })}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTab("invite")}
+                  className="cursor-pointer px-2.5 py-1.5 text-[11px] font-semibold"
+                  style={{ color: NAVY, border: `1px solid ${GRID}`, background: "#fff" }}
+                >
+                  ← Invitation
+                </button>
+                <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
+                  {(
+                    [
+                      { id: "excel" as const, label: "Excel", icon: LayoutGrid },
+                      { id: "list" as const, label: "List", icon: List },
+                    ] as const
+                  ).map((v, i) => {
+                    const Icon = v.icon
+                    const active = attendeeView === v.id
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setAttendeeView(v.id)}
+                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+                        style={{
+                          background: active ? NAVY : "#fff",
+                          color: active ? "#fff" : NAVY,
+                          borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
+                        }}
+                      >
+                        <Icon size={12} />
+                        {v.label}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -360,11 +337,11 @@ export function MaterialsHub({
                 <button
                   type="button"
                   onClick={handleExcelDownload}
-                  className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-white"
-                  style={{ background: BLUE }}
+                  className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ background: "#fff", color: BLUE, border: `1px solid ${BLUE}` }}
                 >
                   <Download size={13} />
-                  Excel
+                  Export
                 </button>
               </div>
             </div>
@@ -394,12 +371,25 @@ export function MaterialsHub({
             </div>
           </div>
         </div>
-        </div>
       )}
 
+      {tab !== "attendee" && (
       <div className="flex justify-end">
         <Button onClick={onContinue}>Continue to report</Button>
       </div>
+      )}
+      {tab === "attendee" && (
+        <div className="flex justify-end pt-1">
+          <button
+            type="button"
+            onClick={onContinue}
+            className="cursor-pointer text-[12px] font-semibold underline underline-offset-4"
+            style={{ color: BLUE, background: "transparent", border: "none" }}
+          >
+            Continue to report →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

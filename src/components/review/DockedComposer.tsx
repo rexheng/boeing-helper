@@ -53,8 +53,14 @@ export function DockedComposer({
       onHighlightPaths([])
       return
     }
-    onHighlightPaths(selectedHunks.map((h) => h.path))
-  }, [result, phase, selectedHunks, onHighlightPaths])
+    const active = result.hunks.find((h) => h.id === activeHunkId)
+    if (active) {
+      onHighlightPaths([active.path])
+      return
+    }
+    const firstOn = selectedHunks[0]
+    onHighlightPaths(firstOn ? [firstOn.path] : [])
+  }, [result, phase, activeHunkId, selectedHunks, onHighlightPaths])
 
   const runGenerate = async () => {
     if (!paste.trim()) {
@@ -142,7 +148,6 @@ export function DockedComposer({
   return (
     <aside className="docked-composer flex flex-col h-full min-h-0" aria-label="Update roster from email or notes">
       <header className="docked-composer__hero shrink-0">
-        <div className="docked-composer__hero-glow" aria-hidden />
         <p className="docked-composer__brand">Boeing Helper</p>
         <h3 className="docked-composer__title">Update roster</h3>
         <p className="docked-composer__sub">
@@ -194,14 +199,14 @@ export function DockedComposer({
             </button>
             <button
               type="button"
-              className="docked-composer__ghost"
+              className="docked-composer__link"
               onClick={() => {
                 setPaste(SAMPLE_ATTENDEE_UPDATE_EMAIL)
                 setError(null)
                 requestAnimationFrame(() => textareaRef.current?.focus())
               }}
             >
-              <Mail size={13} />
+              <Mail size={12} />
               Use sample email
             </button>
           </div>
@@ -250,7 +255,7 @@ export function DockedComposer({
                       />
                       <div className="min-w-0 flex-1 text-left">
                         <p className="docked-composer__hunk-field">
-                          {h.field}
+                          {hunkHeadline(h)}
                           <span className="docked-composer__op">{h.op}</span>
                         </p>
                         <ReviewDiffText before={h.before} after={h.after} op={h.op} />
@@ -302,6 +307,12 @@ export function DockedComposer({
       </div>
     </aside>
   )
+}
+
+function hunkHeadline(h: ReviewHunk) {
+  if (h.op === "add") return h.after.split(":")[0]?.trim() || h.field
+  if (h.field === "New attendee") return h.after.split(":")[0]?.trim() || "New attendee"
+  return h.field
 }
 
 function chipLabel(h: ReviewHunk) {
