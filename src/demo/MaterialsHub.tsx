@@ -35,7 +35,7 @@ export function MaterialsHub({
   countryName,
   onContinue,
 }: MaterialsHubProps) {
-  const [tab, setTab] = useState<Tab>("invite")
+  const [tab, setTab] = useState<Tab>("attendee")
   const [attendeeView, setAttendeeView] = useState<AttendeeView>("excel")
   const [close, setClose] = useState<InviteClose>("meeting")
   const defaultEvent = /mspo/i.test(meetingType)
