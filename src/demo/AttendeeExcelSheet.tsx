@@ -64,35 +64,35 @@ function pathMatchesBlock(
   const p = path.trim()
   if (!p) return false
 
-  if (block.kind === "row") {
-    if (block.role && p.includes(block.role)) return true
-    if (block.name && p.includes(block.name)) return true
-  }
-
   const parts = p.split(" / ").map((s) => s.trim()).filter(Boolean)
   if (parts.length === 0) return false
 
   const sectionHit = parts.some(
-    (part) => part === sectionTitle || sectionTitle.includes(part) || part.includes(sectionTitle),
+    (part) => part === sectionTitle || sectionTitle.includes(part) || part.includes(sectionTitle.slice(0, 12)),
   )
   const subHit = parts.some(
     (part) => part === subsectionTitle || subsectionTitle.includes(part) || part.includes(subsectionTitle),
   )
 
   if (block.kind === "sub") {
-    // Subsection header: match when path names this section + subsection
     return sectionHit && subHit
   }
 
-  // Data row: section + subsection from path, and optional role fragment
-  if (!sectionHit || !subHit) return false
-  const roleHint = parts[2]
-  if (!roleHint) return true
-  return (
-    block.role === roleHint ||
-    p.includes(block.role) ||
-    (!!block.name && p.includes(block.name))
-  )
+  // Prefer strict section + subsection + role
+  if (sectionHit && subHit) {
+    const roleHint = parts[2]
+    if (!roleHint) return true
+    return (
+      block.role === roleHint ||
+      block.role.includes(roleHint) ||
+      roleHint.includes(block.role) ||
+      (!!block.name && (p.includes(block.name) || roleHint.includes(block.name)))
+    )
+  }
+
+  // Name-only fallback when path embeds the person (after update)
+  if (block.name && block.name.length > 2 && p.includes(block.name)) return true
+  return false
 }
 
 function blockIsHighlighted(

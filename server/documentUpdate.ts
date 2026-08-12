@@ -334,6 +334,45 @@ function findRowLocation(
   return null
 }
 
+/** Collapse field-level updates on the same path into one person-first review card. */
+function consolidateAttendeeHunks(hunks: Hunk[]): Hunk[] {
+  const groups = new Map<string, Hunk[]>()
+  const order: string[] = []
+  for (const h of hunks) {
+    const key = `${h.op}::${h.path}`
+    if (!groups.has(key)) {
+      groups.set(key, [])
+      order.push(key)
+    }
+    groups.get(key)!.push(h)
+  }
+  return order.map((key, idx) => {
+    const list = groups.get(key)!
+    if (list.length === 1) return { ...list[0], id: `h-c-${idx}` }
+    const nameH = list.find((h) => h.field === "Name")
+    const travelH = list.find((h) => h.field === "I/D/L")
+    const seatsH = list.find((h) => h.field === "Seats")
+    const roleLabel = list[0].path.split(" / ").slice(-1)[0] || list[0].field
+    const onlySeats = !nameH && !travelH && !!seatsH
+    const beforeCore = [nameH?.before, travelH?.before].filter((p) => p && String(p).trim()).join(" · ")
+    const afterCore = [nameH?.after, travelH?.after].filter((p) => p && String(p).trim()).join(" · ")
+    const beforeSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `seats ${seatsH.before}` : ""
+    const afterSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `seats ${seatsH.after}` : ""
+    return {
+      id: `h-c-${idx}`,
+      path: list[0].path,
+      field: onlySeats ? `${roleLabel} · seats` : roleLabel,
+      before: onlySeats
+        ? seatsH!.before
+        : [beforeCore || "(empty)", beforeSeats].filter(Boolean).join(" · "),
+      after: onlySeats
+        ? seatsH!.after
+        : [afterCore || "(empty)", afterSeats].filter(Boolean).join(" · "),
+      op: list[0].op,
+    }
+  })
+}
+
 function curatedSampleAttendeeUpdates(
   current: AttendeeDashboardData,
 ): Array<Record<string, unknown>> {
@@ -363,34 +402,25 @@ function fallbackAttendee(
 ) {
   if (isSampleAttendeePaste(paste)) {
     const updates = curatedSampleAttendeeUpdates(current)
-    const { proposed, hunks } = applyAttendeeUpdates(current, updates)
+    const { proposed, hunks: rawHunks } = applyAttendeeUpdates(current, updates)
     const obj5 = proposed.objectives.find((o) => o.rank === 5)
     if (obj5) {
       const nextText = "Lock D-14 protocol list with GovOps"
       const nextLead = "GovOps"
-      if (obj5.text !== nextText) {
-        hunks.push({
-          id: `h-obj5-text`,
-          path: "Objectives",
+      if (obj5.text !== nextText || obj5.bdsLead !== nextLead) {
+        rawHunks.push({
+          id: `h-obj5`,
+          path: "Objectives / Top 5 / Objective 5",
           field: "Objective 5",
-          before: obj5.text,
-          after: nextText,
+          before: `${obj5.text} · ${obj5.bdsLead}`,
+          after: `${nextText} · ${nextLead}`,
           op: "update",
         })
         obj5.text = nextText
-      }
-      if (obj5.bdsLead !== nextLead) {
-        hunks.push({
-          id: `h-obj5-lead`,
-          path: "Objectives",
-          field: "Objective 5 · BDS lead",
-          before: obj5.bdsLead,
-          after: nextLead,
-          op: "update",
-        })
         obj5.bdsLead = nextLead
       }
     }
+    const hunks = consolidateAttendeeHunks(rawHunks)
     return {
       debrief: {
         sentiment: "Positive",
