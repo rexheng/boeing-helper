@@ -28,10 +28,6 @@ const faqs = [
     q: "What do the live meeting overlays do?",
     a: "They keep counterpart background, key figures, and expected questions within reach during the meeting — without leaving the meeting view.",
   },
-  {
-    q: "Does it record meetings?",
-    a: "Not by default. The live meeting view does not capture audio or video and does not transcribe unless someone explicitly turns it on. Follow-ups are recorded only when a user writes them down.",
-  },
 ]
 
 export function FAQ({ id }: FAQProps) {

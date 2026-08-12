@@ -1,4 +1,4 @@
-import { FileCheck2, Landmark, MicOff, ShieldCheck } from "lucide-react"
+import { FileCheck2, Landmark, ShieldCheck } from "lucide-react"
 import { SectionHeader } from "../components/SectionHeader"
 import { useInView } from "../hooks/useInView"
 
@@ -16,11 +16,6 @@ const trustPoints = [
     icon: FileCheck2,
     title: "Approved sources only",
     desc: "Research is assembled from published material and approved internal sources. Every claim in a briefing carries its source so it can be checked before it is used in a meeting.",
-  },
-  {
-    icon: MicOff,
-    title: "No recording by default",
-    desc: "The live meeting view does not record audio or video and does not transcribe unless a user explicitly turns it on. Nothing is captured in the background.",
   },
   {
     icon: ShieldCheck,
