@@ -14,11 +14,11 @@ const faqs = [
   },
   {
     q: "Where does the research come from?",
-    a: "Two places. Published material such as regulatory filings, official statements, and trade and defense press; and approved internal sources such as account records, programme status, and prior meeting notes. Each briefing section lists the sources behind it so a reviewer can check anything before it is used with a customer.",
+    a: "Two lanes run in parallel: an AI research agent over approved published material (filings, official statements, trade and defence press), and Boeing’s internal knowledge — including documents you upload for the meeting. Uploads and internal records outrank press when sources disagree. Each claim in the briefing keeps its source so you can check it before the room.",
   },
   {
     q: "Is this demonstration using live data?",
-    a: "No. The demonstration companies and contacts run on prepared research so the flow behaves the same way every time it is shown. When Boeing Helper is connected to live sources, the same six steps run against them and the research assembles while you wait rather than appearing instantly.",
+    a: "This is a proof of concept. The walkthrough shows the same collect → assemble → review path the product is built for: parallel research and internal knowledge, source-labelled briefings, and PDF export for the meeting.",
   },
   {
     q: "Can I take the briefing into a meeting offline?",
