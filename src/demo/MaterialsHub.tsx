@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { Download, LayoutGrid, List } from "lucide-react"
 import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
-import type { Person } from "../data/people"
+import { personSurname, type Person } from "../data/people"
 import {
   buildAttendeeDashboard,
   flattenAttendees,
@@ -55,10 +55,12 @@ export function MaterialsHub({
     [company, person, meetingType, countryName],
   )
 
-  const surname = person.name.split(" ").slice(-1)[0]
   const salutation = person.title.toLowerCase().includes("minister")
-    ? `Minister ${surname}`
-    : person.name.split(" ")[0]
+    ? `Minister ${personSurname(person)}`
+    : person.name
+        .replace(/^(HH Sheikh|Gen\.|Lt Gen\.|ACM|AVM|MG|VADM|AIRMSHL|Brig\. Gen\.|Dato' Seri|Dato'|Tan Sri)\s+/i, "")
+        .trim()
+        .split(/\s+/)[0] || personSurname(person)
 
   const closing = useMemo(() => {
     if (close === "special") {

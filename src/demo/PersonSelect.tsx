@@ -11,6 +11,7 @@ function partnerContactsAsPeople(company: Company): Person[] {
     id: ct.id,
     companyId: company.id,
     name: ct.name,
+    surname: ct.surname,
     title: ct.title,
     headline: ct.headline,
     initial: ct.name.charAt(0).toUpperCase(),

@@ -1,4 +1,4 @@
-import type { Person } from "./people"
+import { personSurname, type Person } from "./people"
 import type { Company } from "./companies"
 
 export type TravelCode = "I" | "D" | "L"
@@ -91,7 +91,7 @@ export function buildAttendeeDashboard(
     countryName === "Singapore" || company.country === "singapore" ? "L" : "I"
 
   const counterpartLabel = person.title.toLowerCase().includes("minister")
-    ? `Minister ${person.name.split(" ").slice(-1)[0]}`
+    ? `Minister ${personSurname(person)}`
     : person.name
 
   const objectives: AttendeeObjective[] = [
