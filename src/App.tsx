@@ -55,7 +55,7 @@ export default function App() {
                   aria-hidden="true"
                 />
                 <img
-                  src="/images/boeing-helper-logo.svg"
+                  src="/images/boeing-helper-logo.png"
                   alt="Boeing Helper"
                   className="mt-3"
                   style={{ height: 28, width: "auto" }}
