@@ -46,8 +46,9 @@ export function MaterialsHub({
   const [eventName, setEventName] = useState(defaultEvent)
   const [showcase, setShowcase] = useState("P-8A pathway and rotorcraft sustainment support")
   const [senderName, setSenderName] = useState("Rex Heng")
-  const senderTitle = "Regional Integrator, International Business Development"
-  const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
+  const senderTitle = "Office of President Boeing Southeast Asia & Taiwan"
+  const [contactEmail, setContactEmail] = useState("rex.heng@boeing.com")
+  const contactPhone = "+65 8xxx xxxx"
 
   const dashboard = useMemo(
     () => buildAttendeeDashboard(company, person, meetingType, countryName),
@@ -190,9 +191,24 @@ export function MaterialsHub({
             <p>{closing}</p>
             <div className="pt-4">
               <p>Sincerely,</p>
-              <p className="mt-4 font-medium" style={{ color: NAVY }}>{senderName}</p>
-              <p>{senderTitle}</p>
-              <p>The Boeing Company</p>
+              <div className="mt-4 space-y-0.5" style={{ color: NAVY }}>
+                <p className="font-semibold">{senderName} | Boeing Global</p>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{senderTitle}</p>
+                <p className="text-sm">
+                  <span className="font-semibold">E:</span>{" "}
+                  <a href={`mailto:${contactEmail}`} style={{ color: BLUE, textDecoration: "underline" }}>
+                    {contactEmail}
+                  </a>
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Tel:</span> {contactPhone}
+                </p>
+                <img
+                  src="/images/boeing-logo.svg"
+                  alt="Boeing"
+                  className="mt-3 h-5 w-auto"
+                />
+              </div>
             </div>
           </article>
         </div>

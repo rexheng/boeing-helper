@@ -47,8 +47,8 @@ export interface MeetingPaper {
 
 const INTEGRATOR = {
   name: "Rex Heng",
-  title: "Regional Integrator, International Business Development",
-  phone: "+65 6xxx xxxx",
+  title: "Office of President Boeing Southeast Asia & Taiwan",
+  phone: "+65 8xxx xxxx",
 } as const
 
 function truncate(s: string, n: number) {
