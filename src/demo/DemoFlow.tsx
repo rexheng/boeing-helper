@@ -205,6 +205,21 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     else if (step === 6) setStep(7)
   }
 
+  /** Jump to a step only when its prerequisites are already satisfied. */
+  const canJumpTo = (n: Step): boolean => {
+    if (n === step) return false
+    if (n === 1) return true
+    if (n === 2) return !!company
+    if (n === 3) return !!company && !!person
+    if (n === 4) return !!company && !!person && !!meetingType
+    if (n === 5 || n === 6 || n === 7) return !!research
+    return false
+  }
+
+  const jumpTo = (n: Step) => {
+    if (canJumpTo(n)) setStep(n)
+  }
+
   const stepLabels = ["Organization", "Contact", "Context", "Research", "Paper", "Materials", "Report"]
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -258,36 +273,68 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto">
+            <nav className="flex items-center gap-1 md:gap-1.5 overflow-x-auto" aria-label="Demo steps">
               {stepLabels.map((label, i) => {
-                const n = i + 1
-                const reached = n <= step
+                const n = (i + 1) as Step
+                const reached = n <= step || canJumpTo(n)
                 const active = n === step
+                const jumpable = canJumpTo(n)
                 return (
-                  <div key={label} className="flex items-center gap-1.5 md:gap-2 shrink-0">
-                    {i > 0 && <span className="hidden md:block w-4 h-px" style={{ background: reached ? "var(--boeing-blue)" : "var(--surface-border)" }} />}
-                    <span
-                      className="rounded-full transition-colors"
+                  <div key={label} className="flex items-center gap-1 md:gap-1.5 shrink-0">
+                    {i > 0 && (
+                      <span
+                        className="hidden md:block w-3 h-px"
+                        style={{ background: reached || active ? "var(--boeing-blue)" : "var(--surface-border)" }}
+                        aria-hidden
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => jumpTo(n)}
+                      disabled={!jumpable && !active}
+                      aria-current={active ? "step" : undefined}
+                      aria-label={`${label}${jumpable ? " — go to step" : active ? " — current step" : " — locked"}`}
+                      title={jumpable ? `Go to ${label}` : active ? label : `${label} (complete earlier steps first)`}
+                      className="flex items-center gap-1.5 rounded-full px-1.5 py-1 transition-colors disabled:cursor-default"
                       style={{
-                        width: active ? "0.5rem" : "0.375rem",
-                        height: active ? "0.5rem" : "0.375rem",
-                        background: reached ? "var(--boeing-blue)" : "#C5CDD4",
-                        boxShadow: active ? "0 0 0 3px rgba(0, 51, 161, 0.15)" : undefined,
+                        cursor: jumpable ? "pointer" : active ? "default" : "not-allowed",
+                        opacity: reached || active ? 1 : 0.45,
+                        background: active ? "var(--boeing-ice)" : jumpable ? "transparent" : "transparent",
                       }}
-                    />
-                    <span
-                      className="text-[11px] hidden lg:inline whitespace-nowrap"
-                      style={{
-                        color: active ? "var(--boeing-blue)" : reached ? "var(--text-secondary)" : "var(--text-muted)",
-                        fontWeight: active ? 600 : 400,
+                      onMouseEnter={(e) => {
+                        if (!jumpable) return
+                        e.currentTarget.style.background = "var(--boeing-ice)"
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active) e.currentTarget.style.background = "transparent"
                       }}
                     >
-                      {label}
-                    </span>
+                      <span
+                        className="inline-flex items-center justify-center rounded-full text-[10px] font-semibold tabular-nums"
+                        style={{
+                          width: "1.35rem",
+                          height: "1.35rem",
+                          background: active || reached ? "var(--boeing-blue)" : "#C5CDD4",
+                          color: "#fff",
+                          boxShadow: active ? "0 0 0 3px rgba(0, 51, 161, 0.15)" : undefined,
+                        }}
+                      >
+                        {n}
+                      </span>
+                      <span
+                        className="text-[11px] hidden lg:inline whitespace-nowrap pr-1"
+                        style={{
+                          color: active ? "var(--boeing-blue)" : reached ? "var(--text-secondary)" : "var(--text-muted)",
+                          fontWeight: active ? 600 : 400,
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </button>
                   </div>
                 )
               })}
-            </div>
+            </nav>
 
             <div className="w-24 shrink-0 flex justify-end">
               {canGoForward && (
@@ -309,7 +356,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
 
       <div
         className={`relative z-10 mx-auto px-4 md:px-6 py-10 md:py-14 ${
-          step === 6 ? "max-w-[92rem]" : "max-w-4xl"
+          step === 6 ? "max-w-[92rem]" : step === 5 || step === 7 ? "max-w-5xl" : "max-w-4xl"
         }`}
       >
         {step === 1 && <CompanySelect onSelect={handleCompanySelect} />}

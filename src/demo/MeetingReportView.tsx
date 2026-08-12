@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react"
+import { lazy, Suspense, useCallback, useMemo, useState } from "react"
 import { Button } from "../components/Button"
 import { ChangelogDrawer } from "../components/review/ChangelogDrawer"
 import { ReviewPanel } from "../components/review/ReviewPanel"
@@ -9,10 +9,10 @@ import type { ResearchResult } from "../types/research"
 import { applyReportHunks } from "../utils/applyReviewHunks"
 import { changelogScope } from "../utils/changelogStorage"
 import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
-import type { AirshowReportData } from "../utils/templateExport"
+import { buildAirshowReportDocx, type AirshowReportData } from "../utils/templateExport"
 
-const ReportDocxEditor = lazy(() =>
-  import("./ReportDocxEditor").then((m) => ({ default: m.ReportDocxEditor })),
+const DocxTemplateEditor = lazy(() =>
+  import("./DocxTemplateEditor").then((m) => ({ default: m.DocxTemplateEditor })),
 )
 
 interface MeetingReportViewProps {
@@ -69,6 +69,10 @@ export function MeetingReportView({
     engagementTitle,
     engagementBody: notes,
   }
+
+  const buildDocument = useCallback(() => buildAirshowReportDocx(reportDoc), [reportDoc])
+  const fileStem = `${showName.replace(/\s+/g, "-")}-Summary-Report`
+  const pdfFallback = `Executive Summary\n${summary}\n\n${regionLabel}\n${engagementTitle}\n${notes}`
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
@@ -141,7 +145,14 @@ export function MeetingReportView({
           </div>
         }
       >
-        <ReportDocxEditor data={reportDoc} reloadKey={reloadKey} />
+        <DocxTemplateEditor
+          buildDocument={buildDocument}
+          title={`${showName} Summary Report`}
+          fileStem={fileStem}
+          pdfFallbackText={pdfFallback}
+          reloadKey={reloadKey}
+          loadingLabel="Building report document…"
+        />
       </Suspense>
 
       <div className="flex flex-wrap justify-end gap-3">

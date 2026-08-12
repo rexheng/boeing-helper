@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { DocxEditor, type DocxEditorRef } from "@docx-editor.dev/react"
 import "@docx-editor.dev/core/styles/editor.css"
 import { Download, FileText, Loader2 } from "lucide-react"
-import { buildAirshowReportDocx, type AirshowReportData } from "../utils/templateExport"
 import { jsPDF } from "jspdf"
 
 const BLUE = "#0033A1"
@@ -30,24 +29,35 @@ function editorPlainText(editor: { query?: (q: { type: string }) => unknown } | 
   }
 }
 
-export function ReportDocxEditor({
-  data,
+export function DocxTemplateEditor({
+  buildDocument,
+  title,
+  fileStem,
+  pdfFallbackText,
   reloadKey,
+  loadingLabel = "Building document…",
 }: {
-  data: AirshowReportData
-  /** Bump to rebuild the docx from `data` (e.g. after LLM accept). */
+  buildDocument: () => Promise<ArrayBuffer>
+  title: string
+  fileStem: string
+  pdfFallbackText: string
+  /** Bump to rebuild the docx (e.g. after LLM accept). */
   reloadKey: number
+  loadingLabel?: string
 }) {
   const ref = useRef<DocxEditorRef>(null)
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<"load" | "docx" | "pdf" | null>("load")
+  const buildRef = useRef(buildDocument)
+  buildRef.current = buildDocument
 
   useEffect(() => {
     let cancelled = false
     setBusy("load")
     setError(null)
-    buildAirshowReportDocx(data)
+    buildRef
+      .current()
       .then((buf) => {
         if (cancelled) return
         setBuffer(buf)
@@ -55,7 +65,7 @@ export function ReportDocxEditor({
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err instanceof Error ? err.message : "Failed to build report document")
+        setError(err instanceof Error ? err.message : "Failed to build document")
       })
       .finally(() => {
         if (!cancelled) setBusy((b) => (b === "load" ? null : b))
@@ -63,7 +73,6 @@ export function ReportDocxEditor({
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reloadKey forces rebuild from latest data
   }, [reloadKey])
 
   const handleWord = async () => {
@@ -71,10 +80,10 @@ export function ReportDocxEditor({
     try {
       const saved = await ref.current?.save()
       if (saved) {
-        downloadBuffer(saved, `${data.showName.replace(/\s+/g, "-")}-Summary-Report.docx`)
+        downloadBuffer(saved, `${fileStem}.docx`)
       } else {
-        const buf = await buildAirshowReportDocx(data)
-        downloadBuffer(buf, `${data.showName.replace(/\s+/g, "-")}-Summary-Report.docx`)
+        const buf = await buildRef.current()
+        downloadBuffer(buf, `${fileStem}.docx`)
       }
     } catch (err) {
       console.error(err)
@@ -89,9 +98,7 @@ export function ReportDocxEditor({
     try {
       const editor = ref.current?.getEditor()
       const fromEditor = editorPlainText(editor as { query?: (q: { type: string }) => unknown })
-      const text =
-        fromEditor.trim() ||
-        `Executive Summary\n${data.executiveSummary}\n\n${data.regionLabel}\n${data.engagementTitle}\n${data.engagementBody}`
+      const text = fromEditor.trim() || pdfFallbackText
 
       const doc = new jsPDF({ unit: "mm", format: "letter" })
       const W = 215.9
@@ -103,7 +110,7 @@ export function ReportDocxEditor({
       doc.setFontSize(12)
       doc.text("BOEING", W - MR, 18, { align: "right" })
       doc.setFontSize(10)
-      doc.text(`${data.showName} Summary Report`, W / 2, y, { align: "center" })
+      doc.text(title, W / 2, y, { align: "center" })
       y += 12
       doc.setFont("helvetica", "normal")
       const lines = doc.splitTextToSize(text, contentW)
@@ -117,7 +124,7 @@ export function ReportDocxEditor({
       }
       doc.setFont("helvetica", "bold")
       doc.text("BOEING PROPRIETARY", W / 2, 270, { align: "center" })
-      doc.save(`${data.showName.replace(/\s+/g, "-")}-Summary-Report.pdf`)
+      doc.save(`${fileStem}.pdf`)
     } finally {
       setBusy(null)
     }
@@ -165,7 +172,7 @@ export function ReportDocxEditor({
       >
         {busy === "load" && !buffer && (
           <div className="flex items-center justify-center gap-2 py-24 text-sm" style={{ color: NAVY }}>
-            <Loader2 size={16} className="animate-spin" /> Building report document…
+            <Loader2 size={16} className="animate-spin" /> {loadingLabel}
           </div>
         )}
         {buffer && (
@@ -173,7 +180,7 @@ export function ReportDocxEditor({
             ref={ref}
             document={buffer}
             mode="edit"
-            title={`${data.showName} Summary Report`}
+            title={title}
             chrome
             navigation={false}
             rulers={false}
