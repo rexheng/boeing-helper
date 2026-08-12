@@ -58,6 +58,7 @@ export function MaterialsHub({
   const [zoom, setZoom] = useState(1.05)
   const [showEmpty, setShowEmpty] = useState(true)
   const [highlightPaths, setHighlightPaths] = useState<string[]>([])
+  const [isReviewing, setIsReviewing] = useState(false)
 
   const [dashboard, setDashboard] = useState<AttendeeDashboardData>(() =>
     buildAttendeeDashboard(company, person, meetingType, countryName),
@@ -254,6 +255,7 @@ export function MaterialsHub({
               countryName,
             }}
             onHighlightPaths={onHighlightPaths}
+            onReviewingChange={setIsReviewing}
             onAccept={({ proposedDocument, hunks, allHunkCount, debrief, summary }) => {
               const next = applyAttendeeHunks(
                 dashboard,
@@ -378,7 +380,7 @@ export function MaterialsHub({
         <Button onClick={onContinue}>Continue to report</Button>
       </div>
       )}
-      {tab === "attendee" && (
+      {tab === "attendee" && !isReviewing && (
         <div className="flex justify-end pt-1">
           <button
             type="button"

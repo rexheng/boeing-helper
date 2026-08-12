@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Check, Loader2, Mail, X } from "lucide-react"
+import { Check, CheckCircle2, Loader2, Mail, X } from "lucide-react"
 import type {
   DocumentDebrief,
   DocumentUpdateResponse,
@@ -9,7 +9,7 @@ import type {
 import { ReviewDiffText } from "./ReviewDiffText"
 import { SAMPLE_ATTENDEE_UPDATE_EMAIL } from "../../demo/sampleAttendeeUpdateEmail"
 
-type Phase = "compose" | "extracting" | "review"
+type Phase = "compose" | "extracting" | "review" | "applied"
 
 export function DockedComposer({
   target,
@@ -18,6 +18,7 @@ export function DockedComposer({
   onHighlightPaths,
   onAccept,
   onRejectAll,
+  onReviewingChange,
 }: {
   target: ReviewTarget
   currentDocument: unknown
@@ -31,8 +32,9 @@ export function DockedComposer({
     summary: string
   }) => void
   onRejectAll?: () => void
+  onReviewingChange?: (reviewing: boolean) => void
 }) {
-  const [paste, setPaste] = useState("")
+  const [paste, setPaste] = useState(SAMPLE_ATTENDEE_UPDATE_EMAIL)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<DocumentUpdateResponse | null>(null)
@@ -41,12 +43,17 @@ export function DockedComposer({
   const [chips, setChips] = useState<{ id: string; label: string; kind: "add" | "upd" | "rm" }[]>([])
   const [activeHunkId, setActiveHunkId] = useState<string | null>(null)
   const [showHunks, setShowHunks] = useState(false)
+  const [appliedCount, setAppliedCount] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const selectedHunks = useMemo(() => {
     if (!result) return []
     return result.hunks.filter((h) => selected[h.id] !== false)
   }, [result, selected])
+
+  useEffect(() => {
+    onReviewingChange?.(phase === "review" || phase === "extracting")
+  }, [phase, onReviewingChange])
 
   useEffect(() => {
     if (!result || phase !== "review") {
@@ -103,7 +110,6 @@ export function DockedComposer({
       setSelected(init)
       setPhase("review")
       if (data.hunks[0]) setActiveHunkId(data.hunks[0].id)
-      // cascade hunks after phase paint
       requestAnimationFrame(() => setShowHunks(true))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Update failed")
@@ -120,6 +126,7 @@ export function DockedComposer({
 
   const accept = () => {
     if (!result) return
+    const n = selectedHunks.length
     onAccept({
       proposedDocument: result.proposedDocument,
       hunks: selectedHunks,
@@ -127,7 +134,14 @@ export function DockedComposer({
       debrief: result.debrief || {},
       summary: result.summary || "Accepted roster updates",
     })
-    resetToCompose(true)
+    setAppliedCount(n)
+    setResult(null)
+    setPaste("")
+    setChips([])
+    setActiveHunkId(null)
+    setShowHunks(false)
+    onHighlightPaths([])
+    setPhase("applied")
   }
 
   const reject = () => {
@@ -150,12 +164,14 @@ export function DockedComposer({
       <header className="docked-composer__hero shrink-0">
         <p className="docked-composer__brand">Boeing Helper</p>
         <h3 className="docked-composer__title">
-          {phase === "review" ? "Review updates" : "Update roster"}
+          {phase === "review" ? "Review updates" : phase === "applied" ? "Roster updated" : "Update roster"}
         </h3>
         <p className="docked-composer__sub">
           {phase === "review"
-            ? "Select changes to apply. Click a row to spotlight it on the live sheet."
-            : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."}
+            ? "Select what to apply. Click a change to spotlight it on the live sheet."
+            : phase === "applied"
+              ? "Changes are on the roster. Paste another note anytime."
+              : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."}
         </p>
       </header>
 
@@ -216,6 +232,21 @@ export function DockedComposer({
           </div>
         )}
 
+        {phase === "applied" && (
+          <div className="docked-composer__victory" aria-live="polite">
+            <CheckCircle2 size={28} style={{ color: "#2F6B4F" }} />
+            <p className="docked-composer__victory-title">
+              Applied {appliedCount} update{appliedCount === 1 ? "" : "s"} to the roster
+            </p>
+            <p className="docked-composer__victory-sub">
+              Spotlight cells settle on the sheet. Changelog records this accept.
+            </p>
+            <button type="button" className="docked-composer__primary" onClick={() => resetToCompose(true)}>
+              Update from another note
+            </button>
+          </div>
+        )}
+
         {phase === "review" && result && (
           <div className="docked-composer__review flex flex-col min-h-0 flex-1">
             <div className="docked-composer__debrief shrink-0">
@@ -225,11 +256,6 @@ export function DockedComposer({
               </div>
               {result.summary && !/fallback|groq|score/i.test(result.summary) && (
                 <p className="docked-composer__debrief-sum">{result.summary}</p>
-              )}
-              {result.summary && /fallback/i.test(result.summary) && (
-                <p className="docked-composer__debrief-sum">
-                  Mapped {result.hunks.length} field update{result.hunks.length === 1 ? "" : "s"} from the pasted note.
-                </p>
               )}
             </div>
 
@@ -255,14 +281,13 @@ export function DockedComposer({
                           toggle(h.id)
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        aria-label={`Include change: ${h.field}`}
+                        aria-label={`Include change: ${executiveHeadline(h)}`}
                       />
                       <div className="min-w-0 flex-1 text-left">
-                        <p className="docked-composer__hunk-field">
-                          {hunkHeadline(h)}
-                          <span className="docked-composer__op">{h.op}</span>
+                        <p className="docked-composer__hunk-field">{executiveHeadline(h)}</p>
+                        <p className="docked-composer__hunk-detail">
+                          <ReviewDiffText before={h.before} after={h.after} op={h.op} />
                         </p>
-                        <ReviewDiffText before={h.before} after={h.after} op={h.op} />
                       </div>
                     </button>
                   </li>
@@ -278,7 +303,7 @@ export function DockedComposer({
                 className="docked-composer__primary"
               >
                 <Check size={14} />
-                Accept selected ({selectedHunks.length})
+                Apply {selectedHunks.length} to roster
               </button>
               <button type="button" className="docked-composer__ghost" onClick={reject}>
                 <X size={13} />
@@ -313,16 +338,37 @@ export function DockedComposer({
   )
 }
 
-function hunkHeadline(h: ReviewHunk) {
-  if (h.op === "add") return h.after.split(":")[0]?.trim() || h.field
-  if (h.field === "New attendee") return h.after.split(":")[0]?.trim() || "New attendee"
+function executiveHeadline(h: ReviewHunk) {
+  if (h.op === "remove") {
+    const who = h.before.split("·")[0]?.trim() || h.field
+    return `Remove ${who}`
+  }
+  if (h.op === "add") {
+    const who = h.after.split(/[:·]/)[0]?.trim() || h.after
+    return `Add ${who}`
+  }
+  const person = h.after.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/)?.[1]
+  const emptyBefore = !h.before.trim() || /\(empty\)/i.test(h.before) || /AH-64|CH-47|Programme/i.test(h.before)
+  if (person && emptyBefore) return `Assign ${person}${roleSuffix(h)}`
+  if (person) return `Update to ${person}${roleSuffix(h)}`
+  if (/seats/i.test(h.field) || (/^\d+$/.test(h.before.trim()) && /^\d+$/.test(h.after.trim()))) {
+    const label = h.field.replace(/\s*·\s*seats/i, "").trim() || "Seats"
+    return `Adjust ${label} (${h.before} → ${h.after})`
+  }
+  if (/objective/i.test(h.field)) return "Tighten Objective 5"
   return h.field
 }
 
+function roleSuffix(h: ReviewHunk) {
+  const role = h.path.split(" / ").slice(-1)[0]
+  if (!role || /objective/i.test(role)) return ""
+  if (role.toLowerCase() === h.field.toLowerCase()) return ` · ${role}`
+  if (/^[A-Z0-9]/.test(role)) return ` · ${role}`
+  return ""
+}
+
 function chipLabel(h: ReviewHunk) {
-  const verb = h.op === "add" ? "Add" : h.op === "remove" ? "Remove" : "Update"
-  const detail = (h.after || h.before || h.field).slice(0, 42)
-  return `${verb} · ${detail}`
+  return executiveHeadline(h).slice(0, 48)
 }
 
 function wait(ms: number) {

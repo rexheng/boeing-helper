@@ -361,18 +361,22 @@ function consolidateAttendeeHunks(hunks: Hunk[]): Hunk[] {
     const onlySeats = !nameH && !travelH && !!seatsH
     const beforeCore = [nameH?.before, travelH?.before].filter((p) => p && String(p).trim()).join(" · ")
     const afterCore = [nameH?.after, travelH?.after].filter((p) => p && String(p).trim()).join(" · ")
-    const beforeSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `seats ${seatsH.before}` : ""
-    const afterSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `seats ${seatsH.after}` : ""
+    const beforeSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `${seatsH.before} seats` : ""
+    const afterSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `${seatsH.after} seats` : ""
     return {
       id: `h-c-${idx}`,
       path: list[0].path,
       field: onlySeats ? `${roleLabel} · seats` : roleLabel,
       before: onlySeats
         ? seatsH!.before
-        : [beforeCore || "(empty)", beforeSeats].filter(Boolean).join(" · "),
+        : beforeCore
+          ? [beforeCore, beforeSeats].filter(Boolean).join(" · ")
+          : beforeSeats || "(empty)",
       after: onlySeats
         ? seatsH!.after
-        : [afterCore || "(empty)", afterSeats].filter(Boolean).join(" · "),
+        : afterCore
+          ? [afterCore, afterSeats].filter(Boolean).join(" · ")
+          : afterSeats || "(empty)",
       op: list[0].op,
       anchor: list[0].anchor,
     }
