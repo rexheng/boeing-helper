@@ -49,28 +49,33 @@ function argb(hex: string) {
   return `FF${hex.replace(/^#/, "").toUpperCase()}`
 }
 
-function thinBorder() {
-  const edge = { style: "thin" as const, color: { argb: argb(EXCEL.grid) } }
-  return { top: edge, left: edge, bottom: edge, right: edge }
+function edge(style: "thin" | "medium" = "thin") {
+  return { style, color: { argb: argb(EXCEL.grid) } }
 }
 
-function applyBorderRange(
-  ws: ExcelJS.Worksheet,
-  r1: number,
-  c1: number,
-  r2: number,
-  c2: number,
-) {
-  const border = thinBorder()
-  for (let r = r1; r <= r2; r++) {
-    for (let c = c1; c <= c2; c++) {
-      const cell = ws.getCell(r, c)
-      cell.border = border
-    }
+function solidFill(hex: string): ExcelJS.Fill {
+  return {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: argb(hex) },
   }
 }
 
-function fillRange(
+function font(opts: {
+  size?: number
+  bold?: boolean
+  color?: string
+}): Partial<ExcelJS.Font> {
+  return {
+    name: EXCEL_FONT,
+    size: opts.size ?? 9.5,
+    bold: !!opts.bold,
+    color: { argb: argb(opts.color ?? EXCEL.text) },
+  }
+}
+
+/** Paint every cell in a range with the same fill + thin grid border. */
+function paintRange(
   ws: ExcelJS.Worksheet,
   r1: number,
   c1: number,
@@ -80,44 +85,72 @@ function fillRange(
 ) {
   for (let r = r1; r <= r2; r++) {
     for (let c = c1; c <= c2; c++) {
-      ws.getCell(r, c).fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: argb(fillHex) },
+      const cell = ws.getCell(r, c)
+      cell.fill = solidFill(fillHex)
+      cell.border = {
+        top: edge(),
+        left: edge(),
+        bottom: edge(),
+        right: edge(),
       }
     }
   }
 }
 
-function styleHeaderCell(
-  cell: ExcelJS.Cell,
-  opts: {
-    fill: string
-    fontSize?: number
-    bold?: boolean
-    color?: string
-    hAlign?: ExcelJS.Alignment["horizontal"]
-    vAlign?: ExcelJS.Alignment["vertical"]
-    wrap?: boolean
-  },
+/**
+ * Preview uses one colspan=4 cell with flex space-between (title | count).
+ * Excel: same fill across the quarter, title left / count right, no internal seam.
+ */
+function paintTitleCountBand(
+  ws: ExcelJS.Worksheet,
+  row: number,
+  c1: number,
+  title: string,
+  count: number,
+  fill: string,
+  fontSize: number,
+  uppercase = false,
 ) {
-  cell.fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: argb(opts.fill) },
+  const cCount = c1 + 3
+  const label = uppercase ? title.toUpperCase() : title
+
+  // Merge title span first, then paint every cell so fills survive the merge
+  ws.mergeCells(row, c1, row, cCount - 1)
+
+  for (let c = c1; c <= cCount; c++) {
+    const cell = ws.getCell(row, c)
+    cell.fill = solidFill(fill)
+    cell.border = {
+      top: edge(),
+      bottom: edge(),
+      left: c === c1 ? edge() : undefined,
+      right: c === cCount ? edge() : undefined,
+    }
   }
-  cell.font = {
-    name: EXCEL_FONT,
-    size: opts.fontSize ?? 11,
-    bold: opts.bold ?? true,
-    color: { argb: argb(opts.color ?? EXCEL.white) },
+
+  const titleCell = ws.getCell(row, c1)
+  titleCell.value = label
+  titleCell.font = font({ size: fontSize, bold: true, color: EXCEL.white })
+  titleCell.alignment = { horizontal: "left", vertical: "middle", indent: 0 }
+  titleCell.fill = solidFill(fill)
+  titleCell.border = {
+    top: edge(),
+    bottom: edge(),
+    left: edge(),
+    right: undefined,
   }
-  cell.alignment = {
-    horizontal: opts.hAlign ?? "left",
-    vertical: opts.vAlign ?? "middle",
-    wrapText: opts.wrap ?? false,
+
+  const countCell = ws.getCell(row, cCount)
+  countCell.value = `(${count})`
+  countCell.font = font({ size: fontSize, bold: true, color: EXCEL.white })
+  countCell.alignment = { horizontal: "right", vertical: "middle" }
+  countCell.fill = solidFill(fill)
+  countCell.border = {
+    top: edge(),
+    bottom: edge(),
+    left: undefined,
+    right: edge(),
   }
-  cell.border = thinBorder()
 }
 
 function downloadBlob(buffer: ArrayBuffer, filename: string) {
@@ -137,8 +170,8 @@ async function buildDashboardSheet(
   data: AttendeeDashboardData,
 ) {
   const ws = wb.addWorksheet("Dashboard", {
-    views: [{ state: "frozen", ySplit: 2, showGridLines: true }],
-    properties: { defaultRowHeight: 14 },
+    views: [{ state: "frozen", ySplit: 2, showGridLines: false }],
+    properties: { defaultRowHeight: 12.5 },
   })
 
   ws.columns = EXCEL_COL_WIDTHS.map((width) => ({ width }))
@@ -159,73 +192,69 @@ async function buildDashboardSheet(
     { code: "", label: "", n: "" as const },
   ]
 
-  // —— Row 1: Title bar (matches preview header) ——
-  ws.mergeCells(1, 1, 1, 6)
-  ws.mergeCells(1, 7, 1, 11)
-  ws.mergeCells(1, 12, 1, 14)
-  ws.mergeCells(1, 15, 1, 16)
-
-  const cTemplate = ws.getCell(1, 1)
-  cTemplate.value = "Attendee List Template"
-  styleHeaderCell(cTemplate, { fill: EXCEL.blue, fontSize: 11 })
-  fillRange(ws, 1, 1, 1, 6, EXCEL.blue)
-  applyBorderRange(ws, 1, 1, 1, 6)
-
-  const cEvent = ws.getCell(1, 7)
-  cEvent.value = title
-  styleHeaderCell(cEvent, { fill: EXCEL.navy, fontSize: 11 })
-  fillRange(ws, 1, 7, 1, 11, EXCEL.navy)
-  applyBorderRange(ws, 1, 7, 1, 11)
-
-  const cPart = ws.getCell(1, 12)
-  cPart.value = "Participant List"
-  styleHeaderCell(cPart, { fill: EXCEL.navy, fontSize: 11 })
-  fillRange(ws, 1, 12, 1, 14, EXCEL.navy)
-  applyBorderRange(ws, 1, 12, 1, 14)
-
-  const cRev = ws.getCell(1, 15)
-  cRev.value = data.revisedLabel
-  styleHeaderCell(cRev, {
-    fill: EXCEL.revised,
-    fontSize: 10,
-    hAlign: "right",
-  })
-  fillRange(ws, 1, 15, 1, 16, EXCEL.revised)
-  applyBorderRange(ws, 1, 15, 1, 16)
-  ws.getRow(1).height = 18
+  // —— Row 1: Title bar (preview: blue 6 | navy 5 | navy 3 | revised 2) ——
+  const headerBands: Array<{
+    c1: number
+    c2: number
+    value: string
+    fill: string
+    size: number
+    hAlign?: ExcelJS.Alignment["horizontal"]
+  }> = [
+    { c1: 1, c2: 6, value: "Attendee List Template", fill: EXCEL.blue, size: 11 },
+    { c1: 7, c2: 11, value: title, fill: EXCEL.navy, size: 11 },
+    { c1: 12, c2: 14, value: "Participant List", fill: EXCEL.navy, size: 11 },
+    {
+      c1: 15,
+      c2: 16,
+      value: data.revisedLabel,
+      fill: EXCEL.revised,
+      size: 10,
+      hAlign: "right",
+    },
+  ]
+  for (const band of headerBands) {
+    paintRange(ws, 1, band.c1, 1, band.c2, band.fill)
+    ws.mergeCells(1, band.c1, 1, band.c2)
+    const cell = ws.getCell(1, band.c1)
+    cell.value = band.value
+    cell.font = font({ size: band.size, bold: true, color: EXCEL.white })
+    cell.alignment = {
+      horizontal: band.hAlign ?? "left",
+      vertical: "middle",
+    }
+    cell.fill = solidFill(band.fill)
+    cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
+  }
+  ws.getRow(1).height = 16
 
   // —— Row 2: Legend headers ——
-  ws.mergeCells(2, 2, 2, 8)
-  ws.mergeCells(2, 9, 2, 12)
-  ws.mergeCells(2, 14, 2, 15)
-
   const legendSpecs: Array<{
-    col: number
-    end: number
+    c1: number
+    c2: number
     value: string
     hAlign?: ExcelJS.Alignment["horizontal"]
   }> = [
-    { col: 1, end: 1, value: "#", hAlign: "left" },
-    { col: 2, end: 8, value: "Top 5 Objectives" },
-    { col: 9, end: 12, value: "BD&S Leads" },
-    { col: 13, end: 13, value: "Key" },
-    { col: 14, end: 15, value: "Travel" },
-    { col: 16, end: 16, value: "#", hAlign: "right" },
+    { c1: 1, c2: 1, value: "#" },
+    { c1: 2, c2: 8, value: "Top 5 Objectives" },
+    { c1: 9, c2: 12, value: "BD&S Leads" },
+    { c1: 13, c2: 13, value: "Key" },
+    { c1: 14, c2: 15, value: "Travel" },
+    { c1: 16, c2: 16, value: "#", hAlign: "right" },
   ]
-
   for (const spec of legendSpecs) {
-    const cell = ws.getCell(2, spec.col)
+    paintRange(ws, 2, spec.c1, 2, spec.c2, EXCEL.legend)
+    if (spec.c2 > spec.c1) ws.mergeCells(2, spec.c1, 2, spec.c2)
+    const cell = ws.getCell(2, spec.c1)
     cell.value = spec.value
-    styleHeaderCell(cell, {
-      fill: EXCEL.legend,
-      fontSize: 9,
-      color: EXCEL.navy,
-      hAlign: spec.hAlign ?? "left",
-    })
-    fillRange(ws, 2, spec.col, 2, spec.end, EXCEL.legend)
-    applyBorderRange(ws, 2, spec.col, 2, spec.end)
+    cell.font = font({ size: 9, bold: true, color: EXCEL.navy })
+    cell.alignment = {
+      horizontal: spec.hAlign ?? "left",
+      vertical: "middle",
+    }
+    cell.fill = solidFill(EXCEL.legend)
   }
-  ws.getRow(2).height = 15
+  ws.getRow(2).height = 13
 
   // —— Rows 3–7: Objectives + leads + travel key ——
   data.objectives.forEach((o, idx) => {
@@ -233,26 +262,23 @@ async function buildDashboardSheet(
     const t = travelRows[idx]
     const bg = idx % 2 ? EXCEL.zebra : EXCEL.white
 
-    ws.mergeCells(row, 2, row, 8)
-    ws.mergeCells(row, 9, row, 12)
-    ws.mergeCells(row, 14, row, 15)
-
     const cells: Array<{
-      col: number
-      end: number
+      c1: number
+      c2: number
       value: string | number
       bold?: boolean
       color?: string
       hAlign?: ExcelJS.Alignment["horizontal"]
+      wrap?: boolean
     }> = [
-      { col: 1, end: 1, value: o.rank, bold: true, color: EXCEL.navy, hAlign: "center" },
-      { col: 2, end: 8, value: o.text, color: EXCEL.text },
-      { col: 9, end: 12, value: o.bdsLead, bold: true, color: EXCEL.navy },
-      { col: 13, end: 13, value: t.code, bold: true, color: EXCEL.blue, hAlign: "center" },
-      { col: 14, end: 15, value: t.label, color: EXCEL.text },
+      { c1: 1, c2: 1, value: o.rank, bold: true, color: EXCEL.navy, hAlign: "center" },
+      { c1: 2, c2: 8, value: o.text, color: EXCEL.text, wrap: true },
+      { c1: 9, c2: 12, value: o.bdsLead, bold: true, color: EXCEL.navy },
+      { c1: 13, c2: 13, value: t.code, bold: true, color: EXCEL.blue, hAlign: "center" },
+      { c1: 14, c2: 15, value: t.label, color: EXCEL.text },
       {
-        col: 16,
-        end: 16,
+        c1: 16,
+        c2: 16,
         value: t.n === "" ? "" : t.n,
         bold: true,
         color: EXCEL.navy,
@@ -261,63 +287,59 @@ async function buildDashboardSheet(
     ]
 
     for (const spec of cells) {
-      const cell = ws.getCell(row, spec.col)
+      paintRange(ws, row, spec.c1, row, spec.c2, bg)
+      if (spec.c2 > spec.c1) ws.mergeCells(row, spec.c1, row, spec.c2)
+      const cell = ws.getCell(row, spec.c1)
       cell.value = spec.value
-      cell.font = {
-        name: EXCEL_FONT,
+      cell.font = font({
         size: 9,
         bold: !!spec.bold,
-        color: { argb: argb(spec.color ?? EXCEL.text) },
-      }
+        color: spec.color ?? EXCEL.text,
+      })
       cell.alignment = {
         horizontal: spec.hAlign ?? "left",
         vertical: "middle",
-        wrapText: spec.col === 2,
+        wrapText: !!spec.wrap,
       }
-      fillRange(ws, row, spec.col, row, spec.end, bg)
-      applyBorderRange(ws, row, spec.col, row, spec.end)
+      cell.fill = solidFill(bg)
     }
-    ws.getRow(row).height = 16
+    ws.getRow(row).height = 14
   })
 
-  // —— Row 8: Section headers (4 × 4 cols) — title left, count right ——
+  // —— Row 8: Section headers ——
   const sectionRow = 8
   data.columns.forEach((col, i) => {
-    const c1 = i * 4 + 1
-    const c2 = c1 + 3
-    const fill = EXCEL_ACCENT[col.accent]
-    // Merge title across first 3 of the quarter; count sits in the 4th cell
-    ws.mergeCells(sectionRow, c1, sectionRow, c2 - 1)
-    const titleCell = ws.getCell(sectionRow, c1)
-    titleCell.value = col.title.toUpperCase()
-    styleHeaderCell(titleCell, { fill, fontSize: 9, hAlign: "left" })
-    const countCell = ws.getCell(sectionRow, c2)
-    countCell.value = `(${sectionCount(col)})`
-    styleHeaderCell(countCell, { fill, fontSize: 9, hAlign: "right" })
-    fillRange(ws, sectionRow, c1, sectionRow, c2, fill)
-    applyBorderRange(ws, sectionRow, c1, sectionRow, c2)
+    paintTitleCountBand(
+      ws,
+      sectionRow,
+      i * 4 + 1,
+      col.title,
+      sectionCount(col),
+      EXCEL_ACCENT[col.accent],
+      9,
+      true,
+    )
   })
-  ws.getRow(sectionRow).height = 16
+  ws.getRow(sectionRow).height = 14
 
-  // —— Row 9: Column headers Role / Name / Organization / I/D/L ——
+  // —— Row 9: Role / Name / Organization / I/D/L ——
   const headerRow = 9
   for (let i = 0; i < 4; i++) {
     ;(["Role", "Name", "Organization", "I/D/L"] as const).forEach((h, j) => {
       const cell = ws.getCell(headerRow, i * 4 + j + 1)
       cell.value = h
-      styleHeaderCell(cell, {
-        fill: EXCEL.legend,
-        fontSize: 8,
-        color: EXCEL.navy,
-      })
+      cell.fill = solidFill(EXCEL.legend)
+      cell.font = font({ size: 8.5, bold: true, color: EXCEL.navy })
+      cell.alignment = { horizontal: "left", vertical: "middle" }
+      cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
     })
   }
-  ws.getRow(headerRow).height = 14
+  ws.getRow(headerRow).height = 12.5
 
-  // —— Body rows (aligned across four columns, same as preview) ——
+  // —— Body ——
   for (let rowIdx = 0; rowIdx < maxRows; rowIdx++) {
     const excelRow = headerRow + 1 + rowIdx
-    ws.getRow(excelRow).height = 13
+    ws.getRow(excelRow).height = 12
 
     data.columns.forEach((section, colIdx) => {
       const block = columns[colIdx][rowIdx]
@@ -327,28 +349,24 @@ async function buildDashboardSheet(
         for (let j = 0; j < 4; j++) {
           const cell = ws.getCell(excelRow, c1 + j)
           cell.value = ""
-          cell.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: argb(EXCEL.white) },
-          }
-          cell.border = thinBorder()
-          cell.font = { name: EXCEL_FONT, size: 8 }
+          cell.fill = solidFill(EXCEL.white)
+          cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
+          cell.font = font({ size: 8.5, color: EXCEL.text })
         }
         return
       }
 
       if (block.kind === "sub") {
-        const fill = EXCEL_SUB[section.accent]
-        ws.mergeCells(excelRow, c1, excelRow, c1 + 2)
-        const titleCell = ws.getCell(excelRow, c1)
-        titleCell.value = block.title
-        styleHeaderCell(titleCell, { fill, fontSize: 8, hAlign: "left" })
-        const countCell = ws.getCell(excelRow, c1 + 3)
-        countCell.value = `(${block.count})`
-        styleHeaderCell(countCell, { fill, fontSize: 8, hAlign: "right" })
-        fillRange(ws, excelRow, c1, excelRow, c1 + 3, fill)
-        applyBorderRange(ws, excelRow, c1, excelRow, c1 + 3)
+        paintTitleCountBand(
+          ws,
+          excelRow,
+          c1,
+          block.title,
+          block.count,
+          EXCEL_SUB[section.accent],
+          8.5,
+          false,
+        )
         return
       }
 
@@ -358,46 +376,28 @@ async function buildDashboardSheet(
           ? `${block.travel}·${block.seats}`
           : block.travel
 
-      const values = [block.role, block.name, block.org, travelCell]
-      values.forEach((val, j) => {
+      const specs: Array<{
+        value: string
+        bold?: boolean
+        color: string
+        hAlign?: ExcelJS.Alignment["horizontal"]
+      }> = [
+        { value: block.role, bold: true, color: EXCEL.navy },
+        { value: block.name, color: EXCEL.text },
+        { value: block.org, color: EXCEL.textMuted },
+        { value: travelCell, bold: true, color: EXCEL.blue, hAlign: "center" },
+      ]
+
+      specs.forEach((spec, j) => {
         const cell = ws.getCell(excelRow, c1 + j)
-        cell.value = val
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: argb(bg) },
-        }
-        cell.border = thinBorder()
-        if (j === 0) {
-          cell.font = {
-            name: EXCEL_FONT,
-            size: 8,
-            bold: true,
-            color: { argb: argb(EXCEL.navy) },
-          }
-          cell.alignment = { horizontal: "left", vertical: "top", wrapText: true }
-        } else if (j === 2) {
-          cell.font = {
-            name: EXCEL_FONT,
-            size: 8,
-            color: { argb: argb(EXCEL.textMuted) },
-          }
-          cell.alignment = { horizontal: "left", vertical: "top", wrapText: true }
-        } else if (j === 3) {
-          cell.font = {
-            name: EXCEL_FONT,
-            size: 8,
-            bold: true,
-            color: { argb: argb(EXCEL.blue) },
-          }
-          cell.alignment = { horizontal: "center", vertical: "top" }
-        } else {
-          cell.font = {
-            name: EXCEL_FONT,
-            size: 8,
-            color: { argb: argb(EXCEL.text) },
-          }
-          cell.alignment = { horizontal: "left", vertical: "top", wrapText: true }
+        cell.value = spec.value
+        cell.fill = solidFill(bg)
+        cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
+        cell.font = font({ size: 8.5, bold: !!spec.bold, color: spec.color })
+        cell.alignment = {
+          horizontal: spec.hAlign ?? "left",
+          vertical: "top",
+          wrapText: j < 3,
         }
         if (block.seats > 1 && (j === 1 || j === 3)) {
           cell.note = `${block.seats} seats`
@@ -406,41 +406,16 @@ async function buildDashboardSheet(
     })
   }
 
-  // Light footer bar under the grid
-  const footerRow = headerRow + 1 + maxRows
-  for (let c = 1; c <= 16; c++) {
-    const cell = ws.getCell(footerRow, c)
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: argb(EXCEL.legend) },
-    }
-    cell.border = thinBorder()
-  }
-  ws.getRow(footerRow).height = 8
+  // No post-pass border rewrite — borders are set per-cell above so title/count
+  // bands keep their seamless interiors (matching preview flex headers).
 
-  // Thick outer border around the full dashboard (matches preview frame)
-  const thin = { style: "thin" as const, color: { argb: argb(EXCEL.grid) } }
-  const thick = { style: "medium" as const, color: { argb: argb(EXCEL.navy) } }
-  for (let r = 1; r <= footerRow; r++) {
-    for (let c = 1; c <= 16; c++) {
-      const cell = ws.getCell(r, c)
-      cell.border = {
-        top: r === 1 ? thick : thin,
-        bottom: r === footerRow ? thick : thin,
-        left: c === 1 ? thick : thin,
-        right: c === 16 ? thick : thin,
-      }
-    }
-  }
-
-  // Print / page setup for landscape dashboard feel
   ws.pageSetup = {
     orientation: "landscape",
     fitToPage: true,
     fitToWidth: 1,
     fitToHeight: 0,
     paperSize: 9,
+    margins: { left: 0.25, right: 0.25, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 },
   }
 }
 
@@ -465,7 +440,9 @@ function addRosterSheet(
   headers.forEach((h, i) => {
     const cell = ws.getCell(1, i + 1)
     cell.value = h
-    styleHeaderCell(cell, { fill: EXCEL.navy, fontSize: 10 })
+    cell.fill = solidFill(EXCEL.navy)
+    cell.font = font({ size: 10, bold: true, color: EXCEL.white })
+    cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
   })
   rows.forEach((r, idx) => {
     const values = [
@@ -481,15 +458,9 @@ function addRosterSheet(
     values.forEach((v, i) => {
       const cell = ws.getCell(idx + 2, i + 1)
       cell.value = v
-      cell.font = { name: EXCEL_FONT, size: 9 }
-      cell.border = thinBorder()
-      if (idx % 2 === 1) {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: argb(EXCEL.zebra) },
-        }
-      }
+      cell.font = font({ size: 9 })
+      cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
+      if (idx % 2 === 1) cell.fill = solidFill(EXCEL.zebra)
     })
   })
   ws.columns = [
@@ -509,14 +480,16 @@ function addObjectivesSheet(wb: ExcelJS.Workbook, data: AttendeeDashboardData) {
   ;["Rank", "Objective", "BD&S Lead"].forEach((h, i) => {
     const cell = ws.getCell(1, i + 1)
     cell.value = h
-    styleHeaderCell(cell, { fill: EXCEL.navy, fontSize: 10 })
+    cell.fill = solidFill(EXCEL.navy)
+    cell.font = font({ size: 10, bold: true, color: EXCEL.white })
+    cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
   })
   data.objectives.forEach((o, idx) => {
     ;[o.rank, o.text, o.bdsLead].forEach((v, i) => {
       const cell = ws.getCell(idx + 2, i + 1)
       cell.value = v
-      cell.font = { name: EXCEL_FONT, size: 9 }
-      cell.border = thinBorder()
+      cell.font = font({ size: 9 })
+      cell.border = { top: edge(), left: edge(), bottom: edge(), right: edge() }
       cell.alignment = { wrapText: i === 1, vertical: "middle" }
     })
   })

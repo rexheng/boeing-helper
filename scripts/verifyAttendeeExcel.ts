@@ -55,16 +55,22 @@ async function main() {
     if (!cond) failures.push(msg)
   }
 
-  expect(ws.columnCount >= 16, `expected ≥16 cols, got ${ws.columnCount}`)
-  expect(String(ws.getCell(1, 1).value).includes("Attendee List Template"), "A1 title")
-  expect(String(ws.getCell(1, 7).value).includes("SINGAPORE"), "event title")
-  expect(String(ws.getCell(1, 12).value) === "Participant List", "Participant List")
-  expect(String(ws.getCell(1, 15).value).startsWith("Revised"), "revised label")
-
   const fillOf = (r: number, c: number) => {
     const f = ws.getCell(r, c).fill as ExcelJS.FillPattern
     return (f?.fgColor?.argb || "").replace(/^FF/i, "").toUpperCase()
   }
+
+  expect(ws.rowCount >= 34, `expected ≥34 body rows (no footer), got ${ws.rowCount}`)
+  // No grey footer bar under the grid (preview has none)
+  const lastFill = fillOf(ws.rowCount, 1)
+  expect(
+    lastFill !== EXCEL.legend,
+    `last row should be data not footer, fill=${lastFill}`,
+  )
+  expect(String(ws.getCell(1, 1).value).includes("Attendee List Template"), "A1 title")
+  expect(String(ws.getCell(1, 7).value).includes("SINGAPORE"), "event title")
+  expect(String(ws.getCell(1, 12).value) === "Participant List", "Participant List")
+  expect(String(ws.getCell(1, 15).value).startsWith("Revised"), "revised label")
 
   expect(fillOf(1, 1) === EXCEL.blue, `header blue got ${fillOf(1, 1)}`)
   expect(fillOf(1, 7) === EXCEL.navy, `header navy got ${fillOf(1, 7)}`)

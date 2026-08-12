@@ -31,8 +31,8 @@ export const EXCEL_SUB: Record<"navy" | "blue" | "steel" | "green", string> = {
 /** Character widths matching preview ratios Role 28% · Name 36% · Org 26% · I/D/L 10% */
 export const EXCEL_COL_WIDTHS = Array.from({ length: 16 }, (_, i) => {
   const w = i % 4
-  // Slightly roomier than character-min so long org / role labels don't clip
-  return w === 0 ? 16 : w === 1 ? 20 : w === 2 ? 16 : 6
+  // Quarter ≈ 55 chars → 15.4 / 19.8 / 14.3 / 5.5
+  return w === 0 ? 15.5 : w === 1 ? 20 : w === 2 ? 14.5 : 5.5
 })
 
 export const EXCEL_FONT = "Arial"
