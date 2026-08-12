@@ -174,10 +174,7 @@ export function generateMeetingPaper(
       "Local industry participation expectations",
     ]
 
-  const bioText =
-    research.person.background.length > 420
-      ? truncate(research.person.background, 420)
-      : research.person.background
+  const bioText = research.person.background
 
   const defaultComments: ReviewComment[] = [
     {
@@ -229,10 +226,10 @@ export function generateMeetingPaper(
     agendaLogistics: isAirShow
       ? null
       : "11:00 Welcome · 11:15 Programme brief · 12:00 Discussion · Gift / photographer: coordinate with integrator.",
-    campaignBackground: truncate(
-      [research.company.overview, country?.bilateral_context].filter(Boolean).join(" "),
-      380,
-    ),
+    // Full section copy — never ellipsize mid-sentence for the Word paper
+    campaignBackground: [research.company.overview, country?.bilateral_context]
+      .filter(Boolean)
+      .join("\n\n"),
     customerSatIssues: satIssues,
     engagementBackground:
       flagship?.engagementBackground ??
@@ -246,7 +243,7 @@ export function generateMeetingPaper(
       photoUrl: person.photoUrl,
     },
     countryPaperBlurb: country
-      ? truncate(`${country.overview} Priorities: ${country.priorities.slice(0, 2).join("; ")}.`, 280)
+      ? `${country.overview} Priorities: ${country.priorities.slice(0, 2).join("; ")}.`
       : undefined,
     reviewComments: flagship?.reviewComments ?? defaultComments,
   }
