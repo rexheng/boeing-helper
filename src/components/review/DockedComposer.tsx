@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Check, CheckCircle2, Loader2, Mail, X } from "lucide-react"
+import { Check, CheckCircle2, Loader2, Mail, Sparkles, X } from "lucide-react"
 import type {
   DocumentDebrief,
   DocumentUpdateResponse,
@@ -8,6 +8,7 @@ import type {
 } from "../../types/documentReview"
 import { ReviewDiffText } from "./ReviewDiffText"
 import { SAMPLE_ATTENDEE_UPDATE_EMAIL } from "../../demo/sampleAttendeeUpdateEmail"
+import { SAMPLE_REPORT_UPDATE_EMAIL } from "../../demo/sampleReportUpdateEmail"
 
 type Phase = "compose" | "extracting" | "review" | "applied"
 
@@ -32,7 +33,9 @@ export function DockedComposer({
   }) => void
   onRejectAll?: () => void
 }) {
-  const [paste, setPaste] = useState(SAMPLE_ATTENDEE_UPDATE_EMAIL)
+  const isReport = target === "report"
+  const samplePaste = isReport ? SAMPLE_REPORT_UPDATE_EMAIL : SAMPLE_ATTENDEE_UPDATE_EMAIL
+  const [paste, setPaste] = useState(samplePaste)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<DocumentUpdateResponse | null>(null)
@@ -65,7 +68,7 @@ export function DockedComposer({
 
   const runGenerate = async () => {
     if (!paste.trim()) {
-      setError("Paste an email or notes first.")
+      setError(isReport ? "Paste meeting notes or an email first." : "Paste an email or notes first.")
       textareaRef.current?.focus()
       return
     }
@@ -92,7 +95,7 @@ export function DockedComposer({
 
       const staged = data.hunks.slice(0, 8).map((h) => ({
         id: h.id,
-        label: chipLabel(h),
+        label: chipLabel(h, isReport),
         kind: (h.op === "add" ? "add" : h.op === "remove" ? "rm" : "upd") as "add" | "upd" | "rm",
       }))
       setChips(staged)
@@ -126,7 +129,7 @@ export function DockedComposer({
       hunks: selectedHunks,
       allHunkCount: result.hunks.length,
       debrief: result.debrief || {},
-      summary: result.summary || "Accepted roster updates",
+      summary: result.summary || (isReport ? "Accepted report updates" : "Accepted roster updates"),
     })
     setAppliedCount(n)
     setResult(null)
@@ -153,20 +156,35 @@ export function DockedComposer({
     onHighlightPaths([])
   }
 
+  const heroTitle =
+    phase === "review"
+      ? isReport ? "Review debrief" : "Review updates"
+      : phase === "applied"
+        ? isReport ? "Report updated" : "Roster updated"
+        : isReport ? "Generate debrief" : "Update roster"
+
+  const heroSub =
+    phase === "review"
+      ? isReport
+        ? "Select what to apply. Click a change to spotlight it on the live report."
+        : "Select what to apply. Click a change to spotlight it on the live sheet."
+      : phase === "applied"
+        ? isReport
+          ? "Changes are on the report. Paste another note anytime."
+          : "Changes are on the roster. Paste another note anytime."
+        : isReport
+          ? "Paste an email or meeting notes — we’ll draft a debrief and propose report updates you review before anything hits the document."
+          : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."
+
   return (
-    <aside className="docked-composer flex flex-col h-full min-h-0" aria-label="Update roster from email or notes">
+    <aside
+      className="docked-composer flex flex-col h-full min-h-0"
+      aria-label={isReport ? "Generate debrief and report proposal" : "Update roster from email or notes"}
+    >
       <header className="docked-composer__hero shrink-0">
         <p className="docked-composer__brand">Boeing Helper</p>
-        <h3 className="docked-composer__title">
-          {phase === "review" ? "Review updates" : phase === "applied" ? "Roster updated" : "Update roster"}
-        </h3>
-        <p className="docked-composer__sub">
-          {phase === "review"
-            ? "Select what to apply. Click a change to spotlight it on the live sheet."
-            : phase === "applied"
-              ? "Changes are on the roster. Paste another note anytime."
-              : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."}
-        </p>
+        <h3 className="docked-composer__title">{heroTitle}</h3>
+        <p className="docked-composer__sub">{heroSub}</p>
       </header>
 
       <div className="docked-composer__body flex flex-col min-h-0 flex-1">
@@ -178,7 +196,11 @@ export function DockedComposer({
               ref={textareaRef}
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
-              placeholder="Paste email, roster notes, or freeform travel updates…"
+              placeholder={
+                isReport
+                  ? "Paste email, meeting notes, or freeform debrief…"
+                  : "Paste email, roster notes, or freeform travel updates…"
+              }
               className="docked-composer__textarea"
               spellCheck={false}
               readOnly={phase === "extracting"}
@@ -187,7 +209,7 @@ export function DockedComposer({
               <div className="docked-composer__extract-overlay" aria-live="polite">
                 <div className="docked-composer__extract-label">
                   <Loader2 size={13} className="animate-spin" />
-                  Reading paste…
+                  {isReport ? "Drafting debrief…" : "Reading paste…"}
                 </div>
                 <div className="docked-composer__scan" />
                 <div className="docked-composer__chips">
@@ -209,13 +231,20 @@ export function DockedComposer({
         {phase === "compose" && (
           <div className="docked-composer__actions shrink-0">
             <button type="button" onClick={runGenerate} disabled={busy} className="docked-composer__primary">
-              Propose updates
+              {isReport ? (
+                <>
+                  <Sparkles size={13} />
+                  Generate debrief &amp; proposal
+                </>
+              ) : (
+                "Propose updates"
+              )}
             </button>
             <button
               type="button"
               className="docked-composer__link"
               onClick={() => {
-                setPaste(SAMPLE_ATTENDEE_UPDATE_EMAIL)
+                setPaste(samplePaste)
                 setError(null)
                 requestAnimationFrame(() => textareaRef.current?.focus())
               }}
@@ -230,10 +259,11 @@ export function DockedComposer({
           <div className="docked-composer__victory" aria-live="polite">
             <CheckCircle2 size={28} style={{ color: "#2F6B4F" }} />
             <p className="docked-composer__victory-title">
-              Applied {appliedCount} update{appliedCount === 1 ? "" : "s"} to the roster
+              Applied {appliedCount} update{appliedCount === 1 ? "" : "s"} to the {isReport ? "report" : "roster"}
             </p>
             <p className="docked-composer__victory-sub">
-              {appliedCount} change{appliedCount === 1 ? "" : "s"} {appliedCount === 1 ? "is" : "are"} live on the sheet and logged in Changelog.
+              {appliedCount} change{appliedCount === 1 ? "" : "s"} {appliedCount === 1 ? "is" : "are"} live on the{" "}
+              {isReport ? "document" : "sheet"} and logged in Changelog.
             </p>
             <button type="button" className="docked-composer__primary" onClick={() => resetToCompose(true)}>
               Update from another note
@@ -245,11 +275,16 @@ export function DockedComposer({
           <div className="docked-composer__review flex flex-col min-h-0 flex-1">
             <div className="docked-composer__debrief shrink-0">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="docked-composer__debrief-title">Proposed changes</p>
+                <p className="docked-composer__debrief-title">
+                  {isReport ? "Debrief & proposal" : "Proposed changes"}
+                </p>
                 <span className="docked-composer__count">{result.hunks.length}</span>
               </div>
               {result.summary && !/fallback|groq|score/i.test(result.summary) && (
                 <p className="docked-composer__debrief-sum">{result.summary}</p>
+              )}
+              {isReport && result.debrief && (
+                <ReportDebriefBrief debrief={result.debrief} />
               )}
             </div>
 
@@ -275,10 +310,10 @@ export function DockedComposer({
                           toggle(h.id)
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        aria-label={`Include change: ${executiveHeadline(h)}`}
+                        aria-label={`Include change: ${executiveHeadline(h, isReport)}`}
                       />
                       <div className="min-w-0 flex-1 text-left">
-                        <p className="docked-composer__hunk-field">{executiveHeadline(h)}</p>
+                        <p className="docked-composer__hunk-field">{executiveHeadline(h, isReport)}</p>
                         <p className="docked-composer__hunk-detail">
                           <ReviewDiffText before={h.before} after={h.after} op={h.op} />
                         </p>
@@ -297,7 +332,7 @@ export function DockedComposer({
                 className="docked-composer__primary"
               >
                 <Check size={14} />
-                Apply {selectedHunks.length} to roster
+                Apply {selectedHunks.length} to {isReport ? "report" : "roster"}
               </button>
               <button type="button" className="docked-composer__ghost" onClick={reject}>
                 <X size={13} />
@@ -320,7 +355,41 @@ export function DockedComposer({
   )
 }
 
-function executiveHeadline(h: ReviewHunk) {
+function ReportDebriefBrief({ debrief }: { debrief: DocumentDebrief }) {
+  const hasMeta = Boolean(debrief.sentiment || typeof debrief.score === "number")
+  const outcomes = debrief.outcomes?.slice(0, 3) || []
+  const actions = debrief.actions?.slice(0, 3) || []
+  if (!hasMeta && outcomes.length === 0 && actions.length === 0) return null
+  return (
+    <div className="docked-composer__debrief-brief">
+      {hasMeta && (
+        <p className="docked-composer__debrief-meta">
+          {debrief.sentiment && <span>{debrief.sentiment}</span>}
+          {typeof debrief.score === "number" && (
+            <span className="tabular-nums">{debrief.score}/100</span>
+          )}
+        </p>
+      )}
+      {outcomes.length > 0 && (
+        <ul className="docked-composer__debrief-list">
+          {outcomes.map((o, i) => (
+            <li key={`o-${i}`}>{o}</li>
+          ))}
+        </ul>
+      )}
+      {actions.length > 0 && (
+        <ul className="docked-composer__debrief-list docked-composer__debrief-list--actions">
+          {actions.map((a, i) => (
+            <li key={`a-${i}`}>{a}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function executiveHeadline(h: ReviewHunk, isReport: boolean) {
+  if (isReport) return reportHeadline(h)
   if (h.op === "remove") {
     const who = h.before.split("·")[0]?.trim() || h.field
     return `Remove ${who}`
@@ -344,6 +413,15 @@ function executiveHeadline(h: ReviewHunk) {
   return h.field
 }
 
+function reportHeadline(h: ReviewHunk) {
+  if (h.field === "Executive Summary") return "Refresh Executive Summary"
+  if (h.field === "Engagement Body") return "Rewrite engagement notes"
+  if (h.field === "Engagement Title") return "Update engagement title"
+  if (h.field === "Region") return "Set region label"
+  if (h.field === "Show") return "Update show name"
+  return h.field
+}
+
 function roleSuffix(h: ReviewHunk) {
   const role = h.path.split(" / ").slice(-1)[0]
   if (!role || /objective/i.test(role)) return ""
@@ -352,8 +430,8 @@ function roleSuffix(h: ReviewHunk) {
   return ""
 }
 
-function chipLabel(h: ReviewHunk) {
-  return executiveHeadline(h).slice(0, 48)
+function chipLabel(h: ReviewHunk, isReport: boolean) {
+  return executiveHeadline(h, isReport).slice(0, 48)
 }
 
 function wait(ms: number) {

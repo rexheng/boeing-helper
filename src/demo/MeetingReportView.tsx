@@ -1,7 +1,8 @@
-import { lazy, Suspense, useMemo, useState } from "react"
+import { lazy, Suspense, useCallback, useMemo, useState } from "react"
+import { FileText, List } from "lucide-react"
 import { Button } from "../components/Button"
 import { ChangelogDrawer } from "../components/review/ChangelogDrawer"
-import { ReviewPanel } from "../components/review/ReviewPanel"
+import { DockedComposer } from "../components/review/DockedComposer"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import { useDocumentReview } from "../hooks/useDocumentReview"
@@ -10,6 +11,7 @@ import { applyReportHunks } from "../utils/applyReviewHunks"
 import { changelogScope } from "../utils/changelogStorage"
 import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
 import type { AirshowReportData } from "../utils/templateExport"
+import { ReportOutlineSheet } from "./ReportOutlineSheet"
 
 const ReportDocxEditor = lazy(() =>
   import("./ReportDocxEditor").then((m) => ({ default: m.ReportDocxEditor })),
@@ -23,7 +25,10 @@ interface MeetingReportViewProps {
   onFinish: () => void
 }
 
-const BLUE = "#0033A1"
+const NAVY = "#0A2240"
+const GRID = "#9AA3AD"
+
+type ReportView = "word" | "outline"
 
 export function MeetingReportView({
   company,
@@ -51,8 +56,10 @@ export function MeetingReportView({
 
   const [engagementTitle, setEngagementTitle] = useState(`${meetingType}: ${person.title}`)
   const [regionLabel, setRegionLabel] = useState("ASIA PACIFIC REGION")
-  const [showLlm, setShowLlm] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
+  const [reportView, setReportView] = useState<ReportView>("outline")
+  const [highlightPaths, setHighlightPaths] = useState<string[]>([])
+  const [appliedFlash, setAppliedFlash] = useState<string[]>([])
 
   const reviewScope = changelogScope({
     companyId: company.id,
@@ -70,41 +77,37 @@ export function MeetingReportView({
     engagementBody: notes,
   }
 
+  const applyDoc = useCallback((next: AirshowReportData) => {
+    setShowName(next.showName)
+    setSummary(next.executiveSummary)
+    setNotes(next.engagementBody)
+    setEngagementTitle(next.engagementTitle)
+    setRegionLabel(next.regionLabel)
+  }, [])
+
+  const onManualChange = useCallback(
+    (next: AirshowReportData) => {
+      applyDoc(next)
+      setReloadKey((k) => k + 1)
+      recordAccept({
+        source: "manual",
+        target: "report",
+        summary: "Manual report edit",
+        hunks: [],
+      })
+    },
+    [applyDoc, recordAccept],
+  )
+
+  const onHighlightPaths = useCallback((paths: string[]) => {
+    setHighlightPaths(paths)
+    if (paths.length) setReportView("outline")
+  }, [])
+
   return (
-    <div className="space-y-6 pb-12 max-w-5xl mx-auto">
-      <div className="text-center">
-        <p className="system-badge system-badge--dark mb-3">Air show report</p>
-        <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
-          Summary report
-        </h2>
-        <p className="mt-3 max-w-2xl mx-auto" style={{ color: "var(--text-secondary)" }}>
-          Edit in a real Word document in the browser (Ctrl/Cmd+B and friends). Paste notes for a Groq debrief, review track-changes, then download.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 justify-end">
-        <button
-          type="button"
-          onClick={() => setShowLlm((s) => !s)}
-          className="cursor-pointer px-3 py-1.5 text-[11px] font-semibold"
-          style={{
-            background: showLlm ? "var(--boeing-ice)" : "#fff",
-            color: BLUE,
-            border: `1px solid ${BLUE}`,
-          }}
-        >
-          Update from email / notes
-        </button>
-        <ChangelogDrawer
-          entries={entries}
-          open={changelogOpen}
-          onOpen={() => setChangelogOpen(true)}
-          onClose={() => setChangelogOpen(false)}
-        />
-      </div>
-
-      {showLlm && (
-        <ReviewPanel
+    <div className="pb-12 space-y-4 docked-attendee-page docked-report-page">
+      <div className={`docked-workspace ${highlightPaths.length > 0 ? "is-reviewing" : ""}`}>
+        <DockedComposer
           target="report"
           currentDocument={reportDoc}
           context={{
@@ -114,13 +117,16 @@ export function MeetingReportView({
             meetingType,
             showName,
           }}
+          onHighlightPaths={onHighlightPaths}
           onAccept={({ proposedDocument, hunks, debrief, summary: llmSummary }) => {
             const proposed = proposedDocument as AirshowReportData
             const next = hunks.length ? applyReportHunks(reportDoc, hunks) : proposed
-            setSummary(next.executiveSummary)
-            setNotes(next.engagementBody)
-            setEngagementTitle(next.engagementTitle)
-            setRegionLabel(next.regionLabel)
+            applyDoc(next)
+            const anchors = hunks.map((h) => h.anchor || fieldKeyFromLabel(h.field)).filter(Boolean) as string[]
+            setAppliedFlash(anchors)
+            setHighlightPaths([])
+            setReportView("outline")
+            window.setTimeout(() => setAppliedFlash([]), 2200)
             recordAccept({
               source: "llm",
               target: "report",
@@ -129,24 +135,98 @@ export function MeetingReportView({
               debriefSnapshot: debrief,
             })
             setReloadKey((k) => k + 1)
-            setShowLlm(false)
+          }}
+          onRejectAll={() => {
+            setHighlightPaths([])
+            setAppliedFlash([])
           }}
         />
-      )}
 
-      <Suspense
-        fallback={
-          <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
-            Loading Word editor…
+        <div className="docked-workspace__sheet">
+          <div className="docked-workspace__toolbar">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Report display">
+                {(
+                  [
+                    { id: "outline" as const, label: "Outline", icon: List },
+                    { id: "word" as const, label: "Word", icon: FileText },
+                  ] as const
+                ).map((v, i) => {
+                  const Icon = v.icon
+                  const active = reportView === v.id
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setReportView(v.id)}
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+                      style={{
+                        background: active ? NAVY : "#fff",
+                        color: active ? "#fff" : NAVY,
+                        borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
+                      }}
+                    >
+                      <Icon size={12} />
+                      {v.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <ChangelogDrawer
+                entries={entries}
+                open={changelogOpen}
+                onOpen={() => setChangelogOpen(true)}
+                onClose={() => setChangelogOpen(false)}
+              />
+            </div>
           </div>
-        }
-      >
-        <ReportDocxEditor data={reportDoc} reloadKey={reloadKey} />
-      </Suspense>
 
-      <div className="flex flex-wrap justify-end gap-3">
+          <div className="docked-workspace__sheet-body">
+            {reportView === "outline" ? (
+              <ReportOutlineSheet
+                data={reportDoc}
+                onChange={onManualChange}
+                highlightPaths={highlightPaths.length ? highlightPaths : appliedFlash}
+                highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
+              />
+            ) : (
+              <Suspense
+                fallback={
+                  <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+                    Loading Word editor…
+                  </div>
+                }
+              >
+                <ReportDocxEditor
+                  data={reportDoc}
+                  reloadKey={reloadKey}
+                  embedded
+                  highlightField={highlightPaths[0] || appliedFlash[0]}
+                  highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
+                />
+              </Suspense>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-3 px-1">
         <Button onClick={onFinish}>Finish demo</Button>
       </div>
     </div>
   )
+}
+
+function fieldKeyFromLabel(field: string): string | null {
+  if (field === "Executive Summary") return "executiveSummary"
+  if (field === "Engagement Title") return "engagementTitle"
+  if (field === "Engagement Body") return "engagementBody"
+  if (field === "Region") return "regionLabel"
+  if (field === "Show") return "showName"
+  return null
 }

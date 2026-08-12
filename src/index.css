@@ -999,3 +999,127 @@ a:hover { color: var(--boeing-blue); }
   color: var(--text-secondary);
   max-width: 34ch;
 }
+
+/* ── Report docked workspace (mirrors attendee centrepiece) ── */
+.docked-report-page .docked-workspace {
+  height: min(78vh, 900px);
+}
+
+.docked-composer__debrief-brief {
+  margin-top: 10px;
+  padding: 10px 10px 8px;
+  background: rgba(227, 239, 250, 0.55);
+  border: 1px solid rgba(0, 51, 161, 0.14);
+}
+
+.docked-composer__debrief-meta {
+  margin: 0 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__debrief-list {
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.docked-composer__debrief-list--actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(10, 34, 64, 0.08);
+  list-style: none;
+  padding-left: 0;
+  font-weight: 600;
+  color: var(--boeing-navy);
+}
+
+.report-outline-sheet__page {
+  padding: 28px 32px 36px;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  color: #000;
+  background:
+    linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+}
+
+.report-outline-sheet__field {
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.report-outline-sheet__label {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+  font-family: var(--font-ui);
+}
+
+.report-outline-sheet__input,
+.report-outline-sheet__static {
+  width: 100%;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #111;
+}
+
+.report-outline-sheet__input {
+  display: block;
+  min-height: 1.4em;
+}
+
+.report-docx-editor--embedded {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100%;
+}
+
+.report-docx-spotlight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+  background: #FFE58A;
+  border-left: 3px solid var(--boeing-blue);
+  animation: sheetPulse 1.2s ease-in-out 1;
+}
+
+.report-docx-spotlight span {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
+.report-docx-spotlight.is-applied {
+  background: #D7F0E3;
+  border-left-color: #2F6B4F;
+  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
+}
+
+@keyframes sheetPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.04); }
+}

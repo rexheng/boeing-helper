@@ -15,6 +15,7 @@ const cellInput: CSSProperties = {
 /**
  * Local-draft cell input: commits on blur / Enter so parent re-renders
  * do not steal the caret mid-keystroke.
+ * Use `multiline` for textarea fields (Enter inserts newline; commit on blur).
  */
 export function CellInput({
   value,
@@ -23,6 +24,8 @@ export function CellInput({
   className,
   title,
   "aria-label": ariaLabel,
+  multiline = false,
+  rows = 3,
 }: {
   value: string
   onCommit: (next: string) => void
@@ -30,6 +33,8 @@ export function CellInput({
   className?: string
   title?: string
   "aria-label"?: string
+  multiline?: boolean
+  rows?: number
 }) {
   const [draft, setDraft] = useState(value)
   const focused = useRef(false)
@@ -42,35 +47,39 @@ export function CellInput({
     if (draft !== value) onCommit(draft)
   }
 
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!multiline && e.key === "Enter") {
       e.preventDefault()
       commit()
-      ;(e.target as HTMLInputElement).blur()
+      ;(e.target as HTMLElement).blur()
     } else if (e.key === "Escape") {
       setDraft(value)
-      ;(e.target as HTMLInputElement).blur()
+      ;(e.target as HTMLElement).blur()
     }
   }
 
-  return (
-    <input
-      className={className}
-      value={draft}
-      title={title}
-      aria-label={ariaLabel}
-      style={{ ...cellInput, ...style }}
-      onFocus={() => {
-        focused.current = true
-      }}
-      onBlur={() => {
-        focused.current = false
-        commit()
-      }}
-      onChange={(e) => setDraft(e.target.value)}
-      onKeyDown={onKeyDown}
-    />
-  )
+  const shared = {
+    className,
+    value: draft,
+    title,
+    "aria-label": ariaLabel,
+    style: { ...cellInput, ...style },
+    onFocus: () => {
+      focused.current = true
+    },
+    onBlur: () => {
+      focused.current = false
+      commit()
+    },
+    onChange: (e: { target: { value: string } }) => setDraft(e.target.value),
+    onKeyDown,
+  }
+
+  if (multiline) {
+    return <textarea {...shared} rows={rows} />
+  }
+
+  return <input {...shared} />
 }
 
 export { cellInput }

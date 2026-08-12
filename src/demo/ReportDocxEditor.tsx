@@ -30,13 +30,30 @@ function editorPlainText(editor: { query?: (q: { type: string }) => unknown } | 
   }
 }
 
+function fieldLabel(key?: string) {
+  if (!key) return ""
+  if (key === "executiveSummary" || key === "Executive Summary") return "Executive Summary"
+  if (key === "engagementBody" || key === "Engagement Body") return "Engagement Body"
+  if (key === "engagementTitle" || key === "Engagement Title") return "Engagement Title"
+  if (key === "regionLabel" || key === "Region") return "Region"
+  if (key === "showName" || key === "Show") return "Show"
+  return key
+}
+
 export function ReportDocxEditor({
   data,
   reloadKey,
+  embedded = false,
+  highlightField,
+  highlightMode,
 }: {
   data: AirshowReportData
   /** Bump to rebuild the docx from `data` (e.g. after LLM accept). */
   reloadKey: number
+  /** Compact chrome when hosted inside the docked sheet pane. */
+  embedded?: boolean
+  highlightField?: string
+  highlightMode?: "focus" | "applied"
 }) {
   const ref = useRef<DocxEditorRef>(null)
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null)
@@ -123,13 +140,14 @@ export function ReportDocxEditor({
     }
   }
 
+  const spotlight = fieldLabel(highlightField)
+
   return (
-    <div className="space-y-3">
+    <div className={`report-docx-editor ${embedded ? "report-docx-editor--embedded" : "space-y-3"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-          Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd> bold,{" "}
-          <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>I</kbd> italic,{" "}
-          <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>U</kbd> underline, Undo/Redo, zoom in chrome.
+        <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+          Word-accurate editor — <kbd className="px-1" style={{ background: "var(--bg-muted)" }}>Ctrl/Cmd+B</kbd>{" "}
+          bold · Undo/Redo in chrome
         </p>
         <div className="flex flex-wrap gap-2">
           <button
@@ -155,13 +173,23 @@ export function ReportDocxEditor({
         </div>
       </div>
 
+      {spotlight && (
+        <div
+          className={`report-docx-spotlight ${highlightMode === "applied" ? "is-applied" : "is-focus"}`}
+          role="status"
+        >
+          Spotlight · {spotlight}
+          <span>Switch to Outline for field-level review</span>
+        </div>
+      )}
+
       {error && (
         <p className="text-xs" style={{ color: "#B91C1C" }}>{error}</p>
       )}
 
       <div
         className="report-docx-host bg-white overflow-hidden"
-        style={{ border: "1px solid var(--surface-border)", minHeight: 560 }}
+        style={{ border: "1px solid var(--surface-border)", minHeight: embedded ? 420 : 560 }}
       >
         {busy === "load" && !buffer && (
           <div className="flex items-center justify-center gap-2 py-24 text-sm" style={{ color: NAVY }}>
