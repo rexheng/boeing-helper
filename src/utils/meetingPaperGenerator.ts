@@ -1,6 +1,6 @@
 import type { ResearchResult } from "../types/research"
 import type { Company } from "../data/companies"
-import type { Person } from "../data/people"
+import { personSurname, type Person } from "../data/people"
 
 export interface ReviewComment {
   /** Stable id for Word comment anchoring */
@@ -47,8 +47,8 @@ export interface MeetingPaper {
 
 const INTEGRATOR = {
   name: "Rex Heng",
-  title: "Regional Integrator, International Business Development",
-  phone: "+65 6xxx xxxx",
+  title: "Office of President Boeing Southeast Asia & Taiwan",
+  phone: "+65 8xxx xxxx",
 } as const
 
 function truncate(s: string, n: number) {
@@ -56,12 +56,14 @@ function truncate(s: string, n: number) {
   return s.slice(0, n - 1).trimEnd() + "…"
 }
 
-function inferSalutation(name: string, title: string): string {
-  const t = title.toLowerCase()
-  if (t.includes("minister") || t.includes("secretary")) return `Minister ${name.split(" ").slice(-1)[0]}`
-  if (t.includes("general") || t.includes("admiral")) return name
-  if (t.includes("dr") || t.includes("doctor")) return `Dr. ${name.split(" ").slice(-1)[0]}`
-  return name.split(" ")[0]
+function inferSalutation(person: Person): string {
+  const t = person.title.toLowerCase()
+  const surname = personSurname(person)
+  if (t.includes("minister") || t.includes("secretary")) return `Minister ${surname}`
+  if (t.includes("general") || t.includes("admiral")) return person.name
+  if (t.includes("dr") || t.includes("doctor")) return `Dr. ${surname}`
+  // Prefer curated surname for the short address form on the paper header
+  return surname
 }
 
 /** Flagship demo overrides — programme-true language for leadership pitch */
@@ -216,7 +218,7 @@ export function generateMeetingPaper(
     customer: flagship?.customer ?? {
       name: person.name,
       title: person.title,
-      salutation: inferSalutation(person.name, person.title),
+      salutation: inferSalutation(person),
       phonetic: "—",
       raa:
         research.person.profile_overview?.slice(0, 180) ||

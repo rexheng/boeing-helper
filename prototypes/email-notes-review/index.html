@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boeing Helper — Email/Notes update prototypes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue: #0033A1;
+      --navy: #0A2240;
+      --ice: #E3EFFA;
+      --muted: #F3F4F5;
+      --border: #E9EBED;
+      --text: #253746;
+      --secondary: #515F6B;
+      --red: #B91C1C;
+      --green: #2F6B4F;
+      --grid: #9AA3AD;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Ubuntu, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #d7e6f8 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #e8eef5 0%, transparent 50%),
+        linear-gradient(180deg, #f7f9fb 0%, #eef2f6 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1, h2, h3 { font-family: "IBM Plex Sans", sans-serif; color: var(--navy); margin: 0 0 0.4em; }
+    h1 { font-size: 2rem; letter-spacing: -0.02em; }
+    h2 { font-size: 1.25rem; margin-top: 2.5rem; }
+    h3 { font-size: 0.95rem; }
+    .lede { font-size: 1.05rem; color: var(--secondary); max-width: 62ch; line-height: 1.55; }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .section {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 28px;
+      margin-top: 28px;
+      box-shadow: 0 1px 0 rgba(10,34,64,0.04);
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 18px;
+      height: 100%;
+    }
+    .card.pick {
+      outline: 2px solid var(--blue);
+      background: linear-gradient(180deg, #f5f9ff, #fff);
+    }
+    .card .meta {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+    .card p, .bullets li { font-size: 13px; line-height: 1.5; color: var(--secondary); }
+    .bullets { margin: 10px 0 0; padding-left: 18px; }
+    .bullets li { margin-bottom: 6px; }
+    .email {
+      font-family: ui-monospace, "IBM Plex Mono", Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      background: #0A2240;
+      color: #E8F0FE;
+      padding: 22px 24px;
+      border: none;
+      overflow: auto;
+      max-height: 420px;
+    }
+    .email .hdr { color: #9DB7D9; }
+    .email .hi { background: rgba(0,51,161,0.45); color: #fff; padding: 0 2px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    button, .btn {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      padding: 10px 14px;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--navy); border: 1px solid var(--border); }
+    .btn-outline { background: #fff; color: var(--blue); border: 1px solid var(--blue); }
+
+    /* Prototype frames */
+    .proto-frame {
+      border: 1px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+    }
+    .proto-chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .proto-body { flex: 1; min-height: 0; }
+
+    /* A: Hero paste centrepiece */
+    .hero-paste {
+      position: relative;
+      padding: 28px 24px 22px;
+      background:
+        linear-gradient(135deg, rgba(10,34,64,0.92), rgba(0,51,161,0.78)),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      color: #fff;
+      overflow: hidden;
+    }
+    .hero-paste::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -40% 40%;
+      height: 180px;
+      background: radial-gradient(circle, rgba(227,239,250,0.25), transparent 70%);
+      pointer-events: none;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-30px) translateY(-10px); }
+    }
+    .hero-paste .brand {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .hero-paste .sub {
+      font-size: 13px;
+      opacity: 0.85;
+      max-width: 48ch;
+      margin-bottom: 16px;
+    }
+    .hero-paste textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 12px 14px;
+      font: 13px/1.45 Ubuntu, sans-serif;
+      backdrop-filter: blur(4px);
+    }
+    .hero-paste textarea::placeholder { color: rgba(255,255,255,0.55); }
+    .hero-paste .hint {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 11px;
+      opacity: 0.75;
+      flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* Extraction animation stage */
+    .extract-stage {
+      padding: 16px;
+      background: var(--muted);
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .extract-stage.on { display: block; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 11px;
+      padding: 6px 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--navy);
+      opacity: 0;
+      transform: translateY(8px);
+      animation: popIn 0.45s ease forwards;
+    }
+    .chip.add { border-left: 3px solid var(--green); }
+    .chip.upd { border-left: 3px solid var(--blue); }
+    .chip.rm { border-left: 3px solid var(--red); }
+    @keyframes popIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .scan-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      margin: 10px 0 14px;
+      background-size: 40% 100%;
+      animation: scan 1.4s linear infinite;
+    }
+    @keyframes scan {
+      from { background-position: -40% 0; }
+      to { background-position: 140% 0; }
+    }
+
+    /* Layout prototypes */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 380px;
+      height: 100%;
+    }
+    .split.stacked { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .pane {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: #fff;
+    }
+    .pane:last-child { border-right: none; }
+    .pane-h {
+      padding: 8px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      border-bottom: 1px solid var(--border);
+      background: #fafbfc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pane-body { padding: 12px; overflow: auto; flex: 1; font-size: 12px; }
+    .sheet-mini {
+      border: 1px solid var(--grid);
+      font-size: 10px;
+      font-family: Arial, sans-serif;
+    }
+    .sheet-mini .row {
+      display: grid;
+      grid-template-columns: 1.2fr 1.4fr 0.4fr;
+      border-bottom: 1px solid var(--grid);
+    }
+    .sheet-mini .row > span { padding: 4px 6px; border-right: 1px solid var(--grid); }
+    .sheet-mini .row > span:last-child { border-right: none; }
+    .sheet-mini .hdr-row { background: var(--navy); color: #fff; font-weight: 700; }
+    .sheet-mini .hl {
+      background: #FFF3BF;
+      box-shadow: inset 3px 0 0 var(--blue);
+      animation: pulseHl 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseHl {
+      0%, 100% { background: #FFF3BF; }
+      50% { background: #FFE58A; }
+    }
+    .hunk {
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      background: var(--muted);
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
+    .hunk .diff { color: var(--red); }
+    .hunk .after { text-decoration: underline; text-underline-offset: 2px; }
+    .hunk .before { text-decoration: line-through; opacity: 0.7; }
+    .sticky-actions {
+      position: sticky;
+      bottom: 0;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.95);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .dock {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: 380px;
+    }
+    .dock .composer {
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      background: linear-gradient(180deg, var(--ice), #fff 40%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dock textarea {
+      flex: 1;
+      min-height: 140px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      font: 12px/1.45 Ubuntu, sans-serif;
+      color: var(--navy);
+      resize: none;
+    }
+    .triptych {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr 1.1fr;
+      min-height: 380px;
+    }
+    .overlay-sheet {
+      position: relative;
+      min-height: 380px;
+      background: #f0f3f6;
+    }
+    .overlay-sheet .doc {
+      margin: 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 12px;
+      filter: brightness(0.97);
+    }
+    .overlay-sheet .float {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      bottom: 16px;
+      width: min(380px, 48%);
+      background: #fff;
+      border: 1px solid var(--blue);
+      box-shadow: -8px 0 32px rgba(10,34,64,0.12);
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.35s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(24px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .note {
+      font-size: 13px;
+      color: var(--secondary);
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+    .recs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .rec {
+      font-size: 12px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+    }
+    .rec.active { border-color: var(--blue); background: var(--ice); color: var(--navy); font-weight: 600; }
+    .status { font-size: 11px; color: var(--secondary); margin-top: 8px; }
+    .compare-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .compare-tabs button {
+      background: transparent;
+      color: var(--secondary);
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+      font-size: 12px;
+      padding: 10px 14px;
+    }
+    .compare-tabs button.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="tag">Prototypes · discussion only</div>
+    <h1>Elevate “Update from email / notes”</h1>
+    <p class="lede">
+      Today the paste → review flow is a toolbar toggle that expands a stacked panel above the sheet.
+      You scroll the hunk list, then scroll again to see the live document. These prototypes make
+      intake a centrepiece and keep source + proposal in view together.
+    </p>
+
+    <!-- PLAN -->
+    <div class="section">
+      <h2 style="margin-top:0">Plan (before we build)</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="meta">1 · Centrepiece intake</div>
+          <h3>Not a collapsible</h3>
+          <p>On the Attendee dashboard tab, the paste surface is always present as a hero band — brand-forward, full-bleed within the materials canvas — not a secondary “show LLM” button.</p>
+          <ul class="bullets">
+            <li>Subtitle: outcome language only (“Paste an email or notes — we’ll propose roster updates you can accept.”)</li>
+            <li>No provider/API name in UI copy</li>
+            <li>Demo affordance: “Try sample email” loads the synthetic message below</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="meta">2 · Wow for the demo</div>
+          <h3>Animate extraction, not chrome</h3>
+          <p>After Generate, don’t dump a static list. Stage a short “reading → extracting → proposing” beat:</p>
+          <ul class="bullets">
+            <li>~1.2s scan line over the paste</li>
+            <li>People / travel / role chips fly out of the text</li>
+            <li>Hunks cascade in; matching Excel cells pulse yellow</li>
+            <li>Optional: highlight source spans in the email that drove each hunk</li>
+          </ul>
+        </div>
+        <div class="card pick">
+          <div class="meta">3 · Review ergonomics</div>
+          <h3>Side-by-side by default</h3>
+          <p>Recommended default: <strong>docked composer + live sheet</strong> (Layout B), then after generate flip to <strong>changes | document</strong> (Layout A). Sticky Accept bar. No vertical chase.</p>
+          <ul class="bullets">
+            <li>Clicking a hunk scrolls/highlights the cell in the sheet</li>
+            <li>Mobile: stacked with sticky doc peek</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYNTHETIC EMAIL -->
+    <div class="section">
+      <h2 style="margin-top:0">Synthetic email — attendee list update</h2>
+      <p class="note">Realistic SEA air-show coordination note. Designed to produce add / update / remove hunks against the seeded dashboard (Rex Heng, empty CEO/VP slots, VL rotorcraft lead, exhibit desk, etc.).</p>
+      <pre class="email" id="sampleEmail"><span class="hdr">From:</span>   Priya Natarajan &lt;priya.natarajan@boeing.example&gt;
+<span class="hdr">To:</span>     Rex Heng &lt;rex.heng@boeing.example&gt;
+<span class="hdr">Cc:</span>     SEA Show Ops &lt;sea.showops@boeing.example&gt;
+<span class="hdr">Date:</span>   11 Feb 2026, 09:42 SGT
+<span class="hdr">Subj:</span>   RE: Singapore Airshow 2026 — attendee list delta (D-18)
+
+Rex — quick delta from this morning’s chalet sync. Please update the dashboard before the
+Friday freeze:
+
+1) <span class="hi">BDS Leadership — please add Stephanie Cho as VP (travel I)</span> and leave CEO blank for now.
+   EA remains open.
+
+2) <span class="hi">Regional Focal is still you (L)</span>. Customer principal confirmed: keep the minister as-is.
+
+3) <span class="hi">Vertical Lift — swap “AH-64 / CH-47 lead” for Marcus Lim</span> (travel D). Programme wants him
+   on both rotorcraft briefs.
+
+4) <span class="hi">Exhibit — Front Desk drops from 2 → 1</span> (Chalet desk only). Totem Lead: assign Mei Tan (L).
+
+5) <span class="hi">Remove “Programme focal” under Mobility</span> — that lane is covered by Field Service for this show.
+
+6) Objective #5 can tighten to: “Lock D-14 protocol list with GovOps” (BDS lead: GovOps).
+
+Travel reminder: I = international, D = domestic inbound, L = local/Singapore-based.
+
+Thanks —
+Priya Natarajan
+Show Ops · IBD SEA</pre>
+      <div class="btn-row">
+        <button class="btn-primary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('sampleEmail').innerText)">Copy email text</button>
+        <button class="btn-ghost" type="button" onclick="loadSampleIntoProtos()">Load into prototypes below</button>
+      </div>
+    </div>
+
+    <!-- WOW CENTREPIECE -->
+    <div class="section">
+      <h2 style="margin-top:0">Centrepiece intake + extraction beat</h2>
+      <p class="note">Interactive sketch of the hero paste band and the post-generate chip cascade. Press Generate to preview the motion language.</p>
+
+      <div class="proto-frame" style="margin-top:16px">
+        <div class="proto-chrome">
+          <span>Materials · Attendee dashboard</span>
+          <span style="color:var(--secondary)">Prototype A · Hero intake</span>
+        </div>
+        <div class="hero-paste">
+          <div class="brand">Boeing Helper</div>
+          <div class="sub">Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster.</div>
+          <textarea id="heroPaste" placeholder="Paste email, roster notes, or freeform travel updates…"></textarea>
+          <div class="btn-row">
+            <button class="btn-primary" type="button" style="background:#fff;color:var(--blue)" onclick="runExtractDemo()">Propose updates</button>
+            <button class="btn-ghost" type="button" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.35)" onclick="loadSampleIntoProtos()">Use sample email</button>
+          </div>
+          <div class="hint">
+            <span class="pill">Drop .eml / .txt later</span>
+            <span class="pill">Highlights source sentences per change</span>
+            <span class="pill">Accept is always explicit</span>
+          </div>
+        </div>
+        <div class="extract-stage" id="extractStage">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--navy)">Reading paste…</div>
+          <div class="scan-bar"></div>
+          <div class="chips" id="extractChips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUT OPTIONS -->
+    <div class="section">
+      <h2 style="margin-top:0">Side-by-side layout options</h2>
+      <p class="note">Pick a direction (or hybrid). Recommended default for the demo is marked.</p>
+      <div class="recs">
+        <button class="rec active" type="button" data-proto="a" onclick="showProto('a')">A · Changes | Document</button>
+        <button class="rec" type="button" data-proto="b" onclick="showProto('b')">B · Docked composer ★</button>
+        <button class="rec" type="button" data-proto="c" onclick="showProto('c')">C · Triptych</button>
+        <button class="rec" type="button" data-proto="d" onclick="showProto('d')">D · Floating review</button>
+      </div>
+      <p class="status" id="protoStatus">Layout B keeps paste always visible beside the sheet; after generate, the left rail becomes the hunk list with sticky Accept — zero page scroll to compare.</p>
+
+      <!-- A -->
+      <div class="proto-frame proto" id="proto-a" style="margin-top:16px;display:none">
+        <div class="proto-chrome">
+          <span>Layout A — Review split</span>
+          <span>After generate: hunks left · live sheet right</span>
+        </div>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-h"><span>Proposed changes (5)</span><span>Select all</span></div>
+            <div class="pane-body">
+              <div class="hunk"><input type="checkbox" checked /><div><strong>BDS · VP</strong> · add<br/><span class="after diff">Stephanie Cho · I</span></div></div>
+              <div class="hunk"><input type="checkbox" checked /><div><strong>VL · Program focal</strong> · update<br/><span class="before">AH-64 / CH-47 lead</span> → <span class="after diff">Marcus Lim · D</span></div></div>
+              <div class="hunk"><input type="checkbox" checked /><div><strong>Exhibit · Front Desk</strong> · update<br/><span class="before">count 2</span> → <span class="after diff">count 1</span></div></div>
+              <div class="hunk"><input type="checkbox" checked /><div><strong>Exhibit · Totem Lead</strong> · add<br/><span class="after diff">Mei Tan · L</span></div></div>
+              <div class="hunk"><input type="checkbox" checked /><div><strong>Mobility · Program focal</strong> · remove<br/><span class="before">Programme focal</span></div></div>
+            </div>
+            <div class="sticky-actions">
+              <button class="btn-primary" type="button">Accept selected (5)</button>
+              <button class="btn-ghost" type="button">Reject all</button>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="pane-h"><span>Live attendee sheet</span><span>Highlights follow selection</span></div>
+            <div class="pane-body">
+              <div class="sheet-mini">
+                <div class="row hdr-row"><span>Role</span><span>Name</span><span>Trv</span></div>
+                <div class="row"><span>CEO</span><span></span><span></span></div>
+                <div class="row hl"><span>VP</span><span>Stephanie Cho</span><span>I</span></div>
+                <div class="row"><span>Regional Focal</span><span>Rex Heng</span><span>L</span></div>
+                <div class="row hl"><span>VL Program focal</span><span>Marcus Lim</span><span>D</span></div>
+                <div class="row hl"><span>Front Desk</span><span>Chalet desk</span><span>1</span></div>
+                <div class="row hl"><span>Totem Lead</span><span>Mei Tan</span><span>L</span></div>
+              </div>
+              <p style="margin:12px 0 0;font-size:11px;color:var(--secondary)">Clicking a hunk would scroll this pane to the row and keep the yellow pulse until accepted.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B -->
+      <div class="proto-frame proto" id="proto-b" style="margin-top:16px">
+        <div class="proto-chrome">
+          <span>Layout B — Docked composer ★ recommended</span>
+          <span>Paste always left · document always right</span>
+        </div>
+        <div class="dock">
+          <div class="composer">
+            <div style="font-family:'IBM Plex Sans',sans-serif;font-weight:700;color:var(--navy);font-size:15px">Update roster</div>
+            <div style="font-size:12px;color:var(--secondary)">Paste email or notes. Proposals appear here — the sheet stays in view.</div>
+            <textarea id="dockPaste" placeholder="Paste email or notes…"></textarea>
+            <button class="btn-primary" type="button" onclick="runExtractDemo()">Propose updates</button>
+            <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--navy);margin-bottom:8px">Proposal</div>
+              <div class="hunk" style="margin:0 0 6px"><input type="checkbox" checked /><div style="font-size:11px"><strong>VP</strong> add Stephanie Cho</div></div>
+              <div class="hunk" style="margin:0 0 6px"><input type="checkbox" checked /><div style="font-size:11px"><strong>VL focal</strong> → Marcus Lim</div></div>
+              <div class="hunk" style="margin:0"><input type="checkbox" checked /><div style="font-size:11px"><strong>Front Desk</strong> 2 → 1</div></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn-primary" type="button">Accept (3)</button>
+              <button class="btn-ghost" type="button">Reject</button>
+            </div>
+          </div>
+          <div class="pane" style="border-right:none">
+            <div class="pane-h"><span>Attendee dashboard (Excel)</span><span>Zoom · Export</span></div>
+            <div class="pane-body">
+              <div class="sheet-mini">
+                <div class="row hdr-row"><span>Role</span><span>Name / Org</span><span>Trv</span></div>
+                <div class="row"><span>Regional Director</span><span>SEA RD</span><span>L</span></div>
+                <div class="row"><span>Regional Focal</span><span>Rex Heng · IBD SEA</span><span>L</span></div>
+                <div class="row hl"><span>VP</span><span>Stephanie Cho</span><span>I</span></div>
+                <div class="row hl"><span>VL Program focal</span><span>Marcus Lim</span><span>D</span></div>
+                <div class="row"><span>Field service</span><span>Field service lead</span><span>I</span></div>
+                <div class="row hl"><span>Front Desk</span><span>Chalet desk (1)</span><span>L</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C -->
+      <div class="proto-frame proto" id="proto-c" style="margin-top:16px;display:none">
+        <div class="proto-chrome">
+          <span>Layout C — Triptych</span>
+          <span>Source · Changes · Document</span>
+        </div>
+        <div class="triptych">
+          <div class="pane">
+            <div class="pane-h"><span>Source email</span><span>Highlights</span></div>
+            <div class="pane-body" style="font-size:11px;line-height:1.45;white-space:pre-wrap;color:var(--secondary)" id="tripSource">…</div>
+          </div>
+          <div class="pane">
+            <div class="pane-h"><span>Changes</span><span>5</span></div>
+            <div class="pane-body">
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Add Stephanie Cho as VP</div></div>
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Marcus Lim → VL focal</div></div>
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Front Desk count 2→1</div></div>
+            </div>
+            <div class="sticky-actions">
+              <button class="btn-primary" type="button">Accept</button>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="pane-h"><span>Document</span></div>
+            <div class="pane-body">
+              <div class="sheet-mini">
+                <div class="row hdr-row"><span>Role</span><span>Name</span><span>Trv</span></div>
+                <div class="row hl"><span>VP</span><span>Stephanie Cho</span><span>I</span></div>
+                <div class="row hl"><span>VL</span><span>Marcus Lim</span><span>D</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D -->
+      <div class="proto-frame proto" id="proto-d" style="margin-top:16px;display:none">
+        <div class="proto-chrome">
+          <span>Layout D — Floating review over document</span>
+          <span>Sheet stays full-bleed; review docks as overlay</span>
+        </div>
+        <div class="overlay-sheet">
+          <div class="doc">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px">SINGAPORE AIRSHOW 2026 — ATTENDEE DASHBOARD</div>
+            <div class="sheet-mini">
+              <div class="row hdr-row"><span>Role</span><span>Name</span><span>Trv</span></div>
+              <div class="row"><span>Regional Focal</span><span>Rex Heng</span><span>L</span></div>
+              <div class="row hl"><span>VP</span><span>Stephanie Cho</span><span>I</span></div>
+              <div class="row hl"><span>VL Program focal</span><span>Marcus Lim</span><span>D</span></div>
+              <div class="row hl"><span>Totem Lead</span><span>Mei Tan</span><span>L</span></div>
+              <div class="row"><span>GovOps</span><span>Protocol notified</span><span>L</span></div>
+            </div>
+          </div>
+          <div class="float">
+            <div class="pane-h"><span>Review updates</span><span>×</span></div>
+            <div class="pane-body">
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Add Stephanie Cho · VP · I</div></div>
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Marcus Lim · VL · D</div></div>
+              <div class="hunk"><input type="checkbox" checked /><div style="font-size:11px">Mei Tan · Totem · L</div></div>
+            </div>
+            <div class="sticky-actions">
+              <button class="btn-primary" type="button">Accept selected</button>
+              <button class="btn-ghost" type="button">Reject</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPEN QUESTIONS -->
+    <div class="section">
+      <h2 style="margin-top:0">Decisions I’d like from you</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="meta">Layout</div>
+          <ul class="bullets">
+            <li><strong>B (docked)</strong> — best ergonomics for paste + sheet; my recommendation</li>
+            <li><strong>A</strong> — cleanest review moment after generate</li>
+            <li><strong>C</strong> — max transparency (source spans), denser</li>
+            <li><strong>D</strong> — least layout change; still scroll-y on small screens</li>
+            <li>Hybrid: B for intake → A for review (same chrome, left rail swaps)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="meta">Wow budget</div>
+          <ul class="bullets">
+            <li>Chip cascade + cell pulse — high demo value, modest build</li>
+            <li>Source-span linking (email sentence ↔ hunk) — higher build, great for trust</li>
+            <li>File drop (.eml/.txt) — nice later; paste is enough for SEA demo</li>
+            <li>Keep motion to 2–3 beats; no purple glow / confetti</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note" style="margin-top:16px">
+        Once you pick a layout (and whether you want the hybrid), I’ll build on top of the existing
+        ReviewPanel / document-update path from PR #3 — elevate the Materials attendee tab, strip
+        provider copy from the subtitle, wire the sample email, and land the side-by-side review.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const SAMPLE = document.getElementById('sampleEmail').innerText;
+
+    function loadSampleIntoProtos() {
+      const hero = document.getElementById('heroPaste');
+      const dock = document.getElementById('dockPaste');
+      const trip = document.getElementById('tripSource');
+      if (hero) hero.value = SAMPLE;
+      if (dock) dock.value = SAMPLE;
+      if (trip) trip.textContent = SAMPLE;
+    }
+
+    function runExtractDemo() {
+      loadSampleIntoProtos();
+      const stage = document.getElementById('extractStage');
+      const chips = document.getElementById('extractChips');
+      stage.classList.add('on');
+      chips.innerHTML = '';
+      const items = [
+        { t: 'Add · Stephanie Cho · VP · I', c: 'add' },
+        { t: 'Update · Marcus Lim · VL focal · D', c: 'upd' },
+        { t: 'Update · Front Desk · 2 → 1', c: 'upd' },
+        { t: 'Add · Mei Tan · Totem Lead · L', c: 'add' },
+        { t: 'Remove · Mobility programme focal', c: 'rm' },
+        { t: 'Update · Objective #5 wording', c: 'upd' },
+      ];
+      items.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = 'chip ' + item.c;
+        el.textContent = item.t;
+        el.style.animationDelay = (0.15 + i * 0.12) + 's';
+        chips.appendChild(el);
+      });
+    }
+
+    const blurb = {
+      a: 'Layout A: after generate, left = selectable hunks + sticky Accept; right = live sheet with pulsing rows. Best pure “review” moment.',
+      b: 'Layout B keeps paste always visible beside the sheet; after generate, the left rail becomes the hunk list with sticky Accept — zero page scroll to compare.',
+      c: 'Layout C shows source email with highlightable spans, changes, and document. Most transparent for trust; widest desktop only.',
+      d: 'Layout D keeps the full-bleed sheet and floats a review drawer. Familiar pattern; can still obscure grid cells on laptop widths.',
+    };
+
+    function showProto(id) {
+      document.querySelectorAll('.proto').forEach((el) => { el.style.display = 'none'; });
+      document.getElementById('proto-' + id).style.display = 'flex';
+      document.querySelectorAll('.rec').forEach((el) => {
+        el.classList.toggle('active', el.getAttribute('data-proto') === id);
+      });
+      document.getElementById('protoStatus').textContent = blurb[id];
+    }
+
+    loadSampleIntoProtos();
+  </script>
+</body>
+</html>

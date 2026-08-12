@@ -1,0 +1,26 @@
+---
+description: How to share UI for review — never localhost to the user on cloud
+alwaysApply: true
+---
+
+# Viewing UI (cloud agents)
+
+The user **cannot** open `localhost` on the agent VM. Never tell them to use `http://localhost:…` as the way to review UI.
+
+## Do this instead (fast path)
+
+1. After push, get the **Vercel Preview URL** immediately:
+   - `gh pr view <n> --comments` and read the Vercel bot table, **or**
+   - GitHub deployment statuses / PR checks `targetUrl` / preview link
+2. Hand them that URL (append `#section` if useful, e.g. `#trust`).
+3. Optionally paste 1–2 screenshots into the PR body / artifacts.
+
+## Do not
+
+- Spend turns on MCP auth, Firecrawl, or long tool chains just to “find a way to view”
+- Say “open localhost” without also giving the preview link in the same breath
+- Wait for the user to ask “how do I view this?” — surface the preview URL when UI work is pushed
+
+## Note
+
+Previews may require Vercel SSO for the project owner. Still give the link; screenshots are the fallback if SSO blocks them.

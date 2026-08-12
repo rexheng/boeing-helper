@@ -277,6 +277,8 @@ export const companies: Company[] = [
 export interface PartnerContact {
   id: string
   name: string
+  /** Family / address surname — see Person.surname */
+  surname?: string
   title: string
   headline: string
   seniority?: string
@@ -427,6 +429,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "ahmed-bin-saeed",
         name: "HH Sheikh Ahmed bin Saeed Al Maktoum",
+        surname: "Al Maktoum",
         title: "Chairman & Chief Executive, Emirates Airline",
         headline: "Chairs Emirates Group — owns fleet strategy including 777X induction",
         seniority: "Chairman",
@@ -449,6 +452,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "akbar-al-baker",
         name: "Akbar Al Baker",
+        surname: "Al Baker",
         title: "Group Chief Executive, Qatar Airways",
         headline: "Long-serving GCE shaping Qatar's Boeing widebody commitments",
         seniority: "C-Suite",
@@ -471,6 +475,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "mitsuko-tsuchiya",
         name: "Mitsuko Tsuchiya",
+        surname: "Tsuchiya",
         title: "Senior Vice President, Fleet Strategy (illustrative)",
         headline: "Fleet planning counterpart for widebody utilisation and cabin programmes",
         seniority: "VP",
@@ -493,6 +498,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "walter-cho",
         name: "Walter Cho",
+        surname: "Cho",
         title: "Chairman & CEO, Korean Air",
         headline: "Leads Korean Air Group through Asiana integration and fleet renewal",
         seniority: "C-Suite",
@@ -515,6 +521,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "vanessa-hudson",
         name: "Vanessa Hudson",
+        surname: "Hudson",
         title: "Chief Executive Officer, Qantas Group",
         headline: "CEO owning Project Sunrise timing and group fleet strategy",
         seniority: "C-Suite",
@@ -537,6 +544,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "campbell-wilson",
         name: "Campbell Wilson",
+        surname: "Wilson",
         title: "Chief Executive Officer, Air India",
         headline: "CEO driving Air India transformation and Boeing delivery ramp",
         seniority: "C-Suite",
@@ -559,6 +567,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
       {
         id: "robert-chipman",
         name: "AIRMSHL Robert Chipman",
+        surname: "Chipman",
         title: "Chief of Air Force, RAAF",
         headline: "RAAF chief owning airborne ISR and strike readiness including P-8A and Growler",
         seniority: "Service Chief",

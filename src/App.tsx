@@ -28,8 +28,8 @@ export default function App() {
             <ToolShowcase id="capabilities" />
             <UseCases id="use-cases" />
             <Workflows id="workflows" />
-            <DemoVideo id="demo" onStartDemo={startDemo} />
             <Security id="trust" />
+            <DemoVideo id="demo" onStartDemo={startDemo} />
             <Pricing id="access" />
             <FAQ id="faq" />
           </main>

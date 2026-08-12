@@ -13,6 +13,8 @@
     "start": "NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
+    "@docx-editor.dev/core": "^2.2.1",
+    "@docx-editor.dev/react": "^2.2.1",
     "docx": "^9.7.1",
     "docxtemplater": "^3.69.3",
     "dotenv": "^16.4.0",
@@ -25,8 +27,10 @@
     "lucide-react": "^0.468.0",
     "pizzip": "^3.2.0",
     "react": "^18.3.1",
+    "react-datasheet-grid": "^4.11.6",
     "react-dom": "^18.3.1",
-    "react-webcam": "^7.2.0"
+    "react-webcam": "^7.2.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

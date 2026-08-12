@@ -14,15 +14,15 @@ const faqs = [
   },
   {
     q: "Where does the research come from?",
-    a: "Published material such as regulatory filings, official statements, and trade and defense press; and approved internal sources such as account records, programme status, and prior meeting notes. Each briefing section lists its sources.",
+    a: "Two lanes run in parallel: an AI research agent over approved published material (filings, official statements, trade and defence press), and Boeing’s internal knowledge — including documents you upload for the meeting. Uploads and internal records outrank press when sources disagree. Each claim in the briefing keeps its source so you can check it before the room.",
   },
   {
-    q: "Does this use live data?",
-    a: "Sample organisations use prepared research. Connected environments run the same steps against live sources.",
+    q: "Is this demonstration using live data?",
+    a: "This is a proof of concept. The walkthrough shows the same collect → assemble → review path the product is built for: parallel research and internal knowledge, source-labelled briefings, and PDF export for the meeting.",
   },
   {
-    q: "Can I take the briefing into a meeting offline?",
-    a: "Yes. Export any briefing to PDF from the review step for offline use.",
+    q: "Can I export the briefing?",
+    a: "Yes. From the review step you can export a PDF with the same structure and source labels as the on-screen briefing — ready for RD, IBD, and the trip book.",
   },
 ]
 

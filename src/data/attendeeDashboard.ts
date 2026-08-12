@@ -1,4 +1,4 @@
-import type { Person } from "./people"
+import { personSurname, type Person } from "./people"
 import type { Company } from "./companies"
 
 export type TravelCode = "I" | "D" | "L"
@@ -79,7 +79,7 @@ export function buildAttendeeDashboard(
     countryName === "Singapore" || company.country === "singapore" ? "L" : "I"
 
   const counterpartLabel = person.title.toLowerCase().includes("minister")
-    ? `Minister ${person.name.split(" ").slice(-1)[0]}`
+    ? `Minister ${personSurname(person)}`
     : person.name
 
   const objectives: AttendeeObjective[] = [
@@ -336,6 +336,94 @@ export function buildAttendeeDashboard(
   }
 }
 
+export function recountTravel(columns: AttendeeSection[]): AttendeeDashboardData["travelCounts"] {
+  const travelCounts = { I: 0, D: 0, L: 0 }
+  for (const col of columns) {
+    for (const sub of col.subsections) {
+      for (const row of sub.rows) {
+        if (row.travel === "I") travelCounts.I += row.count || 0
+        if (row.travel === "D") travelCounts.D += row.count || 0
+        if (row.travel === "L") travelCounts.L += row.count || 0
+      }
+    }
+  }
+  return travelCounts
+}
+
+export function withRecountedTravel(data: AttendeeDashboardData): AttendeeDashboardData {
+  return { ...data, travelCounts: recountTravel(data.columns) }
+}
+
+export function updateAttendeeRow(
+  data: AttendeeDashboardData,
+  sectionId: string,
+  subsectionId: string,
+  rowId: string,
+  patch: Partial<AttendeeRoleRow>,
+): AttendeeDashboardData {
+  const columns = data.columns.map((col) => {
+    if (col.id !== sectionId) return col
+    return {
+      ...col,
+      subsections: col.subsections.map((sub) => {
+        if (sub.id !== subsectionId) return sub
+        return {
+          ...sub,
+          rows: sub.rows.map((row) => (row.id === rowId ? { ...row, ...patch } : row)),
+        }
+      }),
+    }
+  })
+  return withRecountedTravel({ ...data, columns })
+}
+
+export function addAttendeeRow(
+  data: AttendeeDashboardData,
+  sectionId: string,
+  subsectionId: string,
+  row?: Partial<AttendeeRoleRow>,
+): AttendeeDashboardData {
+  const columns = data.columns.map((col) => {
+    if (col.id !== sectionId) return col
+    return {
+      ...col,
+      subsections: col.subsections.map((sub) => {
+        if (sub.id !== subsectionId) return sub
+        const next: AttendeeRoleRow = {
+          id: row?.id || `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          roleLabel: row?.roleLabel ?? "Role",
+          name: row?.name ?? "",
+          organization: row?.organization,
+          travel: row?.travel ?? "",
+          notes: row?.notes,
+          count: row?.count ?? 1,
+        }
+        return { ...sub, rows: [...sub.rows, next] }
+      }),
+    }
+  })
+  return withRecountedTravel({ ...data, columns })
+}
+
+export function removeAttendeeRow(
+  data: AttendeeDashboardData,
+  sectionId: string,
+  subsectionId: string,
+  rowId: string,
+): AttendeeDashboardData {
+  const columns = data.columns.map((col) => {
+    if (col.id !== sectionId) return col
+    return {
+      ...col,
+      subsections: col.subsections.map((sub) => {
+        if (sub.id !== subsectionId) return sub
+        return { ...sub, rows: sub.rows.filter((r) => r.id !== rowId) }
+      }),
+    }
+  })
+  return withRecountedTravel({ ...data, columns })
+}
+
 export function flattenAttendees(data: AttendeeDashboardData, opts?: { filledOnly?: boolean }) {
   const filledOnly = opts?.filledOnly ?? false
   return data.columns.flatMap((section) =>
@@ -343,6 +431,9 @@ export function flattenAttendees(data: AttendeeDashboardData, opts?: { filledOnl
       sub.rows
         .filter((r) => (filledOnly ? r.name || r.count > 0 : true))
         .map((r) => ({
+          sectionId: section.id,
+          subsectionId: sub.id,
+          rowId: r.id,
           section: section.title,
           subsection: sub.title,
           role: r.roleLabel,
