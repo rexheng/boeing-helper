@@ -132,9 +132,23 @@ export function DockedComposer({
     setBusy(true)
     setError(null)
     setPhase("extracting")
-    setChips([])
     setResult(null)
     setShowHunks(false)
+    // Seed chips immediately so Reading paste… is unmistakable before the API returns.
+    const seed =
+      target === "report"
+        ? [
+            { id: "seed-1", label: "Executive summary", kind: "upd" as const },
+            { id: "seed-2", label: "Engagement title", kind: "upd" as const },
+            { id: "seed-3", label: "Follow-up actions", kind: "add" as const },
+          ]
+        : [
+            { id: "seed-1", label: "Scanning roster…", kind: "upd" as const },
+            { id: "seed-2", label: "Travel codes", kind: "upd" as const },
+            { id: "seed-3", label: "Role slots", kind: "add" as const },
+          ]
+    setChips(seed)
+    const started = performance.now()
     try {
       const res = await fetch("/api/document-update", {
         method: "POST",
@@ -155,8 +169,11 @@ export function DockedComposer({
         label: chipLabel(h, target),
         kind: (h.op === "add" ? "add" : h.op === "remove" ? "rm" : "upd") as "add" | "upd" | "rm",
       }))
-      setChips(staged)
-      await wait(Math.min(1000 + staged.length * 110, 1900))
+      if (staged.length) setChips(staged)
+
+      const minMs = 1700
+      const elapsed = performance.now() - started
+      if (elapsed < minMs) await wait(minMs - elapsed)
 
       setResult(data)
       const init: Record<string, boolean> = {}
@@ -169,6 +186,7 @@ export function DockedComposer({
       setError(err instanceof Error ? err.message : "Update failed")
       setPhase("compose")
       setResult(null)
+      setChips([])
     } finally {
       setBusy(false)
     }
