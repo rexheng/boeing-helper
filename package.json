@@ -13,6 +13,8 @@
     "start": "NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
+    "@docx-editor.dev/core": "^2.2.1",
+    "@docx-editor.dev/react": "^2.2.1",
     "docx": "^9.7.1",
     "docxtemplater": "^3.69.3",
     "dotenv": "^16.4.0",

@@ -80,7 +80,8 @@ export interface AirshowReportData {
   engagementBody: string
 }
 
-export async function exportAirshowReportDocx(data: AirshowReportData): Promise<void> {
+/** Build a filled Air Show Report .docx as ArrayBuffer (for in-browser editor). */
+export async function buildAirshowReportDocx(data: AirshowReportData): Promise<ArrayBuffer> {
   const res = await fetch("/templates/airshow-report-fillable.docx")
   if (!res.ok) throw new Error("Air show report template missing")
   const buf = await res.arrayBuffer()
@@ -99,11 +100,14 @@ export async function exportAirshowReportDocx(data: AirshowReportData): Promise<
     eng_body: data.engagementBody,
   })
 
-  const out = doc.getZip().generate({
-    type: "blob",
-    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  })
+  return doc.getZip().generate({ type: "arraybuffer" }) as ArrayBuffer
+}
 
+export async function exportAirshowReportDocx(data: AirshowReportData): Promise<void> {
+  const buf = await buildAirshowReportDocx(data)
+  const out = new Blob([new Uint8Array(buf)], {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  })
   const a = document.createElement("a")
   a.href = URL.createObjectURL(out)
   a.download = `${stem(data.showName)}-Summary-Report.docx`
