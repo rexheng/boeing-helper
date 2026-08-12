@@ -961,20 +961,20 @@ a:hover { color: var(--boeing-blue); }
 
 .sheet-is-applied .sheet-row-highlight {
   opacity: 1;
-  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
-  background-color: #D7F0E3 !important;
+  animation: sheetAppliedPulse 0.7s var(--ease-out-expo) both;
+  background-color: #E6F3EC !important;
   box-shadow: inset 3px 0 0 #2F6B4F;
-  outline: 2px solid rgba(47, 107, 79, 0.35);
+  outline: 1px solid rgba(47, 107, 79, 0.28);
 }
 
 .sheet-is-applied .sheet-row-dim {
-  opacity: 0.4;
+  opacity: 0.55;
 }
 
 @keyframes sheetAppliedPulse {
-  0% { background-color: #FFE58A; transform: scale(1); }
-  35% { background-color: #B8E6C9; }
-  100% { background-color: #D7F0E3; }
+  0% { background-color: #F3E7B4; transform: scale(1); }
+  40% { background-color: #C9E6D4; }
+  100% { background-color: #E6F3EC; }
 }
 
 .docked-composer__hunks {
@@ -1048,6 +1048,10 @@ a:hover { color: var(--boeing-blue); }
 
 .report-field-sheet__section {
   transition: opacity 0.2s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.docked-report-page {
+  padding-bottom: 5.5rem;
 }
 
 .docked-report-page .docked-workspace {

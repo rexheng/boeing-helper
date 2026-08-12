@@ -144,7 +144,7 @@ export function MeetingReportView({
             setAppliedFlash(anchors)
             setHighlightPaths([])
             setReportView("sheet")
-            window.setTimeout(() => setAppliedFlash([]), 2600)
+            window.setTimeout(() => setAppliedFlash([]), 1800)
             recordAccept({
               source: "llm",
               target: "report",
