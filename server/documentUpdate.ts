@@ -359,21 +359,29 @@ function consolidateAttendeeHunks(hunks: Hunk[]): Hunk[] {
     const seatsH = list.find((h) => h.field === "Seats")
     const roleLabel = list[0].path.split(" / ").slice(-1)[0] || list[0].field
     const onlySeats = !nameH && !travelH && !!seatsH
-    const beforeCore = [nameH?.before, travelH?.before].filter((p) => p && String(p).trim()).join(" · ")
-    const afterCore = [nameH?.after, travelH?.after].filter((p) => p && String(p).trim()).join(" · ")
-    const beforeSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `${seatsH.before} seats` : ""
-    const afterSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? `${seatsH.after} seats` : ""
+    const formatTravel = (t?: string) => {
+      if (!t) return ""
+      if (t === "I") return "intl"
+      if (t === "D") return "domestic"
+      if (t === "L") return "local"
+      return t
+    }
+    const seatPhrase = (n: string) => `${n} ${n === "1" ? "seat" : "seats"}`
+    const beforeSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? seatPhrase(String(seatsH.before)) : ""
+    const afterSeats = seatsH && String(seatsH.before) !== String(seatsH.after) ? seatPhrase(String(seatsH.after)) : ""
+    const beforeCore = [nameH?.before, formatTravel(travelH?.before)].filter((p) => p && String(p).trim()).join(" · ")
+    const afterCore = [nameH?.after, formatTravel(travelH?.after)].filter((p) => p && String(p).trim()).join(" · ")
     return {
       id: `h-c-${idx}`,
       path: list[0].path,
       field: onlySeats ? `${roleLabel} · seats` : roleLabel,
       before: onlySeats
-        ? seatsH!.before
+        ? seatPhrase(seatsH!.before)
         : beforeCore
           ? [beforeCore, beforeSeats].filter(Boolean).join(" · ")
           : beforeSeats || "(empty)",
       after: onlySeats
-        ? seatsH!.after
+        ? seatPhrase(seatsH!.after)
         : afterCore
           ? [afterCore, afterSeats].filter(Boolean).join(" · ")
           : afterSeats || "(empty)",

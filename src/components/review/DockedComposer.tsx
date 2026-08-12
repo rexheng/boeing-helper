@@ -52,10 +52,6 @@ export function DockedComposer({
   }, [result, selected])
 
   useEffect(() => {
-    onReviewingChange?.(phase === "review" || phase === "extracting")
-  }, [phase, onReviewingChange])
-
-  useEffect(() => {
     if (!result || phase !== "review") {
       onHighlightPaths([])
       return
@@ -239,7 +235,7 @@ export function DockedComposer({
               Applied {appliedCount} update{appliedCount === 1 ? "" : "s"} to the roster
             </p>
             <p className="docked-composer__victory-sub">
-              Spotlight cells settle on the sheet. Changelog records this accept.
+              {appliedCount} change{appliedCount === 1 ? "" : "s"} {appliedCount === 1 ? "is" : "are"} live on the sheet and logged in Changelog.
             </p>
             <button type="button" className="docked-composer__primary" onClick={() => resetToCompose(true)}>
               Update from another note
@@ -310,18 +306,6 @@ export function DockedComposer({
                 Reject
               </button>
               <div className="docked-composer__quiet">
-                <button
-                  type="button"
-                  className="docked-composer__link"
-                  onClick={() => {
-                    if (!result) return
-                    const all: Record<string, boolean> = {}
-                    for (const h of result.hunks) all[h.id] = true
-                    setSelected(all)
-                  }}
-                >
-                  Select all
-                </button>
                 <button type="button" className="docked-composer__link" onClick={() => resetToCompose(false)}>
                   Edit paste
                 </button>
@@ -348,12 +332,15 @@ function executiveHeadline(h: ReviewHunk) {
     return `Add ${who}`
   }
   const person = h.after.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/)?.[1]
-  const emptyBefore = !h.before.trim() || /\(empty\)/i.test(h.before) || /AH-64|CH-47|Programme/i.test(h.before)
+  const emptyBefore =
+    !h.before.trim() ||
+    /\(empty\)/i.test(h.before) ||
+    /AH-64|CH-47|Programme/i.test(h.before) ||
+    /^\d+\s*seats?$/i.test(h.before.trim())
   if (person && emptyBefore) return `Assign ${person}${roleSuffix(h)}`
   if (person) return `Update to ${person}${roleSuffix(h)}`
-  if (/seats/i.test(h.field) || (/^\d+$/.test(h.before.trim()) && /^\d+$/.test(h.after.trim()))) {
-    const label = h.field.replace(/\s*·\s*seats/i, "").trim() || "Seats"
-    return `Adjust ${label} (${h.before} → ${h.after})`
+  if (/seats/i.test(h.field) || (/^\d+\s*seats?$/i.test(h.before.trim()) && /^\d+\s*seats?$/i.test(h.after.trim()))) {
+    return `Adjust ${h.field.replace(/\s*·\s*seats/i, "").trim() || "seats"} (${h.before} → ${h.after})`
   }
   if (/objective/i.test(h.field)) return "Tighten Objective 5"
   return h.field

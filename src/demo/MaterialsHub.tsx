@@ -255,7 +255,6 @@ export function MaterialsHub({
               countryName,
             }}
             onHighlightPaths={onHighlightPaths}
-            onReviewingChange={setIsReviewing}
             onAccept={({ proposedDocument, hunks, allHunkCount, debrief, summary }) => {
               const next = applyAttendeeHunks(
                 dashboard,
@@ -379,18 +378,6 @@ export function MaterialsHub({
       <div className="flex justify-end">
         <Button onClick={onContinue}>Continue to report</Button>
       </div>
-      )}
-      {tab === "attendee" && !isReviewing && (
-        <div className="flex justify-end pt-1">
-          <button
-            type="button"
-            onClick={onContinue}
-            className="cursor-pointer text-[12px] font-semibold underline underline-offset-4"
-            style={{ color: BLUE, background: "transparent", border: "none" }}
-          >
-            Continue to report →
-          </button>
-        </div>
       )}
     </div>
   )
