@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FileUp, Building2, Newspaper, GitMerge, Eye, ArrowRight } from "lucide-react"
+import { FileUp, Building2, Newspaper, ArrowDown } from "lucide-react"
 import { SectionHeader } from "../components/SectionHeader"
 import { useInView } from "../hooks/useInView"
 
@@ -7,29 +7,8 @@ interface SecurityProps {
   id?: string
 }
 
-const trustOrder = [
-  {
-    rank: "01",
-    title: "Uploaded documents",
-    note: "Campaign packs, prior notes, letters attached for this meeting",
-    tone: "primary" as const,
-  },
-  {
-    rank: "02",
-    title: "Internal Boeing knowledge",
-    note: "Account records, programme status, prior meeting history",
-    tone: "secondary" as const,
-  },
-  {
-    rank: "03",
-    title: "Published sources",
-    note: "Filings, official statements, trade and defence press",
-    tone: "tertiary" as const,
-  },
-]
-
 export function Security({ id }: SecurityProps) {
-  const { ref, visible } = useInView(0.2)
+  const { ref, visible } = useInView(0.18)
   const [drawn, setDrawn] = useState(false)
 
   useEffect(() => {
@@ -41,378 +20,350 @@ export function Security({ id }: SecurityProps) {
       setDrawn(true)
       return
     }
-    const t = window.setTimeout(() => setDrawn(true), 80)
+    const t = window.setTimeout(() => setDrawn(true), 60)
     return () => window.clearTimeout(t)
   }, [visible])
 
   return (
-    <section id={id} className="section section--muted">
+    <section id={id} className="section">
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Data integrity"
           title="Every figure traces back to a source."
-          subtitle="Two lanes collect in parallel. The briefing is assembled from what was found — not invented — and every claim keeps its origin."
+          subtitle="Collect in parallel. Assemble with citations. Check before the room."
         />
 
-        {/* Flow diagram */}
         <div
-          className="overflow-hidden"
+          className="relative"
           style={{
             borderRadius: "var(--radius)",
             border: "1px solid var(--surface-border)",
-            background: "#fff",
-            boxShadow: "var(--shadow-card)",
+            background: "var(--bg-muted)",
+            overflow: "hidden",
           }}
         >
-          {/* Stage labels */}
+          {/* subtle institutional grid */}
           <div
-            className="hidden md:grid grid-cols-[1.15fr_auto_1fr_auto_0.85fr] gap-3 px-7 pt-6 pb-2"
             aria-hidden
-          >
-            {["Collect", "", "Assemble", "", "Review"].map((label, i) => (
-              <p
-                key={i}
-                className="font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
-                style={{ color: label ? "var(--boeing-blue)" : "transparent" }}
+            className="pointer-events-none absolute inset-0 opacity-[0.35]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(10,34,64,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(10,34,64,0.04) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
+
+          <div className="relative p-5 sm:p-8 lg:p-10">
+            {/* ===== STAGE 1: COLLECT ===== */}
+            <StageLabel n="01" label="Collect" drawn={drawn} delay={0} />
+
+            <div
+              className="mt-4"
+              style={{
+                opacity: drawn ? 1 : 0,
+                transform: drawn ? "translateY(0)" : "translateY(10px)",
+                transition: "opacity 0.5s ease 0.08s, transform 0.55s var(--ease-out-expo) 0.08s",
+              }}
+            >
+              <div
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                style={{
+                  background: "var(--boeing-navy)",
+                  borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                }}
               >
-                {label || "·"}
-              </p>
-            ))}
-          </div>
+                <p
+                  className="font-ui text-[11px] font-bold uppercase tracking-[0.16em]"
+                  style={{ color: "#fff" }}
+                >
+                  Three sources · same moment
+                </p>
+                <span
+                  className="font-ui text-[10px] font-bold uppercase tracking-[0.14em] px-2.5 py-1"
+                  style={{
+                    background: "var(--boeing-cyan-bright)",
+                    color: "var(--boeing-navy)",
+                    borderRadius: "2px",
+                  }}
+                >
+                  In parallel
+                </span>
+              </div>
 
-          <div className="p-5 sm:p-7">
-            {/* Desktop flow */}
-            <div className="hidden md:grid md:grid-cols-[1.15fr_auto_1fr_auto_0.85fr] md:items-stretch md:gap-3">
-              {/* Collect — parallel lanes */}
-              <div className="flex flex-col gap-3 min-h-[14rem]">
-                <FlowLane
+              <div
+                className="grid gap-0 lg:grid-cols-3"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--surface-border)",
+                  borderTop: "none",
+                  borderRadius: "0 0 var(--radius-sm) var(--radius-sm)",
+                }}
+              >
+                <SourceCell
                   drawn={drawn}
-                  delay={0}
-                  accent="var(--boeing-blue)"
+                  delay={120}
+                  elevated
                   icon={FileUp}
-                  eyebrow="Elevated"
+                  kicker="Primary"
                   title="Uploads"
-                  body="Documents you attach for this engagement"
+                  body="Campaign packs and notes you attach"
+                  className="border-b lg:border-b-0 lg:border-r"
                 />
-                <FlowLane
+                <SourceCell
                   drawn={drawn}
-                  delay={90}
-                  accent="var(--boeing-navy)"
+                  delay={200}
                   icon={Building2}
-                  eyebrow="Internal"
+                  kicker="Internal"
                   title="Boeing knowledge"
-                  body="Approved account and programme records"
+                  body="Account, programme, prior meetings"
+                  className="border-b lg:border-b-0 lg:border-r"
                 />
-                <FlowLane
+                <SourceCell
                   drawn={drawn}
-                  delay={180}
-                  accent="var(--boeing-cyan)"
+                  delay={280}
                   icon={Newspaper}
-                  eyebrow="In parallel"
+                  kicker="Published"
                   title="AI research agent"
-                  body="Filings, statements, trade and defence press"
+                  body="Filings, statements, defence press"
                 />
-              </div>
-
-              <FlowArrow drawn={drawn} delay={280} />
-
-              {/* Assemble */}
-              <div className="flex flex-col justify-center">
-                <div
-                  className="relative px-5 py-6 h-full flex flex-col justify-center"
-                  style={{
-                    background: "var(--boeing-navy)",
-                    borderRadius: "var(--radius-sm)",
-                    opacity: drawn ? 1 : 0,
-                    transform: drawn ? "translateY(0)" : "translateY(12px)",
-                    transition: "opacity 0.55s ease 0.32s, transform 0.55s var(--ease-out-expo) 0.32s",
-                  }}
-                >
-                  <GitMerge size={20} strokeWidth={1.5} style={{ color: "var(--boeing-cyan-bright)" }} />
-                  <p
-                    className="mt-4 font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
-                    style={{ color: "var(--boeing-cyan-bright)" }}
-                  >
-                    Briefing
-                  </p>
-                  <p className="mt-2 text-base font-semibold leading-snug" style={{ color: "#fff" }}>
-                    Claims keep their source and date
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
-                    Uploads and internal records outrank press when sources disagree.
-                  </p>
-                  <div
-                    className="mt-5 pt-4 flex flex-wrap gap-2"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.14)" }}
-                  >
-                    {["Source", "Date", "Tier"].map((chip) => (
-                      <span
-                        key={chip}
-                        className="px-2.5 py-1 font-ui text-[10px] font-semibold uppercase tracking-[0.12em]"
-                        style={{
-                          background: "rgba(130,212,246,0.12)",
-                          color: "var(--boeing-cyan-bright)",
-                          borderRadius: "2px",
-                        }}
-                      >
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <FlowArrow drawn={drawn} delay={420} />
-
-              {/* Review */}
-              <div className="flex flex-col justify-center">
-                <div
-                  className="px-5 py-6 h-full flex flex-col justify-center"
-                  style={{
-                    background: "var(--boeing-ice)",
-                    border: "1px solid var(--surface-border)",
-                    borderRadius: "var(--radius-sm)",
-                    opacity: drawn ? 1 : 0,
-                    transform: drawn ? "translateY(0)" : "translateY(12px)",
-                    transition: "opacity 0.55s ease 0.45s, transform 0.55s var(--ease-out-expo) 0.45s",
-                  }}
-                >
-                  <Eye size={20} strokeWidth={1.5} style={{ color: "var(--boeing-blue)" }} />
-                  <p
-                    className="mt-4 font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
-                    style={{ color: "var(--boeing-blue)" }}
-                  >
-                    Before the room
-                  </p>
-                  <p className="mt-2 text-base font-semibold leading-snug" style={{ color: "var(--boeing-navy)" }}>
-                    Check any figure
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Open the source on screen or in the PDF export.
-                  </p>
-                </div>
               </div>
             </div>
 
-            {/* Mobile flow */}
-            <div className="md:hidden space-y-3">
-              <p
-                className="font-ui text-[10px] font-bold uppercase tracking-[0.16em] mb-1"
-                style={{ color: "var(--boeing-blue)" }}
-              >
-                Collect — in parallel
-              </p>
-              <FlowLane
-                drawn={drawn}
-                delay={0}
-                accent="var(--boeing-blue)"
-                icon={FileUp}
-                eyebrow="Elevated"
-                title="Uploads"
-                body="Documents you attach for this engagement"
-              />
-              <FlowLane
-                drawn={drawn}
-                delay={60}
-                accent="var(--boeing-navy)"
-                icon={Building2}
-                eyebrow="Internal"
-                title="Boeing knowledge"
-                body="Approved account and programme records"
-              />
-              <FlowLane
-                drawn={drawn}
-                delay={120}
-                accent="var(--boeing-cyan)"
-                icon={Newspaper}
-                eyebrow="In parallel"
-                title="AI research agent"
-                body="Filings, statements, trade and defence press"
-              />
-              <MobileJoin drawn={drawn} />
+            <FlowJoin drawn={drawn} delay={360} />
+
+            {/* ===== STAGE 2: ASSEMBLE ===== */}
+            <StageLabel n="02" label="Assemble" drawn={drawn} delay={400} />
+
+            <div
+              className="mt-4 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]"
+              style={{
+                opacity: drawn ? 1 : 0,
+                transform: drawn ? "translateY(0)" : "translateY(10px)",
+                transition: "opacity 0.5s ease 0.42s, transform 0.55s var(--ease-out-expo) 0.42s",
+              }}
+            >
               <div
-                className="px-4 py-5"
+                className="px-5 py-5 sm:px-6 sm:py-6"
                 style={{
                   background: "var(--boeing-navy)",
                   borderRadius: "var(--radius-sm)",
-                  opacity: drawn ? 1 : 0,
-                  transition: "opacity 0.45s ease 0.28s",
                 }}
               >
                 <p
                   className="font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
                   style={{ color: "var(--boeing-cyan-bright)" }}
                 >
-                  Assemble
+                  Briefing output
                 </p>
-                <p className="mt-2 text-base font-semibold" style={{ color: "#fff" }}>
-                  Claims keep their source and date
+                <p className="mt-3 text-xl font-semibold leading-snug" style={{ color: "#fff" }}>
+                  One pack. Every claim labelled.
                 </p>
-                <p className="mt-1.5 text-sm" style={{ color: "rgba(255,255,255,0.72)" }}>
-                  Uploads and internal records outrank press when sources disagree.
-                </p>
-              </div>
-              <MobileJoin drawn={drawn} />
-              <div
-                className="px-4 py-5"
-                style={{
-                  background: "var(--boeing-ice)",
-                  border: "1px solid var(--surface-border)",
-                  borderRadius: "var(--radius-sm)",
-                  opacity: drawn ? 1 : 0,
-                  transition: "opacity 0.45s ease 0.4s",
-                }}
-              >
-                <p
-                  className="font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: "var(--boeing-blue)" }}
-                >
-                  Review
-                </p>
-                <p className="mt-2 text-base font-semibold" style={{ color: "var(--boeing-navy)" }}>
-                  Check any figure before the room
-                </p>
-                <p className="mt-1.5 text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Open the source on screen or in the PDF export.
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
+                  Precedence when sources conflict: uploads → internal → published.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Trust order */}
-        <div className="mt-10 md:mt-12">
-          <p
-            className="font-ui text-[11px] font-bold uppercase tracking-[0.16em] mb-5"
-            style={{ color: "var(--boeing-blue)" }}
-          >
-            When sources disagree
-          </p>
-          <ol className="grid gap-4 sm:grid-cols-3">
-            {trustOrder.map((item, i) => (
-              <li
-                key={item.title}
-                className="relative pt-1"
+              {/* Sample citation — proof of the thesis */}
+              <div
+                className="px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-center"
                 style={{
-                  opacity: drawn ? 1 : 0,
-                  transform: drawn ? "translateY(0)" : "translateY(8px)",
-                  transition: `opacity 0.45s ease ${520 + i * 80}ms, transform 0.45s var(--ease-out-expo) ${520 + i * 80}ms`,
+                  background: "#fff",
+                  border: "1px solid var(--surface-border)",
+                  borderLeft: "3px solid var(--boeing-blue)",
+                  borderRadius: "var(--radius-sm)",
                 }}
               >
-                <div
-                  className="mb-3 h-1 w-full"
-                  style={{
-                    background:
-                      item.tone === "primary"
-                        ? "var(--boeing-blue)"
-                        : item.tone === "secondary"
-                          ? "var(--boeing-navy)"
-                          : "var(--boeing-cyan)",
-                    opacity: item.tone === "tertiary" ? 0.55 : 1,
-                  }}
-                />
                 <p
-                  className="font-mono text-xs tabular-nums"
-                  style={{ color: "var(--boeing-cyan)" }}
+                  className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
+                  style={{ color: "var(--text-muted)" }}
                 >
-                  {item.rank}
+                  Example claim
                 </p>
                 <p
-                  className="mt-1.5 text-sm font-semibold"
+                  className="mt-2 text-[15px] font-semibold leading-snug"
                   style={{ color: "var(--boeing-navy)" }}
                 >
-                  {item.title}
+                  31 × 777-9 on order
                 </p>
-                <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  {item.note}
-                </p>
-              </li>
-            ))}
-          </ol>
+                <div
+                  className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  <span style={{ color: "var(--boeing-blue)", fontWeight: 600 }}>
+                    Aviation Week
+                  </span>
+                  <span aria-hidden style={{ color: "var(--surface-border)" }}>
+                    |
+                  </span>
+                  <span>May 2026</span>
+                  <span aria-hidden style={{ color: "var(--surface-border)" }}>
+                    |
+                  </span>
+                  <span
+                    className="font-ui uppercase tracking-[0.1em] text-[10px] font-bold"
+                    style={{ color: "var(--boeing-blue)" }}
+                  >
+                    Published
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <FlowJoin drawn={drawn} delay={520} />
+
+            {/* ===== STAGE 3: REVIEW ===== */}
+            <StageLabel n="03" label="Review" drawn={drawn} delay={560} />
+
+            <div
+              className="mt-4 grid gap-px sm:grid-cols-3 overflow-hidden"
+              style={{
+                background: "var(--surface-border)",
+                border: "1px solid var(--surface-border)",
+                borderRadius: "var(--radius-sm)",
+                opacity: drawn ? 1 : 0,
+                transform: drawn ? "translateY(0)" : "translateY(8px)",
+                transition: "opacity 0.5s ease 0.58s, transform 0.55s var(--ease-out-expo) 0.58s",
+              }}
+            >
+              {[
+                { t: "Open the source", d: "Tap any figure in the briefing" },
+                { t: "Export the pack", d: "Same citations in the PDF" },
+                { t: "Take it to the room", d: "Only after you have checked it" },
+              ].map((item) => (
+                <div key={item.t} className="px-5 py-5" style={{ background: "#fff" }}>
+                  <p className="text-sm font-semibold" style={{ color: "var(--boeing-navy)" }}>
+                    {item.t}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    {item.d}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-function FlowLane({
+function StageLabel({
+  n,
+  label,
   drawn,
   delay,
-  accent,
-  icon: Icon,
-  eyebrow,
-  title,
-  body,
 }: {
+  n: string
+  label: string
   drawn: boolean
   delay: number
-  accent: string
-  icon: typeof FileUp
-  eyebrow: string
-  title: string
-  body: string
 }) {
   return (
     <div
-      className="flex-1 px-4 py-3.5"
+      className="flex items-baseline gap-3"
       style={{
-        background: "var(--bg-muted)",
-        borderLeft: `3px solid ${accent}`,
-        borderRadius: "0 var(--radius-sm) var(--radius-sm) 0",
         opacity: drawn ? 1 : 0,
-        transform: drawn ? "translateX(0)" : "translateX(-10px)",
-        transition: `opacity 0.5s ease ${delay}ms, transform 0.5s var(--ease-out-expo) ${delay}ms`,
+        transition: `opacity 0.4s ease ${delay}ms`,
       }}
     >
-      <div className="flex items-start gap-3">
-        <Icon size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" style={{ color: accent }} />
-        <div className="min-w-0">
-          <p
-            className="font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
-            style={{ color: accent }}
-          >
-            {eyebrow}
-          </p>
-          <p className="mt-1 text-sm font-semibold" style={{ color: "var(--boeing-navy)" }}>
-            {title}
-          </p>
-          <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            {body}
-          </p>
-        </div>
-      </div>
+      <span
+        className="font-mono text-sm tabular-nums font-semibold"
+        style={{ color: "var(--boeing-blue)" }}
+      >
+        {n}
+      </span>
+      <h3
+        className="text-base font-bold uppercase tracking-[0.12em]"
+        style={{ color: "var(--boeing-navy)", fontSize: "0.8125rem" }}
+      >
+        {label}
+      </h3>
+      <div className="flex-1 h-px" style={{ background: "var(--surface-border)" }} />
     </div>
   )
 }
 
-function FlowArrow({ drawn, delay }: { drawn: boolean; delay: number }) {
+function SourceCell({
+  drawn,
+  delay,
+  elevated,
+  icon: Icon,
+  kicker,
+  title,
+  body,
+  className = "",
+}: {
+  drawn: boolean
+  delay: number
+  elevated?: boolean
+  icon: typeof FileUp
+  kicker: string
+  title: string
+  body: string
+  className?: string
+}) {
   return (
-    <div className="flex items-center justify-center px-1" aria-hidden>
-      <ArrowRight
-        size={22}
-        strokeWidth={1.75}
-        style={{
-          color: "var(--boeing-blue)",
-          opacity: drawn ? 1 : 0,
-          transform: drawn ? "translateX(0)" : "translateX(-6px)",
-          transition: `opacity 0.4s ease ${delay}ms, transform 0.4s var(--ease-out-expo) ${delay}ms`,
-        }}
+    <div
+      className={`relative px-5 py-5 sm:px-6 sm:py-6 ${className}`}
+      style={{
+        background: elevated ? "var(--boeing-ice)" : "#fff",
+        borderColor: "var(--surface-border)",
+        boxShadow: elevated ? "inset 0 3px 0 0 var(--boeing-blue)" : undefined,
+        opacity: drawn ? 1 : 0,
+        transform: drawn ? "translateY(0)" : "translateY(8px)",
+        transition: `opacity 0.45s ease ${delay}ms, transform 0.5s var(--ease-out-expo) ${delay}ms`,
+      }}
+    >
+      {elevated && (
+        <span
+          className="absolute top-4 right-4 font-ui text-[9px] font-bold uppercase tracking-[0.14em] px-2 py-0.5"
+          style={{
+            background: "var(--boeing-blue)",
+            color: "#fff",
+            borderRadius: "2px",
+          }}
+        >
+          Elevated
+        </span>
+      )}
+      <Icon
+        size={18}
+        strokeWidth={1.5}
+        style={{ color: elevated ? "var(--boeing-blue)" : "var(--boeing-navy)" }}
       />
+      <p
+        className="mt-3 font-ui text-[10px] font-bold uppercase tracking-[0.14em]"
+        style={{ color: elevated ? "var(--boeing-blue)" : "var(--text-muted)" }}
+      >
+        {kicker}
+      </p>
+      <p
+        className="mt-1.5 text-[15px] font-semibold"
+        style={{ color: "var(--boeing-navy)" }}
+      >
+        {title}
+      </p>
+      <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+        {body}
+      </p>
     </div>
   )
 }
 
-function MobileJoin({ drawn }: { drawn: boolean }) {
+function FlowJoin({ drawn, delay }: { drawn: boolean; delay: number }) {
   return (
-    <div className="flex justify-center py-0.5" aria-hidden>
+    <div className="flex justify-center py-4" aria-hidden>
       <div
-        className="h-5 w-px"
+        className="flex flex-col items-center"
         style={{
-          background: "var(--boeing-blue)",
-          opacity: drawn ? 0.55 : 0,
-          transition: "opacity 0.35s ease 0.2s",
+          opacity: drawn ? 1 : 0,
+          transition: `opacity 0.35s ease ${delay}ms`,
         }}
-      />
+      >
+        <div className="w-px h-3" style={{ background: "var(--boeing-blue)" }} />
+        <ArrowDown size={18} strokeWidth={2} style={{ color: "var(--boeing-blue)" }} />
+        <div className="w-px h-3" style={{ background: "var(--boeing-blue)" }} />
+      </div>
     </div>
   )
 }
