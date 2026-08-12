@@ -48,8 +48,8 @@ export function Security({ id }: SecurityProps) {
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Trust"
-          title="Handled the way Boeing handles everything else."
-          subtitle="Boeing Helper is an internal preparation tool. It is designed to sit inside existing confidentiality, export control, and records practice rather than alongside it."
+          title="Confidentiality and source controls"
+          subtitle="Internal preparation tool aligned to Boeing confidentiality, export control, and records practice."
         />
 
         <div className="grid gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
@@ -119,8 +119,7 @@ export function Security({ id }: SecurityProps) {
               className="mt-7 border-t pt-5 text-xs leading-relaxed"
               style={{ borderColor: "rgba(255,255,255,0.16)", color: "rgba(255,255,255,0.7)" }}
             >
-              Sources are shown on every briefing section, so a reviewer can trace any figure back
-              before it reaches a customer conversation.
+              Each briefing section lists sources for reviewer verification.
             </p>
           </div>
         </div>

@@ -21,30 +21,30 @@ const cases: UseCase[] = [
     title: "MSPO 2026",
     image: "/images/usecase-airshow.jpg",
     alt: "F-22 fighter jet on static display at a defense airshow",
-    lede: "Sixty-plus official delegations. A schedule that still moves the night before.",
+    lede: "High-volume bilateral calendars with late schedule changes.",
     detail:
-      "Campaign and country teams build a briefing per counterpart before the chalet and bilateral calendar locks — who is attending, what they have asked for previously, and where open commitments sit. Every pack follows the same structure so a colleague can pick up a meeting at short notice.",
-    outcome: "One preparation standard across the whole MSPO delegation.",
+      "Build one briefing per counterpart: attendees, prior asks, and open commitments — same structure for handoff.",
+    outcome: "Consistent briefing format across the delegation.",
   },
   {
     index: "02",
     title: "Government and Defense Roundtables",
     image: "/images/usecase-government.jpg",
     alt: "Boeing C-17 Globemaster III in flight",
-    lede: "Ministerial and staff talks where the questions are known long before they are asked.",
+    lede: "Ministerial and staff meetings with known programme questions.",
     detail:
-      "Boeing Helper assembles the country picture alongside the individual: defense posture, procurement cycle, industrial participation expectations, and the bilateral concerns that have surfaced on record. Sustainment and offset commitments sit next to the person raising them.",
-    outcome: "No surprises on offsets, timelines, or prior commitments.",
+      "Country context with the individual: defence posture, procurement cycle, offsets, and recorded concerns.",
+    outcome: "Offsets, timelines, and prior commitments in one place.",
   },
   {
     index: "03",
     title: "Airlines",
     image: "/images/usecase-airline.jpg",
     alt: "Commercial aircraft at the gate during evening turnaround",
-    lede: "Fleet and network conversations that start from the customer's actual position.",
+    lede: "Fleet and network briefings based on current customer data.",
     detail:
-      "Current fleet, orders and options, network direction, and the operational pressures leadership has been public about — gathered before the first call and carried through follow-ups so the account team keeps one shared record of the relationship.",
-    outcome: "One shared view of the account across every touchpoint.",
+      "Fleet, orders, network direction, and public operational pressures — carried through follow-ups as one account record.",
+    outcome: "Shared account view across touchpoints.",
   },
 ]
 
@@ -111,8 +111,8 @@ export function UseCases({ id }: UseCasesProps) {
         <div ref={ref} className={`reveal ${visible ? "visible" : ""}`}>
           <SectionHeader
             eyebrow="Use Cases"
-            title="Built around the meetings with 60+ official delegations from allied nations."
-            subtitle="The same preparation flow whether the counterpart sits in an MSPO bilateral, a government roundtable, or an airline leadership review."
+            title="Use cases: air shows, government talks, and airline reviews"
+            subtitle="Same preparation flow for air-show, government, and airline meetings."
           />
         </div>
 

@@ -16,7 +16,7 @@ export function Footer() {
           <div>
             <HelperLogo variant="white" height={36} />
             <p className="mt-3 max-w-sm text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              Client meeting and biography preparation for Boeing engagement teams.
+              Meeting and biography preparation for Boeing engagement teams.
             </p>
           </div>
 

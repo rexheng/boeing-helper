@@ -33,7 +33,7 @@ export function CompanySearch({ onSelect, selectedId = null, query, onQueryChang
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Airline, ministry, or country — e.g. Emirates, Qantas, MINDEF"
+          placeholder="Search airline, ministry, or country"
           className="w-full h-12 px-4 pl-10 outline-none transition-colors text-sm"
           style={{
             background: "var(--bg-input)",

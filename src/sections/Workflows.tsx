@@ -43,7 +43,7 @@ const workflows: Record<
       { label: "Run research agents", note: "Internal · Industry · Country" },
       { label: "Review & export PDF", note: "Ready for RD, IBD, and trip book" },
     ],
-    proof: "One briefing every reviewer sees — regenerate without restarting at RD.",
+    proof: "One briefing for all reviewers; regenerate without restarting RD review.",
   },
   fms: {
     label: "FMS cheat sheet",
@@ -52,7 +52,7 @@ const workflows: Record<
       { label: "Draft cheat-sheet brief", note: "One shared baseline" },
       { label: "PDF to trip book & field", note: "Same pack for every reviewer" },
     ],
-    proof: "One pack for RD, IBD VP, and the field — not divergent versions.",
+    proof: "Same pack for RD, IBD VP, and field teams.",
   },
 }
 
@@ -154,7 +154,7 @@ function CollapseRail({
               className="font-ui text-[10px] font-bold uppercase tracking-[0.16em]"
               style={{ color: "var(--boeing-blue)" }}
             >
-              With Helper
+              With Boeing Helper
             </p>
             <p
               className="mt-1 font-mono text-3xl font-semibold tabular-nums leading-none"
@@ -163,7 +163,7 @@ function CollapseRail({
               3
             </p>
             <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-              moves to a shared PDF
+              steps to a shared PDF
             </p>
           </div>
         </div>
@@ -260,7 +260,7 @@ function CollapseRail({
             className="mb-3 font-ui text-[11px] font-bold uppercase tracking-[0.16em]"
             style={{ color: "var(--boeing-blue)" }}
           >
-            With Helper — 3 moves
+            Boeing Helper — 3 steps
           </p>
           <div className="flex flex-1 flex-col justify-center gap-3">
             {moves.map((move, i) => (
@@ -298,9 +298,9 @@ export function Workflows({ id }: WorkflowsProps) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.28fr)] lg:items-center lg:gap-12">
           <div>
             <SectionHeader
-              eyebrow="Simplify your workflows"
-              title="Twelve handoffs. Three moves."
-              subtitle="No more chasing twelve people for trip-book data. Select, research, export — ready to review."
+              eyebrow="Workflows"
+              title="From twelve handoffs to three steps"
+              subtitle="Select counterpart, run research, export PDF for review."
             />
 
             <div
@@ -352,7 +352,7 @@ export function Workflows({ id }: WorkflowsProps) {
             </p>
 
             <p className="sr-only">
-              Twelve handoffs reduced to three moves with Boeing Helper.
+              Twelve handoffs reduced to three steps with Boeing Helper.
             </p>
           </div>
 

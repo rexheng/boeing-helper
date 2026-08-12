@@ -35,7 +35,7 @@ export function MeetingReportView({
     : `${research.country?.name || company.name} Air Show`
 
   const [summary, setSummary] = useState(
-    `The ${showName} provided Boeing with opportunities to engage with customers, industry partners, and media across the region. Highlights included bilateral meetings on programme status, sustainment, and next decision points. This pack captures the engagement with ${person.name} (${person.title}, ${company.name}).`,
+    `Executive summary for ${showName}. Engagement with ${person.name} (${person.title}, ${company.name}).`,
   )
 
   const [notes, setNotes] = useState(
@@ -132,12 +132,12 @@ export function MeetingReportView({
   return (
     <div className="space-y-6 pb-12 max-w-3xl mx-auto">
       <div className="text-center">
-        <p className="system-badge system-badge--dark mb-3">Air show report</p>
+        <p className="system-badge system-badge--dark mb-3">Report</p>
         <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
           Summary report
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          Format matches the Boeing Air Show Report example — executive summary plus engagement notes.
+          Boeing air-show report format: executive summary and engagement notes.
         </p>
       </div>
 
@@ -190,7 +190,7 @@ export function MeetingReportView({
           <Download size={16} />
           {busy === "pdf" ? "Generating…" : "Download PDF"}
         </button>
-        <Button onClick={onFinish}>Finish demo</Button>
+        <Button onClick={onFinish}>Done</Button>
       </div>
     </div>
   )

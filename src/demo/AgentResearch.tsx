@@ -186,7 +186,7 @@ function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string;
       <textarea
         value={internalNotes}
         onChange={(e) => onNotesChange(e.target.value)}
-        placeholder="Add context, prior commitments, or anything you want carried into the briefing..."
+        placeholder="Prior commitments, open items, or notes for the briefing"
         className="w-full rounded text-sm leading-relaxed outline-none resize-none"
         style={{
           background: "var(--bg-input)",
@@ -668,7 +668,7 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
       <div className="text-center">
         <p className="system-badge system-badge--dark mb-3">Step 04 &middot; Research</p>
         <h2 className="text-2xl font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
-          Three agents are preparing your briefing
+          Preparing briefing
         </h2>
         <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
           {person.name} &middot; {company.name}
@@ -736,15 +736,15 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
                 >
                   Retry
                 </button>
-                <Button onClick={() => onComplete(result, internalNotes)}>Continue Anyway</Button>
+                <Button onClick={() => onComplete(result, internalNotes)}>Continue with limited data</Button>
               </div>
             </>
           ) : (
             <>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Research complete &mdash; 3 agents finished in {formatTime(elapsedSeconds)}
+                Research complete
               </p>
-              <Button onClick={() => onComplete(result, internalNotes)}>Continue to Briefing</Button>
+              <Button onClick={() => onComplete(result, internalNotes)}>Continue to meeting paper</Button>
             </>
           )}
         </div>
@@ -786,7 +786,7 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
             RAG (Retrieval-Augmented Generation)
           </a>{" "}
           system to query Boeing's own meeting notes, campaign memos, and account history through a secured vector
-          database not reachable from web search. This capability is simulated for demo purposes.
+          database not reachable from web search. Internal record search is simulated in this environment.
         </p>
       </div>
     </div>

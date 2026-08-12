@@ -39,10 +39,10 @@ export function MeetingContext({ company, person, onSubmit }: Props) {
           className="text-2xl md:text-3xl font-semibold"
           style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
         >
-          What are you preparing?
+          Select meeting type
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
-          Pick the IBD workflow — it shapes the meeting paper, attendee dashboard, and research focus.
+          Meeting type sets the paper, attendee dashboard, and research focus.
         </p>
       </div>
 
@@ -114,7 +114,7 @@ export function MeetingContext({ company, person, onSubmit }: Props) {
           type="text"
           value={otherText}
           onChange={(e) => setOtherText(e.target.value)}
-          placeholder="Describe the meeting..."
+          placeholder="Enter a custom meeting type"
           className="w-full h-12 px-4 rounded mb-6 outline-none transition-colors text-sm"
           style={{ background: "var(--bg-input)", border: "1px solid var(--surface-border)", color: "var(--text-primary)" }}
           onFocus={(e) => { e.currentTarget.style.borderColor = "var(--boeing-blue)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0, 51, 161, 0.12)" }}

@@ -9,8 +9,8 @@ interface PricingProps {
 const tracks = [
   {
     label: "Internal pilot",
-    title: "One campaign, one show cycle",
-    desc: "A single account or campaign team runs Boeing Helper through a full engagement cycle, from first briefing to post-meeting follow-ups.",
+    title: "Single-team pilot",
+    desc: "Pilot with one account or campaign team through a full engagement cycle.",
     detail: "Set up with your existing team distribution list.",
   },
   {
@@ -35,8 +35,8 @@ export function Pricing({ id }: PricingProps) {
       <div ref={ref} className={`constrain reveal ${visible ? "visible" : ""}`}>
         <SectionHeader
           eyebrow="Access"
-          title="Available to Boeing teams on request."
-          subtitle="Boeing Helper is not sold or licensed externally. Access is arranged internally, starting with a pilot on a live engagement cycle."
+          title="Request internal access"
+          subtitle="Internal use only. Access starts with a pilot on a live engagement cycle."
         />
 
         <div className={`grid gap-10 md:grid-cols-3 stagger ${visible ? "visible" : ""}`}>
@@ -77,7 +77,7 @@ export function Pricing({ id }: PricingProps) {
               Request access for your team
             </p>
             <p className="mt-2" style={{ color: "var(--text-secondary)" }}>
-              Tell us the engagement cycle you are preparing for and we will set up a pilot.
+              Specify the engagement cycle for pilot setup.
             </p>
           </div>
           <a href="#top" className="shrink-0">

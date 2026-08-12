@@ -134,12 +134,12 @@ export function PersonSelect({ company, prefetchedContacts, contactsLoading: ext
           className="text-2xl md:text-3xl font-semibold"
           style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
         >
-          Who is the counterpart?
+          Select contact
         </h2>
         <p className="mt-3" style={{ color: "var(--text-secondary)" }}>
           {company.isCustom && (loading || externalLoading)
             ? `Finding contacts at ${company.name}...`
-            : `Select who you are meeting at ${company.name}.`}
+            : `Select a contact at ${company.name}.`}
         </p>
       </div>
 
@@ -150,7 +150,7 @@ export function PersonSelect({ company, prefetchedContacts, contactsLoading: ext
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Or type a name to look up..."
+            placeholder="Search by name"
             className="w-full h-12 px-4 pl-10 rounded text-sm outline-none transition-colors"
             style={{
               background: "var(--bg-input)",

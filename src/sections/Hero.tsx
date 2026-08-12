@@ -31,7 +31,7 @@ export function Hero({ onStartDemo }: HeroProps) {
           </nav>
 
           <Button variant="secondary" onClick={onStartDemo}>
-            Launch Demo
+            Start preparation
           </Button>
         </div>
       </header>
@@ -54,20 +54,19 @@ export function Hero({ onStartDemo }: HeroProps) {
             </h1>
 
             <p className="hero__headline">
-              Event meeting, biography preparation, and procurement positions for every engagement.
+              Meeting papers, biographies, and programme context for IBD engagements.
             </p>
 
             <p className="hero__sub">
-              Walk into a meeting with all the key information ready, so you know what concerns
-              are likely to surface.
+              Consolidate organisation, biography, and programme context before the engagement.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-9">
               <Button variant="primary" onClick={onStartDemo}>
-                Launch Demo
+                Start preparation
               </Button>
               <a href="#capabilities">
-                <Button variant="secondary">See capabilities</Button>
+                <Button variant="secondary">View capabilities</Button>
               </a>
             </div>
           </div>
