@@ -24,3 +24,6 @@ Interactive landing page and demo for **Boeing Helper** — an internal Boeing t
 npm run dev
 npm run build
 ```
+
+## Viewing UI (cloud / PR review)
+User cannot open agent `localhost`. After push, give the **Vercel Preview URL** from the PR’s Vercel comment/checks (append `#section` if needed). Screenshots in the PR are backup if SSO blocks the preview. Never make “open localhost” the review path.
