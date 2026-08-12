@@ -56,6 +56,7 @@ interface Hunk {
   before: string
   after: string
   op: "update" | "add" | "remove"
+  anchor?: string
 }
 
 function recountTravel(columns: AttendeeDashboardData["columns"]) {
@@ -217,6 +218,7 @@ function applyAttendeeUpdates(
         before: "",
         after: `${row.roleLabel}: ${row.name}${row.organization ? ` (${row.organization})` : ""} [${row.travel || "—"}]`,
         op: "add",
+        anchor: row.id,
       })
       continue
     }
@@ -232,6 +234,7 @@ function applyAttendeeUpdates(
         before: `${row.name || "(empty)"}${row.organization ? ` · ${row.organization}` : ""}`,
         after: "",
         op: "remove",
+        anchor: rowId,
       })
       sub.rows = sub.rows.filter((r) => r.id !== rowId)
       continue
@@ -257,6 +260,7 @@ function applyAttendeeUpdates(
         before,
         after,
         op: "update",
+        anchor: rowId,
       })
     }
     if (typeof u.count === "number" && u.count !== row.count) {
@@ -267,6 +271,7 @@ function applyAttendeeUpdates(
         before: String(row.count),
         after: String(u.count),
         op: "update",
+        anchor: rowId,
       })
       row.count = u.count
     } else if (row.name && !row.count) {
@@ -369,6 +374,7 @@ function consolidateAttendeeHunks(hunks: Hunk[]): Hunk[] {
         ? seatsH!.after
         : [afterCore || "(empty)", afterSeats].filter(Boolean).join(" · "),
       op: list[0].op,
+      anchor: list[0].anchor,
     }
   })
 }

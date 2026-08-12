@@ -9,6 +9,8 @@ export interface ReviewHunk {
   before: string
   after: string
   op: HunkOp
+  /** Optional sheet anchor (attendee row id) for highlight sync */
+  anchor?: string
 }
 
 export interface DebriefPerson {

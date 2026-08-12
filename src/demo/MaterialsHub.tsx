@@ -286,7 +286,7 @@ export function MaterialsHub({
                 <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
                   {(
                     [
-                      { id: "excel" as const, label: "Excel", icon: LayoutGrid },
+                      { id: "excel" as const, label: "Sheet", icon: LayoutGrid },
                       { id: "list" as const, label: "List", icon: List },
                     ] as const
                   ).map((v, i) => {

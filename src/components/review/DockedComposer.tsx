@@ -55,11 +55,11 @@ export function DockedComposer({
     }
     const active = result.hunks.find((h) => h.id === activeHunkId)
     if (active) {
-      onHighlightPaths([active.path])
+      onHighlightPaths([active.anchor || active.path])
       return
     }
     const firstOn = selectedHunks[0]
-    onHighlightPaths(firstOn ? [firstOn.path] : [])
+    onHighlightPaths(firstOn ? [firstOn.anchor || firstOn.path] : [])
   }, [result, phase, activeHunkId, selectedHunks, onHighlightPaths])
 
   const runGenerate = async () => {
@@ -149,9 +149,13 @@ export function DockedComposer({
     <aside className="docked-composer flex flex-col h-full min-h-0" aria-label="Update roster from email or notes">
       <header className="docked-composer__hero shrink-0">
         <p className="docked-composer__brand">Boeing Helper</p>
-        <h3 className="docked-composer__title">Update roster</h3>
+        <h3 className="docked-composer__title">
+          {phase === "review" ? "Review updates" : "Update roster"}
+        </h3>
         <p className="docked-composer__sub">
-          Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster.
+          {phase === "review"
+            ? "Select changes to apply. Click a row to spotlight it on the live sheet."
+            : "Paste an email or meeting notes — we’ll propose attendee updates you review before anything hits the roster."}
         </p>
       </header>
 
@@ -240,7 +244,7 @@ export function DockedComposer({
                       className={`docked-composer__hunk ${on ? "is-on" : "is-off"} ${active ? "is-active" : ""}`}
                       onClick={() => {
                         setActiveHunkId(h.id)
-                        onHighlightPaths([h.path])
+                        onHighlightPaths([h.anchor || h.path])
                       }}
                     >
                       <input

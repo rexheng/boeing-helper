@@ -102,7 +102,11 @@ function blockIsHighlighted(
   subsectionTitle: string,
 ): boolean {
   if (!paths?.length) return false
-  return paths.some((path) => pathMatchesBlock(path, sectionTitle, block, subsectionTitle))
+  return paths.some((path) => {
+    // Direct row-id anchor from review hunks
+    if (block.kind === "row" && block.rowId && path === block.rowId) return true
+    return pathMatchesBlock(path, sectionTitle, block, subsectionTitle)
+  })
 }
 
 export function AttendeeExcelSheet({
@@ -128,7 +132,12 @@ export function AttendeeExcelSheet({
     if (!highlightPaths?.length) return
     const root = sheetRef.current
     if (!root) return
+    const key = highlightPaths[0]
+    const byId = key
+      ? root.querySelector<HTMLElement>(`[data-row-id="${CSS.escape(key)}"]`)
+      : null
     const first =
+      byId ||
       root.querySelector<HTMLElement>(".sheet-row-highlight[data-row-id]") ||
       root.querySelector<HTMLElement>(".sheet-row-highlight")
     first?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
