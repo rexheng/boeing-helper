@@ -1,14 +1,19 @@
-import { useMemo, useState } from "react"
-import { Download, LayoutGrid, List } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
+import { Download, LayoutGrid, List, Minus, Plus } from "lucide-react"
 import { Button } from "../components/Button"
+import { ChangelogDrawer } from "../components/review/ChangelogDrawer"
+import { DockedComposer } from "../components/review/DockedComposer"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import {
   buildAttendeeDashboard,
-  flattenAttendees,
   type AttendeeDashboardData,
 } from "../data/attendeeDashboard"
+import { useDocumentReview } from "../hooks/useDocumentReview"
+import { applyAttendeeHunks } from "../utils/applyReviewHunks"
+import { changelogScope } from "../utils/changelogStorage"
 import { AttendeeExcelSheet } from "./AttendeeExcelSheet"
+import { AttendeeDataSheet } from "./AttendeeDataSheet"
 
 interface MaterialsHubProps {
   company: Company
@@ -25,8 +30,10 @@ type InviteClose = "meeting" | "special" | "contact"
 const BLUE = "#0033A1"
 const NAVY = "#0A2240"
 const GRID = "#9AA3AD"
-const ZEBRA = "#EEF2F6"
-const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
+
+const ZOOM_MIN = 0.75
+const ZOOM_MAX = 1.5
+const ZOOM_STEP = 0.1
 
 export function MaterialsHub({
   company,
@@ -48,11 +55,21 @@ export function MaterialsHub({
   const [senderName, setSenderName] = useState("Rex Heng")
   const senderTitle = "Regional Integrator, International Business Development"
   const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
+  const [zoom, setZoom] = useState(1.05)
+  const [showEmpty, setShowEmpty] = useState(true)
+  const [highlightPaths, setHighlightPaths] = useState<string[]>([])
 
-  const dashboard = useMemo(
-    () => buildAttendeeDashboard(company, person, meetingType, countryName),
-    [company, person, meetingType, countryName],
+  const [dashboard, setDashboard] = useState<AttendeeDashboardData>(() =>
+    buildAttendeeDashboard(company, person, meetingType, countryName),
   )
+
+  const reviewScope = changelogScope({
+    companyId: company.id,
+    personId: person.id,
+    meetingType,
+    target: "attendees",
+  })
+  const { entries, changelogOpen, setChangelogOpen, recordAccept } = useDocumentReview(reviewScope)
 
   const surname = person.name.split(" ").slice(-1)[0]
   const salutation = person.title.toLowerCase().includes("minister")
@@ -78,6 +95,27 @@ export function MaterialsHub({
       eventTitle: name.toUpperCase(),
     })
   }
+
+  const bumpZoom = (dir: 1 | -1) => {
+    setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round((z + dir * ZOOM_STEP) * 100) / 100)))
+  }
+
+  const onManualChange = useCallback(
+    (next: AttendeeDashboardData) => {
+      setDashboard(next)
+      recordAccept({
+        source: "manual",
+        target: "attendees",
+        summary: "Manual attendee edit",
+        hunks: [],
+      })
+    },
+    [recordAccept],
+  )
+
+  const onHighlightPaths = useCallback((paths: string[]) => {
+    setHighlightPaths(paths)
+  }, [])
 
   return (
     <div className="space-y-6 pb-12">
@@ -199,195 +237,130 @@ export function MaterialsHub({
       )}
 
       {tab === "attendee" && (
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
-              {(
-                [
-                  { id: "excel" as const, label: "Excel format", icon: LayoutGrid },
-                  { id: "list" as const, label: "List format", icon: List },
-                ] as const
-              ).map((v, i) => {
-                const Icon = v.icon
-                const active = attendeeView === v.id
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setAttendeeView(v.id)}
-                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
-                    style={{
-                      background: active ? NAVY : "#fff",
-                      color: active ? "#fff" : NAVY,
-                      borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
-                    }}
-                  >
-                    <Icon size={12} />
-                    {v.label}
-                  </button>
-                )
-              })}
-            </div>
-            <button
-              type="button"
-              onClick={handleExcelDownload}
-              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-white"
-              style={{ background: BLUE }}
-            >
-              <Download size={13} />
-              Download Excel
-            </button>
-          </div>
+        <div className="docked-workspace">
+          <DockedComposer
+            target="attendees"
+            currentDocument={dashboard}
+            context={{
+              companyName: company.name,
+              personName: person.name,
+              personTitle: person.title,
+              meetingType,
+              eventName,
+              countryName,
+            }}
+            onHighlightPaths={onHighlightPaths}
+            onAccept={({ proposedDocument, hunks, allHunkCount, debrief, summary }) => {
+              const next = applyAttendeeHunks(
+                dashboard,
+                proposedDocument as AttendeeDashboardData,
+                hunks,
+                allHunkCount,
+              )
+              setDashboard(next)
+              recordAccept({
+                source: "llm",
+                target: "attendees",
+                summary,
+                hunks,
+                debriefSnapshot: debrief,
+              })
+            }}
+          />
 
-          {attendeeView === "excel" ? (
-            <AttendeeExcelSheet data={dashboard} eventLabel={eventName} />
-          ) : (
-            <ListDashboard data={dashboard} eventLabel={eventName} />
-          )}
+          <div className="docked-workspace__sheet">
+            <div className="docked-workspace__toolbar">
+              <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
+                {(
+                  [
+                    { id: "excel" as const, label: "Excel", icon: LayoutGrid },
+                    { id: "list" as const, label: "List", icon: List },
+                  ] as const
+                ).map((v, i) => {
+                  const Icon = v.icon
+                  const active = attendeeView === v.id
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setAttendeeView(v.id)}
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+                      style={{
+                        background: active ? NAVY : "#fff",
+                        color: active ? "#fff" : NAVY,
+                        borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
+                      }}
+                    >
+                      <Icon size={12} />
+                      {v.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center" style={{ border: `1px solid ${GRID}` }}>
+                  <button type="button" aria-label="Zoom out" onClick={() => bumpZoom(-1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
+                    <Minus size={12} />
+                  </button>
+                  <span className="px-2 text-[11px] font-semibold tabular-nums" style={{ color: NAVY, borderLeft: `1px solid ${GRID}`, borderRight: `1px solid ${GRID}` }}>
+                    {Math.round(zoom * 100)}%
+                  </span>
+                  <button type="button" aria-label="Zoom in" onClick={() => bumpZoom(1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
+                    <Plus size={12} />
+                  </button>
+                </div>
+
+                <ChangelogDrawer
+                  entries={entries}
+                  open={changelogOpen}
+                  onOpen={() => setChangelogOpen(true)}
+                  onClose={() => setChangelogOpen(false)}
+                />
+
+                <button
+                  type="button"
+                  onClick={handleExcelDownload}
+                  className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-white"
+                  style={{ background: BLUE }}
+                >
+                  <Download size={13} />
+                  Excel
+                </button>
+              </div>
+            </div>
+
+            <div className="docked-workspace__sheet-body">
+              {attendeeView === "excel" ? (
+                <AttendeeExcelSheet
+                  data={dashboard}
+                  eventLabel={eventName}
+                  zoom={zoom}
+                  onChange={onManualChange}
+                  highlightPaths={highlightPaths}
+                />
+              ) : (
+                <div className="space-y-2" style={{ zoom }}>
+                  <label className="inline-flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color: NAVY }}>
+                    <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
+                    Show empty role slots
+                  </label>
+                  <AttendeeDataSheet
+                    data={dashboard}
+                    showEmpty={showEmpty}
+                    onChange={onManualChange}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
       <div className="flex justify-end">
         <Button onClick={onContinue}>Continue to report</Button>
-      </div>
-    </div>
-  )
-}
-
-function ListDashboard({ data, eventLabel }: { data: AttendeeDashboardData; eventLabel: string }) {
-  const [showEmpty, setShowEmpty] = useState(false)
-  const rows = flattenAttendees(data, { filledOnly: !showEmpty })
-
-  return (
-    <div className="bg-white" style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 10 }}>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th
-              colSpan={2}
-              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
-              style={{ background: BLUE, borderColor: GRID }}
-            >
-              Attendee List Template
-            </th>
-            <th
-              colSpan={2}
-              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
-              style={{ background: NAVY, borderColor: GRID }}
-            >
-              {(eventLabel || data.eventName).toUpperCase()}
-            </th>
-            <th
-              colSpan={1}
-              className="text-left font-bold text-[11px] text-white px-1.5 py-1 border"
-              style={{ background: NAVY, borderColor: GRID }}
-            >
-              Participant List
-            </th>
-            <th
-              colSpan={1}
-              className="text-right font-bold text-[10px] px-1.5 py-1 border"
-              style={{ background: NAVY, borderColor: GRID, color: "#F8D7DA" }}
-            >
-              {data.revisedLabel}
-            </th>
-          </tr>
-        </thead>
-      </table>
-
-      <div className="px-2 py-1.5 flex justify-end" style={{ borderBottom: `1px solid ${GRID}` }}>
-        <label className="inline-flex items-center gap-2 text-[10px] font-semibold cursor-pointer" style={{ color: NAVY }}>
-          <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
-          Show empty role slots
-        </label>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_0.9fr]">
-        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr style={{ background: NAVY, color: "#fff" }}>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "16%" }}>#</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Top 5 Objectives</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID, width: "22%" }}>BD&amp;S Leads</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.objectives.map((o) => (
-              <tr key={o.rank} style={{ background: o.rank % 2 ? "#fff" : ZEBRA }}>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>Objective {o.rank}:</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{o.text}</td>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{o.bdsLead}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <table className="w-full border-collapse" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr style={{ background: BLUE, color: "#fff" }}>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Key</th>
-              <th className="text-left font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>Travel</th>
-              <th className="text-right font-bold px-1.5 py-1 border" style={{ borderColor: GRID }}>#</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(
-              [
-                { code: "I", label: "International Travel Required", n: data.travelCounts.I },
-                { code: "D", label: "Domestic / Regional Travel Required", n: data.travelCounts.D },
-                { code: "L", label: "Local Attendee, No Travel", n: data.travelCounts.L },
-              ] as const
-            ).map((row, i) => (
-              <tr key={row.code} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
-                <td className="px-1.5 py-1 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{row.code}</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{row.label}</td>
-                <td className="px-1.5 py-1 border text-right font-bold" style={{ borderColor: GRID, color: NAVY }}>{row.n}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse min-w-[720px]" style={{ fontSize: 10.5 }}>
-          <thead>
-            <tr>
-              {["Section", "Subsection", "Role", "Name", "Organization", "I/D/L", "Seats", "Notes"].map((h) => (
-                <th
-                  key={h}
-                  className="text-left font-bold px-1.5 py-1 border text-white"
-                  style={{ background: NAVY, borderColor: GRID }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={`${r.section}-${r.role}-${i}`} style={{ background: i % 2 ? ZEBRA : "#fff" }}>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
-                  {r.section.startsWith("BDS") ? "BDS"
-                    : r.section.startsWith("BGS") ? "BGS"
-                      : r.section.startsWith("Boeing Global") ? "Boeing Global"
-                        : "Exhibit Ops"}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#444" }}>{r.subsection}</td>
-                <td className="px-1.5 py-1 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{r.role}</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#222" }}>{r.name}</td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.organization}</td>
-                <td className="px-1.5 py-1 border text-center font-bold" style={{ borderColor: GRID, color: BLUE }}>
-                  {r.travel}
-                </td>
-                <td className="px-1.5 py-1 border text-center font-bold tabular-nums" style={{ borderColor: GRID, color: NAVY }}>
-                  {r.count || ""}
-                </td>
-                <td className="px-1.5 py-1 border" style={{ borderColor: GRID, color: "#555" }}>{r.notes}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   )

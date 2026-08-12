@@ -447,3 +447,386 @@ a:hover { color: var(--boeing-blue); }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #C5CDD4; border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Docked Composer (attendee update centrepiece) ── */
+.docked-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 0;
+  min-height: min(72vh, 820px);
+  background: #fff;
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+@media (max-width: 960px) {
+  .docked-workspace {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+.docked-workspace__sheet {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, #f7f9fb 0%, #fff 48px);
+  border-left: 1px solid var(--surface-border);
+}
+
+@media (max-width: 960px) {
+  .docked-workspace__sheet {
+    border-left: none;
+    border-top: 1px solid var(--surface-border);
+  }
+}
+
+.docked-workspace__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+}
+
+.docked-workspace__sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px 18px;
+}
+
+.docked-composer {
+  background:
+    linear-gradient(165deg, #e8f1fb 0%, #f5f8fb 28%, #ffffff 58%);
+  border-right: 1px solid var(--surface-border);
+  position: relative;
+  isolation: isolate;
+}
+
+.docked-composer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--boeing-navy), var(--boeing-blue), #5b8fd9);
+  z-index: 1;
+}
+
+.docked-composer__hero {
+  padding: 22px 20px 14px;
+  position: relative;
+}
+
+.docked-composer__eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--boeing-blue);
+  margin: 0 0 6px;
+}
+
+.docked-composer__title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--boeing-navy);
+  margin: 0 0 6px;
+  line-height: 1.15;
+}
+
+.docked-composer__sub {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 34ch;
+}
+
+.docked-composer__body {
+  padding: 0 16px 16px;
+  gap: 10px;
+}
+
+.docked-composer__textarea {
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  resize: none;
+  border: 1px solid #c9d4e0;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--boeing-navy);
+  padding: 14px 14px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.5;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.docked-composer__textarea:focus {
+  outline: none;
+  border-color: var(--boeing-blue);
+  box-shadow: 0 0 0 3px rgba(0, 51, 161, 0.12);
+}
+
+.docked-composer__textarea::placeholder {
+  color: #8a96a3;
+}
+
+.docked-composer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.docked-composer__primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: var(--boeing-blue);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.15s ease, transform 0.15s var(--ease-out-expo);
+}
+
+.docked-composer__primary:hover:not(:disabled) {
+  background: var(--boeing-blue-hover);
+}
+
+.docked-composer__primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.docked-composer__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.docked-composer__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--boeing-navy);
+  border: 1px solid var(--surface-border);
+  padding: 9px 12px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.docked-composer__ghost:hover {
+  border-color: #b7c2cd;
+  background: var(--bg-muted);
+}
+
+.docked-composer__link {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--boeing-blue);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.docked-composer__error {
+  margin: 0;
+  font-size: 12px;
+  color: #B91C1C;
+}
+
+.docked-composer__extract {
+  flex: 1;
+  padding: 8px 4px 12px;
+}
+
+.docked-composer__extract-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__scan {
+  height: 2px;
+  margin: 12px 0 16px;
+  background: linear-gradient(90deg, transparent, var(--boeing-blue), transparent);
+  background-size: 42% 100%;
+  animation: dockScan 1.25s linear infinite;
+}
+
+@keyframes dockScan {
+  from { background-position: -40% 0; }
+  to { background-position: 140% 0; }
+}
+
+.docked-composer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.docked-composer__chip {
+  font-size: 11px;
+  padding: 7px 10px;
+  background: #fff;
+  border: 1px solid var(--surface-border);
+  color: var(--boeing-navy);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: dockChipIn 0.42s var(--ease-out-expo) forwards;
+}
+
+.docked-composer__chip--add { border-left: 3px solid #2F6B4F; }
+.docked-composer__chip--upd { border-left: 3px solid var(--boeing-blue); }
+.docked-composer__chip--rm { border-left: 3px solid #B91C1C; }
+
+@keyframes dockChipIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.docked-composer__debrief {
+  padding: 4px 2px 12px;
+  border-bottom: 1px solid var(--surface-border);
+  margin-bottom: 8px;
+}
+
+.docked-composer__debrief-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--boeing-blue);
+  background: var(--boeing-ice);
+  padding: 2px 8px;
+}
+
+.docked-composer__debrief-sum {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.docked-composer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.docked-composer__hunks {
+  list-style: none;
+  margin: 0;
+  padding: 0 2px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.docked-composer__hunk {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid transparent;
+  background: var(--bg-muted);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.docked-composer__hunk.is-active {
+  border-color: rgba(0, 51, 161, 0.35);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 51, 161, 0.08);
+}
+
+.docked-composer__hunk.is-off {
+  opacity: 0.55;
+}
+
+.docked-composer__hunk-field {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__op {
+  margin-left: 6px;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.docked-composer__hunk-path {
+  margin: 0 0 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docked-composer__sticky {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), #fff 40%);
+}
+
+.sheet-row-highlight {
+  animation: sheetPulse 1.5s ease-in-out infinite;
+  box-shadow: inset 3px 0 0 var(--boeing-blue);
+}
+
+@keyframes sheetPulse {
+  0%, 100% { background-color: #FFF3BF; }
+  50% { background-color: #FFE58A; }
+}
