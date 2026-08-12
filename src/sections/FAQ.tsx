@@ -21,16 +21,8 @@ const faqs = [
     a: "This is a proof of concept. The walkthrough shows the same collect → assemble → review path the product is built for: parallel research and internal knowledge, source-labelled briefings, and PDF export for the meeting.",
   },
   {
-    q: "Can I take the briefing into a meeting offline?",
-    a: "Yes. Any briefing can be exported to PDF from the review step, with the same structure and sources as the on-screen version. Teams commonly export the night before so the pack is available without a connection on the show floor.",
-  },
-  {
-    q: "What do the live meeting overlays do?",
-    a: "They keep the briefing within reach while the meeting runs. A keystroke brings up the counterpart's background, the key figures for their fleet or programme, or the questions you expected — without switching windows or opening a document in front of the customer.",
-  },
-  {
-    q: "Does it record meetings?",
-    a: "Not by default. The live meeting view does not capture audio or video and does not transcribe unless someone explicitly turns it on. Follow-ups are recorded only when a user writes them down.",
+    q: "Can I export the briefing?",
+    a: "Yes. From the review step you can export a PDF with the same structure and source labels as the on-screen briefing — ready for RD, IBD, and the trip book.",
   },
 ]
 
