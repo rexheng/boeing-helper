@@ -223,7 +223,7 @@ a:hover { color: var(--boeing-blue); }
 /* Hero */
 .hero {
   position: relative;
-  min-height: min(92vh, 52rem);
+  min-height: min(84vh, 46rem);
   display: flex;
   align-items: flex-end;
   color: var(--text-on-dark);
@@ -236,16 +236,31 @@ a:hover { color: var(--boeing-blue); }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.02);
-  animation: heroKenBurns 28s ease-in-out infinite alternate;
+  /* Keep left sky for type; let the wing diagonal own the right half */
+  object-position: 58% 44%;
+  transform: scale(1.03);
+  animation: heroKenBurns 32s ease-in-out infinite alternate;
 }
 
 .hero__scrim {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(10, 34, 64, 0.88) 0%, rgba(10, 34, 64, 0.55) 48%, rgba(0, 51, 161, 0.25) 100%),
-    linear-gradient(180deg, rgba(10, 34, 64, 0.15) 0%, rgba(10, 34, 64, 0.55) 55%, #0033A1 100%);
+    linear-gradient(
+      95deg,
+      rgba(10, 34, 64, 0.8) 0%,
+      rgba(10, 34, 64, 0.55) 26%,
+      rgba(10, 34, 64, 0.24) 48%,
+      rgba(10, 34, 64, 0.08) 70%,
+      rgba(10, 34, 64, 0.04) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(10, 34, 64, 0.32) 0%,
+      rgba(10, 34, 64, 0.06) 36%,
+      rgba(10, 34, 64, 0.14) 72%,
+      rgba(10, 34, 64, 0.5) 100%
+    );
 }
 
 .hero__swoosh {
@@ -253,17 +268,23 @@ a:hover { color: var(--boeing-blue); }
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 72px;
+  height: 40px;
   background: var(--bg-base);
-  clip-path: ellipse(80% 100% at 50% 100%);
+  clip-path: ellipse(78% 100% at 50% 100%);
+  pointer-events: none;
 }
 
 .hero__content {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding-bottom: clamp(5rem, 12vw, 8rem);
-  padding-top: 6rem;
+  padding-top: 5.5rem;
+  /* Sit the cluster in the lower-middle — clear of header and swoosh */
+  padding-bottom: clamp(6.5rem, 12vh, 8.5rem);
+}
+
+.hero__copy {
+  max-width: 34rem;
 }
 
 .hero__brand {
@@ -272,26 +293,58 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .hero__brand-logo {
-  height: clamp(3rem, 8vw, 5rem) !important;
+  height: clamp(2.6rem, 4.6vw, 3.65rem) !important;
   width: auto !important;
-  max-width: min(100%, 28rem);
+  max-width: min(100%, 19.5rem);
 }
 
 .hero__headline {
-  margin-top: 1.25rem;
-  font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+  margin-top: 1rem;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
   font-weight: 300;
   color: #fff;
-  max-width: 18ch;
+  max-width: 22ch;
   line-height: 1.2;
 }
 
 .hero__sub {
-  margin-top: 1rem;
-  font-size: 1.125rem;
-  max-width: 38ch;
-  color: rgba(255, 255, 255, 0.92);
-  line-height: 1.6;
+  margin: 1.05rem 0 0;
+  font-size: clamp(1.02rem, 1.3vw, 1.175rem);
+  max-width: 30rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: min(90vh, 44rem);
+  }
+
+  .hero__media {
+    object-position: 70% 42%;
+  }
+
+  .hero__content {
+    padding-bottom: 5.5rem;
+  }
+
+  .hero__copy {
+    max-width: 100%;
+  }
+
+  .hero__sub {
+    max-width: 20rem;
+  }
 }
 
 /* Site header */
@@ -402,8 +455,8 @@ a:hover { color: var(--boeing-blue); }
 }
 
 @keyframes heroKenBurns {
-  from { transform: scale(1.02) translate3d(0, 0, 0); }
-  to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to { transform: scale(1.06) translate3d(-0.8%, -0.4%, 0); }
 }
 
 @keyframes slideInLeft {
