@@ -9,7 +9,7 @@
 | `capability-briefing.jpg` | Unsplash (stock) | Desk / briefing-material scene used as capability tile |
 | `capability-bio.jpg` | Unsplash (stock) | Portrait-style office photography for biography tile |
 | `capability-live.jpg` | [Unsplash](https://unsplash.com/photos/1529070538774-1843cb3265df) | Conference / delegates scene (current “Live Meeting” tile) |
-| `usecase-airshow.jpg` | [Pexels — UMUT DAĞLI](https://www.pexels.com/photo/turkish-air-force-jet-display-at-teknofest-adana-29066368/) | Defense exhibition / static military jet with crowd (MSPO use-case card) |
+| `usecase-airshow.jpg` | [Pexels — Jaxon Matthew Willis](https://www.pexels.com/photo/f-22-raptor-at-airshow-in-hampton-virginia-33953282/) | F-22 static display at airshow (MSPO use-case card; no national flags) |
 | `usecase-government.jpg` | Wikimedia Commons — Boeing C-17 Globemaster III | Defense / government use-case visual |
 | `usecase-airline.jpg` | [Unsplash](https://unsplash.com/photos/1464037866556-6812c9d1c72e) | Gate / turnaround commercial scene |
 
