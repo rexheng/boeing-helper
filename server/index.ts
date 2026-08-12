@@ -9,6 +9,7 @@ import { copilotChatHandler } from "./groqChat.js"
 import { newsHandler } from "./news.js"
 import { frameworksHandler } from "./frameworks.js"
 import { meetingSummaryHandler } from "./meetingSummary.js"
+import { documentUpdateHandler } from "./documentUpdate.js"
 
 if (!process.env.MANUS_API_KEY) {
   console.warn("Warning: MANUS_API_KEY is not set. Research and company search endpoints will not work.")
@@ -17,7 +18,7 @@ if (!process.env.MANUS_API_KEY) {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 
-app.use(express.json({ limit: "1mb" }))
+app.use(express.json({ limit: "2mb" }))
 app.post("/api/company-search", companySearchHandler)
 app.post("/api/research", researchHandler)
 app.post("/api/company-contacts", companyContactsHandler)
@@ -25,6 +26,7 @@ app.post("/api/copilot-chat", copilotChatHandler)
 app.get("/api/news", newsHandler)
 app.post("/api/frameworks", frameworksHandler)
 app.post("/api/meeting-summary", meetingSummaryHandler)
+app.post("/api/document-update", documentUpdateHandler)
 
 app.get("/api/health", (_req, res) => {
   res.json({

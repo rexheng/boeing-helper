@@ -449,3 +449,553 @@ a:hover { color: var(--boeing-blue); }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #C5CDD4; border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Docked Composer (attendee update centrepiece) ── */
+.docked-attendee-page {
+  background:
+    radial-gradient(900px 420px at 8% -8%, rgba(227, 239, 250, 0.95) 0%, transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(232, 238, 245, 0.8) 0%, transparent 50%);
+  margin-inline: -0.5rem;
+  padding-inline: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.docked-attendee-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 4px 2px 2px;
+}
+
+.docked-attendee-intro__eyebrow {
+  margin: 0 0 2px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--boeing-blue);
+}
+
+.docked-attendee-intro__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--boeing-navy);
+  line-height: 1.2;
+}
+
+.docked-workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 42%) minmax(0, 1fr);
+  gap: 0;
+  height: min(74vh, 860px);
+  min-height: 560px;
+  background: transparent;
+  border: 1px solid rgba(10, 34, 64, 0.12);
+  overflow: hidden;
+}
+
+@media (max-width: 960px) {
+  .docked-workspace {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+.docked-workspace__sheet {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-left: 1px solid rgba(10, 34, 64, 0.1);
+}
+
+@media (max-width: 960px) {
+  .docked-workspace__sheet {
+    border-left: none;
+    border-top: 1px solid rgba(10, 34, 64, 0.1);
+    max-height: 55vh;
+  }
+}
+
+.docked-workspace__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--surface-border);
+  background: #fff;
+}
+
+.docked-workspace__sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px 18px;
+}
+
+.docked-composer {
+  background: #fff;
+  border-right: 1px solid rgba(10, 34, 64, 0.1);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+}
+
+.docked-composer__hero {
+  position: relative;
+  padding: 26px 22px 20px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(145deg, #0A2240 0%, #0033A1 62%, #005896 100%);
+}
+
+.docked-composer__brand {
+  position: relative;
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2.2vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: #fff;
+}
+
+.docked-composer__title {
+  position: relative;
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(227, 239, 250, 0.92);
+}
+
+.docked-composer__sub {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 34ch;
+}
+
+.docked-composer__body {
+  padding: 14px 16px 16px;
+  gap: 10px;
+  background:
+    linear-gradient(180deg, #f4f8fc 0%, #fff 48px);
+}
+
+.docked-composer__paste-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+}
+
+.docked-composer__paste-wrap.is-scanning .docked-composer__textarea {
+  filter: saturate(0.85);
+}
+
+.docked-composer__textarea {
+  flex: 1;
+  min-height: 210px;
+  width: 100%;
+  resize: none;
+  border: 1px solid #c5d0dc;
+  background: #fff;
+  color: var(--boeing-navy);
+  padding: 14px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.docked-composer__textarea:focus {
+  outline: none;
+  border-color: var(--boeing-blue);
+  box-shadow: 0 0 0 3px rgba(0, 51, 161, 0.12);
+}
+
+.docked-composer__textarea::placeholder {
+  color: #8a96a3;
+}
+
+.docked-composer__extract-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(10, 34, 64, 0.04) 0%, rgba(247, 250, 252, 0.92) 38%, rgba(247, 250, 252, 0.97) 100%);
+  backdrop-filter: blur(1px);
+  animation: dockOverlayIn 0.28s var(--ease-out-expo);
+}
+
+@keyframes dockOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.docked-composer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.docked-composer__primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: var(--boeing-blue);
+  color: #fff;
+  border: none;
+  padding: 11px 15px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.15s ease, transform 0.15s var(--ease-out-expo);
+}
+
+.docked-composer__primary:hover:not(:disabled) {
+  background: var(--boeing-blue-hover);
+}
+
+.docked-composer__primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.docked-composer__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.docked-composer__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--boeing-navy);
+  border: 1px solid #c9d3de;
+  padding: 10px 12px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.docked-composer__ghost:hover {
+  border-color: #9aabbc;
+  background: var(--bg-muted);
+}
+
+.docked-composer__quiet {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.docked-composer__link {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--boeing-blue);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.docked-workspace.is-reviewing .docked-workspace__sheet-body {
+  position: relative;
+}
+
+.sheet-is-reviewing .sheet-row-dim {
+  opacity: 0.42;
+  transition: opacity 0.2s ease;
+}
+
+.sheet-is-reviewing .sheet-row-highlight {
+  opacity: 1;
+  outline: 1px solid rgba(0, 51, 161, 0.28);
+  position: relative;
+  z-index: 1;
+}
+
+.docked-composer__error {
+  margin: 0;
+  font-size: 12px;
+  color: #B91C1C;
+}
+
+.docked-composer__extract-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__scan {
+  height: 2px;
+  margin: 10px 0 12px;
+  background: linear-gradient(90deg, transparent, var(--boeing-blue), transparent);
+  background-size: 42% 100%;
+  animation: dockScan 1.15s linear infinite;
+}
+
+@keyframes dockScan {
+  from { background-position: -40% 0; }
+  to { background-position: 140% 0; }
+}
+
+.docked-composer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.docked-composer__chip {
+  font-size: 11px;
+  padding: 7px 10px;
+  background: #fff;
+  border: 1px solid var(--surface-border);
+  color: var(--boeing-navy);
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  animation: dockChipIn 0.45s var(--ease-out-expo) forwards;
+  box-shadow: 0 4px 14px rgba(10, 34, 64, 0.06);
+}
+
+.docked-composer__chip--add { border-left: 3px solid #2F6B4F; }
+.docked-composer__chip--upd { border-left: 3px solid var(--boeing-blue); }
+.docked-composer__chip--rm { border-left: 3px solid #B91C1C; }
+
+@keyframes dockChipIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.docked-composer__debrief {
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid var(--surface-border);
+  margin-bottom: 8px;
+}
+
+.docked-composer__debrief-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--boeing-blue);
+  background: var(--boeing-ice);
+  padding: 2px 8px;
+}
+
+.docked-composer__debrief-sum {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.docked-composer__hunks {
+  list-style: none;
+  margin: 0;
+  padding: 0 2px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.docked-composer__hunks > li {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.docked-composer__hunks.is-in > li {
+  animation: dockHunkIn 0.4s var(--ease-out-expo) forwards;
+}
+
+@keyframes dockHunkIn {
+  to { opacity: 1; transform: none; }
+}
+
+.docked-composer__hunk {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+  padding: 10px 8px;
+  border: none;
+  border-left: 2px solid transparent;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.docked-composer__hunk.is-active {
+  border-left-color: var(--boeing-blue);
+  background: rgba(227, 239, 250, 0.55);
+}
+
+.docked-composer__hunk.is-off {
+  opacity: 0.45;
+}
+
+.docked-composer__hunk-field {
+  margin: 0 0 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+}
+
+.docked-composer__op {
+  margin-left: 6px;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.docked-composer__sticky {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 0 2px;
+  border-top: 1px solid var(--surface-border);
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.docked-composer__link {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--boeing-blue);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet-row-highlight {
+  background-color: #FFE58A !important;
+  box-shadow: inset 3px 0 0 var(--boeing-blue);
+  animation: sheetPulse 1.2s ease-in-out 1;
+}
+
+.sheet-is-applied .sheet-row-highlight {
+  opacity: 1;
+  animation: sheetAppliedPulse 0.55s var(--ease-out-expo) both;
+  background-color: #D7F0E3 !important;
+  box-shadow: inset 3px 0 0 #2F6B4F;
+  outline: 2px solid rgba(47, 107, 79, 0.35);
+}
+
+.sheet-is-applied .sheet-row-dim {
+  opacity: 0.4;
+}
+
+@keyframes sheetAppliedPulse {
+  0% { background-color: #FFE58A; transform: scale(1); }
+  35% { background-color: #B8E6C9; }
+  100% { background-color: #D7F0E3; }
+}
+
+
+.sheet-is-reviewing .sheet-row-dim {
+  opacity: 0.34;
+  transition: opacity 0.2s ease;
+}
+
+.sheet-is-reviewing .sheet-row-highlight {
+  opacity: 1;
+  outline: 2px solid rgba(0, 51, 161, 0.45);
+  position: relative;
+  z-index: 1;
+}
+
+
+.docked-composer__hunks {
+  padding-bottom: 12px;
+}
+
+.docked-composer__hunk-detail {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.docked-composer__victory {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 6px 8px;
+  animation: dockOverlayIn 0.35s var(--ease-out-expo);
+}
+
+.docked-composer__victory-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--boeing-navy);
+  letter-spacing: -0.02em;
+}
+
+.docked-composer__victory-sub {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  max-width: 34ch;
+}
