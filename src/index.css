@@ -641,10 +641,27 @@ a:hover { color: var(--boeing-blue); }
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 12px;
-  background: linear-gradient(180deg, rgba(10, 34, 64, 0.04) 0%, rgba(247, 250, 252, 0.92) 38%, rgba(247, 250, 252, 0.97) 100%);
-  backdrop-filter: blur(1px);
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(10, 34, 64, 0.12) 0%, rgba(247, 250, 252, 0.94) 32%, rgba(247, 250, 252, 0.98) 100%);
+  backdrop-filter: blur(2px);
   animation: dockOverlayIn 0.28s var(--ease-out-expo);
+  z-index: 3;
+}
+
+.docked-composer__extract-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+  background: #fff;
+  border: 1px solid rgba(10, 34, 64, 0.12);
+  padding: 8px 12px;
+  width: fit-content;
+  box-shadow: 0 6px 18px rgba(10, 34, 64, 0.08);
 }
 
 @keyframes dockOverlayIn {
@@ -753,17 +770,6 @@ a:hover { color: var(--boeing-blue); }
   margin: 0;
   font-size: 12px;
   color: #B91C1C;
-}
-
-.docked-composer__extract-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--boeing-navy);
 }
 
 .docked-composer__scan {
@@ -926,8 +932,14 @@ a:hover { color: var(--boeing-blue); }
 }
 
 @keyframes sheetPulse {
-  0%, 100% { background-color: #FFE58A; }
-  50% { background-color: #FFD666; }
+  0%, 100% {
+    background-color: #FFE58A;
+    box-shadow: inset 3px 0 0 var(--boeing-blue);
+  }
+  50% {
+    background-color: #FFCF4D;
+    box-shadow: inset 4px 0 0 var(--boeing-blue), 0 0 0 3px rgba(255, 214, 102, 0.55);
+  }
 }
 
 .sheet-row-highlight {
