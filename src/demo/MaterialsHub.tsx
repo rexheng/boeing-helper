@@ -23,7 +23,6 @@ interface MaterialsHubProps {
   onContinue: () => void
 }
 
-type Tab = "invite" | "attendee"
 type AttendeeView = "excel" | "list"
 type InviteClose = "meeting" | "special" | "contact"
 
@@ -42,7 +41,6 @@ export function MaterialsHub({
   countryName,
   onContinue,
 }: MaterialsHubProps) {
-  const [tab, setTab] = useState<Tab>("attendee")
   const [attendeeView, setAttendeeView] = useState<AttendeeView>("excel")
   const [close, setClose] = useState<InviteClose>("meeting")
   const defaultEvent = /mspo/i.test(meetingType)
@@ -121,287 +119,252 @@ export function MaterialsHub({
     setHighlightPaths(paths)
   }, [])
 
+  const scrollToInvitation = () => {
+    document.getElementById("materials-invitation")?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
   return (
-    <div className={`pb-12 ${tab === "attendee" ? "space-y-4 docked-attendee-page" : "space-y-6"}`}>
-      {tab !== "attendee" && (
-      <div className="text-center mb-2">
-        <p className="system-badge system-badge--dark mb-3">Step 06 · Materials</p>
-        <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
-          Invitation and attendee dashboard
-        </h2>
-        <p className="mt-3 max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
-          Letter for the counterpart, plus a role-and-objectives dashboard for the show cycle.
-        </p>
-      </div>
-      )}
+    <div className="pb-12 space-y-8 docked-attendee-page">
+      <div className={`docked-workspace ${highlightPaths.length > 0 ? "is-reviewing" : ""}`}>
+        <DockedComposer
+          target="attendees"
+          currentDocument={dashboard}
+          context={{
+            companyName: company.name,
+            personName: person.name,
+            personTitle: person.title,
+            meetingType,
+            eventName,
+            countryName,
+          }}
+          onHighlightPaths={onHighlightPaths}
+          onAccept={({ proposedDocument, hunks, allHunkCount, debrief, summary }) => {
+            const next = applyAttendeeHunks(
+              dashboard,
+              proposedDocument as AttendeeDashboardData,
+              hunks,
+              allHunkCount,
+            )
+            setDashboard(next)
+            const anchors = hunks.map((h) => h.anchor || h.path).filter(Boolean)
+            setAppliedFlash(anchors)
+            setHighlightPaths([])
+            window.setTimeout(() => setAppliedFlash([]), 2200)
+            recordAccept({
+              source: "llm",
+              target: "attendees",
+              summary,
+              hunks,
+              debriefSnapshot: debrief,
+            })
+          }}
+        />
 
-      {tab !== "attendee" && (
-      <div
-        className="flex gap-1.5 p-1.5 mx-auto max-w-md"
-        style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)" }}
-        role="tablist"
-      >
-        {(
-          [
-            { id: "invite" as const, label: "Invitation" },
-            { id: "attendee" as const, label: "Attendee dashboard" },
-          ] as const
-        ).map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className="flex-1 cursor-pointer rounded-sm px-4 py-2.5 font-ui text-sm font-medium"
-            style={{
-              background: tab === t.id ? BLUE : "#fff",
-              color: tab === t.id ? "#fff" : "var(--text-secondary)",
-              border: tab === t.id ? `1px solid ${BLUE}` : "1px solid var(--border-hover)",
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-      )}
-
-      {tab === "invite" && (
-        <div className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-sm">
-              <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Event</span>
-              <input value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
-            </label>
-            <label className="text-sm">
-              <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Showcase</span>
-              <input value={showcase} onChange={(e) => setShowcase(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
-            </label>
-            <label className="text-sm">
-              <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Sender</span>
-              <input value={senderName} onChange={(e) => setSenderName(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
-            </label>
-            <label className="text-sm">
-              <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Contact email</span>
-              <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
-            </label>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                { id: "meeting" as const, label: "Meeting only" },
-                { id: "special" as const, label: "Special event" },
-                { id: "contact" as const, label: "Contact-first" },
-              ] as const
-            ).map((opt) => (
+        <div className="docked-workspace__sheet">
+          <div className="docked-workspace__toolbar">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
+                {(
+                  [
+                    { id: "excel" as const, label: "Sheet", icon: LayoutGrid },
+                    { id: "list" as const, label: "List", icon: List },
+                  ] as const
+                ).map((v, i) => {
+                  const Icon = v.icon
+                  const active = attendeeView === v.id
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setAttendeeView(v.id)}
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+                      style={{
+                        background: active ? NAVY : "#fff",
+                        color: active ? "#fff" : NAVY,
+                        borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
+                      }}
+                    >
+                      <Icon size={12} />
+                      {v.label}
+                    </button>
+                  )
+                })}
+              </div>
               <button
-                key={opt.id}
                 type="button"
-                onClick={() => setClose(opt.id)}
-                className="cursor-pointer px-3 py-1.5 text-xs font-medium"
-                style={{
-                  background: close === opt.id ? "var(--boeing-ice)" : "#fff",
-                  color: close === opt.id ? BLUE : "var(--text-secondary)",
-                  border: `1px solid ${close === opt.id ? BLUE : "var(--surface-border)"}`,
-                }}
+                onClick={scrollToInvitation}
+                className="cursor-pointer px-2.5 py-1.5 text-[11px] font-semibold"
+                style={{ color: NAVY, border: `1px solid ${GRID}`, background: "#fff" }}
               >
-                {opt.label}
+                Invitation ↓
               </button>
-            ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center" style={{ border: `1px solid ${GRID}` }}>
+                <button type="button" aria-label="Zoom out" onClick={() => bumpZoom(-1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
+                  <Minus size={12} />
+                </button>
+                <span className="px-2 text-[11px] font-semibold tabular-nums" style={{ color: NAVY, borderLeft: `1px solid ${GRID}`, borderRight: `1px solid ${GRID}` }}>
+                  {Math.round(zoom * 100)}%
+                </span>
+                <button type="button" aria-label="Zoom in" onClick={() => bumpZoom(1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
+                  <Plus size={12} />
+                </button>
+              </div>
+
+              <ChangelogDrawer
+                entries={entries}
+                open={changelogOpen}
+                onOpen={() => setChangelogOpen(true)}
+                onClose={() => setChangelogOpen(false)}
+              />
+
+              <button
+                type="button"
+                onClick={handleExcelDownload}
+                className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
+                style={{ background: "#fff", color: BLUE, border: `1px solid ${BLUE}` }}
+              >
+                <Download size={13} />
+                Export
+              </button>
+            </div>
           </div>
 
-          <article className="bg-white p-6 sm:p-8 space-y-5 text-[15px] leading-relaxed" style={{ border: "1px solid var(--surface-border)", color: "var(--text-secondary)" }}>
-            <div className="flex justify-between gap-6 items-start">
-              <div className="text-sm space-y-0.5" style={{ color: NAVY }}>
-                <p>{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
-                <p>{person.name}</p>
-                <p>{person.title}</p>
-                <p>{company.name}</p>
-                <p>{countryName || "Location"}</p>
-              </div>
-              <div className="px-5 py-3 text-white text-sm font-semibold text-center shrink-0" style={{ background: BLUE, minWidth: "9rem" }}>
-                Invitation Template
-              </div>
-            </div>
-            <p>Dear {salutation},</p>
-            <p>
-              On behalf of The Boeing Company, I write to invite you to meet with us during{" "}
-              <strong style={{ color: NAVY }}>{eventName}</strong>
-              {countryName ? `, taking place in ${countryName}` : ""}.
-            </p>
-            <p>
-              At {eventName}, we look forward to showcasing <strong style={{ color: NAVY }}>{showcase}</strong> and discussing how it supports your priorities.
-            </p>
-            <p>{closing}</p>
-            <div className="pt-4">
-              <p>Sincerely,</p>
-              <div className="mt-4 space-y-0.5" style={{ color: NAVY }}>
-                <p className="font-semibold">{senderName} | Boeing Global</p>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{senderTitle}</p>
-                <p className="text-sm">
-                  <span className="font-semibold">E:</span>{" "}
-                  <a href={`mailto:${contactEmail}`} style={{ color: BLUE, textDecoration: "underline" }}>
-                    {contactEmail}
-                  </a>
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Tel:</span> {contactPhone}
-                </p>
-                <img
-                  src="/images/boeing-logo.svg"
-                  alt="Boeing"
-                  className="mt-3 h-5 w-auto"
-                />
-              </div>
-            </div>
-          </article>
-        </div>
-      )}
-
-      {tab === "attendee" && (
-        <div className={`docked-workspace ${highlightPaths.length > 0 ? "is-reviewing" : ""}`}>
-          <DockedComposer
-            target="attendees"
-            currentDocument={dashboard}
-            context={{
-              companyName: company.name,
-              personName: person.name,
-              personTitle: person.title,
-              meetingType,
-              eventName,
-              countryName,
-            }}
-            onHighlightPaths={onHighlightPaths}
-            onAccept={({ proposedDocument, hunks, allHunkCount, debrief, summary }) => {
-              const next = applyAttendeeHunks(
-                dashboard,
-                proposedDocument as AttendeeDashboardData,
-                hunks,
-                allHunkCount,
-              )
-              setDashboard(next)
-              const anchors = hunks.map((h) => h.anchor || h.path).filter(Boolean)
-              setAppliedFlash(anchors)
-              setHighlightPaths([])
-              window.setTimeout(() => setAppliedFlash([]), 2200)
-              recordAccept({
-                source: "llm",
-                target: "attendees",
-                summary,
-                hunks,
-                debriefSnapshot: debrief,
-              })
-            }}
-          />
-
-          <div className="docked-workspace__sheet">
-            <div className="docked-workspace__toolbar">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTab("invite")}
-                  className="cursor-pointer px-2.5 py-1.5 text-[11px] font-semibold"
-                  style={{ color: NAVY, border: `1px solid ${GRID}`, background: "#fff" }}
-                >
-                  ← Invitation
-                </button>
-                <div className="inline-flex" style={{ border: `1px solid ${GRID}` }} role="tablist" aria-label="Dashboard display">
-                  {(
-                    [
-                      { id: "excel" as const, label: "Sheet", icon: LayoutGrid },
-                      { id: "list" as const, label: "List", icon: List },
-                    ] as const
-                  ).map((v, i) => {
-                    const Icon = v.icon
-                    const active = attendeeView === v.id
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={active}
-                        onClick={() => setAttendeeView(v.id)}
-                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
-                        style={{
-                          background: active ? NAVY : "#fff",
-                          color: active ? "#fff" : NAVY,
-                          borderLeft: i === 0 ? "none" : `1px solid ${GRID}`,
-                        }}
-                      >
-                        <Icon size={12} />
-                        {v.label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center" style={{ border: `1px solid ${GRID}` }}>
-                  <button type="button" aria-label="Zoom out" onClick={() => bumpZoom(-1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
-                    <Minus size={12} />
-                  </button>
-                  <span className="px-2 text-[11px] font-semibold tabular-nums" style={{ color: NAVY, borderLeft: `1px solid ${GRID}`, borderRight: `1px solid ${GRID}` }}>
-                    {Math.round(zoom * 100)}%
-                  </span>
-                  <button type="button" aria-label="Zoom in" onClick={() => bumpZoom(1)} className="cursor-pointer px-2 py-1.5" style={{ color: NAVY }}>
-                    <Plus size={12} />
-                  </button>
-                </div>
-
-                <ChangelogDrawer
-                  entries={entries}
-                  open={changelogOpen}
-                  onOpen={() => setChangelogOpen(true)}
-                  onClose={() => setChangelogOpen(false)}
-                />
-
-                <button
-                  type="button"
-                  onClick={handleExcelDownload}
-                  className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]"
-                  style={{ background: "#fff", color: BLUE, border: `1px solid ${BLUE}` }}
-                >
-                  <Download size={13} />
-                  Export
-                </button>
-              </div>
-            </div>
-
-            <div className="docked-workspace__sheet-body">
-              {attendeeView === "excel" ? (
-                <AttendeeExcelSheet
+          <div className="docked-workspace__sheet-body">
+            {attendeeView === "excel" ? (
+              <AttendeeExcelSheet
+                data={dashboard}
+                eventLabel={eventName}
+                zoom={zoom}
+                onChange={onManualChange}
+                highlightPaths={highlightPaths.length ? highlightPaths : appliedFlash}
+                highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
+              />
+            ) : (
+              <div className="space-y-2" style={{ zoom }}>
+                <label className="inline-flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color: NAVY }}>
+                  <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
+                  Show empty role slots
+                </label>
+                <AttendeeDataSheet
                   data={dashboard}
-                  eventLabel={eventName}
-                  zoom={zoom}
+                  showEmpty={showEmpty}
                   onChange={onManualChange}
-                  highlightPaths={highlightPaths.length ? highlightPaths : appliedFlash}
-                  highlightMode={highlightPaths.length ? "focus" : appliedFlash.length ? "applied" : undefined}
                 />
-              ) : (
-                <div className="space-y-2" style={{ zoom }}>
-                  <label className="inline-flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color: NAVY }}>
-                    <input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />
-                    Show empty role slots
-                  </label>
-                  <AttendeeDataSheet
-                    data={dashboard}
-                    showEmpty={showEmpty}
-                    onChange={onManualChange}
-                  />
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
-      {tab !== "attendee" && (
+      <section id="materials-invitation" className="space-y-4 scroll-mt-6">
+        <div>
+          <p className="system-badge system-badge--dark mb-2">Invitation</p>
+          <h3 className="text-xl md:text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
+            Counterpart invitation letter
+          </h3>
+          <p className="mt-2 max-w-2xl text-sm" style={{ color: "var(--text-secondary)" }}>
+            Edit event details and closing style, then copy or adapt the letter for outreach.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="text-sm">
+            <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Event</span>
+            <input value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
+          </label>
+          <label className="text-sm">
+            <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Showcase</span>
+            <input value={showcase} onChange={(e) => setShowcase(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
+          </label>
+          <label className="text-sm">
+            <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Sender</span>
+            <input value={senderName} onChange={(e) => setSenderName(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
+          </label>
+          <label className="text-sm">
+            <span className="block mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Contact email</span>
+            <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="w-full px-3 py-2 text-sm" style={{ border: "1px solid var(--surface-border)", color: NAVY }} />
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              { id: "meeting" as const, label: "Meeting only" },
+              { id: "special" as const, label: "Special event" },
+              { id: "contact" as const, label: "Contact-first" },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setClose(opt.id)}
+              className="cursor-pointer px-3 py-1.5 text-xs font-medium"
+              style={{
+                background: close === opt.id ? "var(--boeing-ice)" : "#fff",
+                color: close === opt.id ? BLUE : "var(--text-secondary)",
+                border: `1px solid ${close === opt.id ? BLUE : "var(--surface-border)"}`,
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <article className="bg-white p-6 sm:p-8 space-y-5 text-[15px] leading-relaxed" style={{ border: "1px solid var(--surface-border)", color: "var(--text-secondary)" }}>
+          <div className="flex justify-between gap-6 items-start">
+            <div className="text-sm space-y-0.5" style={{ color: NAVY }}>
+              <p>{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+              <p>{person.name}</p>
+              <p>{person.title}</p>
+              <p>{company.name}</p>
+              <p>{countryName || "Location"}</p>
+            </div>
+            <div className="px-5 py-3 text-white text-sm font-semibold text-center shrink-0" style={{ background: BLUE, minWidth: "9rem" }}>
+              Invitation Template
+            </div>
+          </div>
+          <p>Dear {salutation},</p>
+          <p>
+            On behalf of The Boeing Company, I write to invite you to meet with us during{" "}
+            <strong style={{ color: NAVY }}>{eventName}</strong>
+            {countryName ? `, taking place in ${countryName}` : ""}.
+          </p>
+          <p>
+            At {eventName}, we look forward to showcasing <strong style={{ color: NAVY }}>{showcase}</strong> and discussing how it supports your priorities.
+          </p>
+          <p>{closing}</p>
+          <div className="pt-4">
+            <p>Sincerely,</p>
+            <div className="mt-4 space-y-0.5" style={{ color: NAVY }}>
+              <p className="font-semibold">{senderName} | Boeing Global</p>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{senderTitle}</p>
+              <p className="text-sm">
+                <span className="font-semibold">E:</span>{" "}
+                <a href={`mailto:${contactEmail}`} style={{ color: BLUE, textDecoration: "underline" }}>
+                  {contactEmail}
+                </a>
+              </p>
+              <p className="text-sm">
+                <span className="font-semibold">Tel:</span> {contactPhone}
+              </p>
+              <img
+                src="/images/boeing-logo.svg"
+                alt="Boeing"
+                className="mt-3 h-5 w-auto"
+              />
+            </div>
+          </div>
+        </article>
+      </section>
+
       <div className="flex justify-end">
         <Button onClick={onContinue}>Continue to report</Button>
       </div>
-      )}
     </div>
   )
 }
