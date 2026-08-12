@@ -7,7 +7,8 @@ function stem(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 
-export async function exportMeetingPaperDocx(paper: MeetingPaper): Promise<void> {
+/** Build a filled Meeting Paper .docx as ArrayBuffer (for in-browser editor). */
+export async function buildMeetingPaperDocx(paper: MeetingPaper): Promise<ArrayBuffer> {
   const isAirShow = /air show|airshow|bilateral|chalet|mspo/i.test(paper.locationOrEvent)
   const templatePath = isAirShow
     ? "/templates/meeting-paper-airshow-fillable.docx"
@@ -60,11 +61,14 @@ export async function exportMeetingPaperDocx(paper: MeetingPaper): Promise<void>
   const outZip = doc.getZip()
   injectWordComments(outZip, paper.reviewComments ?? [])
 
-  const out = outZip.generate({
-    type: "blob",
-    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  })
+  return outZip.generate({ type: "arraybuffer" }) as ArrayBuffer
+}
 
+export async function exportMeetingPaperDocx(paper: MeetingPaper): Promise<void> {
+  const buf = await buildMeetingPaperDocx(paper)
+  const out = new Blob([new Uint8Array(buf)], {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  })
   const a = document.createElement("a")
   a.href = URL.createObjectURL(out)
   a.download = `Meeting-Paper-${stem(paper.biography.name)}.docx`
