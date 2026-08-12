@@ -1,11 +1,16 @@
 import { useMemo } from "react"
+import type { CSSProperties } from "react"
 import {
   accentColor,
+  addAttendeeRow,
+  removeAttendeeRow,
   sectionCount,
   subHeaderColor,
   subsectionCount,
+  updateAttendeeRow,
   type AttendeeDashboardData,
   type AttendeeSection,
+  type TravelCode,
 } from "../data/attendeeDashboard"
 
 const BLUE = "#0033A1"
@@ -15,17 +20,40 @@ const ZEBRA = "#EEF2F6"
 const LEGEND = "#D6DEE8"
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif"
 
+const cellInput: CSSProperties = {
+  width: "100%",
+  border: "none",
+  background: "transparent",
+  outline: "none",
+  font: "inherit",
+  padding: 0,
+  margin: 0,
+  color: "inherit",
+}
+
 type FlatBlock =
-  | { kind: "sub"; title: string; count: number }
-  | { kind: "row"; role: string; name: string; org: string; travel: string; seats: number; zebra: boolean }
+  | { kind: "sub"; subsectionId: string; title: string; count: number }
+  | {
+      kind: "row"
+      subsectionId: string
+      rowId: string
+      role: string
+      name: string
+      org: string
+      travel: TravelCode | ""
+      seats: number
+      zebra: boolean
+    }
 
 function flattenSection(section: AttendeeSection): FlatBlock[] {
   const blocks: FlatBlock[] = []
   for (const sub of section.subsections) {
-    blocks.push({ kind: "sub", title: sub.title, count: subsectionCount(sub) })
+    blocks.push({ kind: "sub", subsectionId: sub.id, title: sub.title, count: subsectionCount(sub) })
     sub.rows.forEach((row, idx) => {
       blocks.push({
         kind: "row",
+        subsectionId: sub.id,
+        rowId: row.id,
         role: row.roleLabel,
         name: row.name || "",
         org: row.organization || "",
@@ -41,10 +69,15 @@ function flattenSection(section: AttendeeSection): FlatBlock[] {
 export function AttendeeExcelSheet({
   data,
   eventLabel,
+  onChange,
+  zoom = 1,
 }: {
   data: AttendeeDashboardData
   eventLabel: string
+  onChange?: (next: AttendeeDashboardData) => void
+  zoom?: number
 }) {
+  const editable = Boolean(onChange)
   const title = (eventLabel || data.eventTitle).toUpperCase()
   const columns = useMemo(() => data.columns.map(flattenSection), [data.columns])
   const maxRows = Math.max(...columns.map((c) => c.length), 0)
@@ -57,16 +90,31 @@ export function AttendeeExcelSheet({
     { code: "", label: "", n: "" as const },
   ]
 
-  // Per-quarter widths: Role 28% · Name 36% · Org 26% · I/D/L 10% of 25% → of full sheet
   const colWidths = Array.from({ length: 16 }, (_, i) => {
     const w = i % 4
     return w === 0 ? "7%" : w === 1 ? "9%" : w === 2 ? "6.5%" : "2.5%"
   })
 
+  const patchRow = (
+    sectionId: string,
+    subsectionId: string,
+    rowId: string,
+    patch: Parameters<typeof updateAttendeeRow>[4],
+  ) => {
+    if (!onChange) return
+    onChange(updateAttendeeRow(data, sectionId, subsectionId, rowId, patch))
+  }
+
   return (
     <div
-      className="w-full overflow-x-auto bg-white"
-      style={{ border: `1px solid ${GRID}`, fontFamily: FONT, fontSize: 9.5, lineHeight: 1.15 }}
+      className="w-full overflow-x-auto bg-white origin-top-left"
+      style={{
+        border: `1px solid ${GRID}`,
+        fontFamily: FONT,
+        fontSize: 9.5,
+        lineHeight: 1.15,
+        zoom,
+      }}
     >
       <table className="w-full border-collapse min-w-[1100px]" style={{ tableLayout: "fixed" }}>
         <colgroup>
@@ -106,8 +154,38 @@ export function AttendeeExcelSheet({
             return (
               <tr key={o.rank} style={{ background: idx % 2 ? ZEBRA : "#fff" }}>
                 <td className="px-1 py-0 border font-bold text-center" style={{ borderColor: GRID, color: NAVY }}>{o.rank}</td>
-                <td colSpan={7} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>{o.text}</td>
-                <td colSpan={4} className="px-1 py-0 border font-bold" style={{ borderColor: GRID, color: NAVY }}>{o.bdsLead}</td>
+                <td colSpan={7} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>
+                  {editable ? (
+                    <input
+                      value={o.text}
+                      onChange={(e) => {
+                        const objectives = data.objectives.map((obj) =>
+                          obj.rank === o.rank ? { ...obj, text: e.target.value } : obj,
+                        )
+                        onChange?.({ ...data, objectives })
+                      }}
+                      style={cellInput}
+                    />
+                  ) : (
+                    o.text
+                  )}
+                </td>
+                <td colSpan={4} className="px-1 py-0 border font-bold" style={{ borderColor: GRID, color: NAVY }}>
+                  {editable ? (
+                    <input
+                      value={o.bdsLead}
+                      onChange={(e) => {
+                        const objectives = data.objectives.map((obj) =>
+                          obj.rank === o.rank ? { ...obj, bdsLead: e.target.value } : obj,
+                        )
+                        onChange?.({ ...data, objectives })
+                      }}
+                      style={{ ...cellInput, fontWeight: 700 }}
+                    />
+                  ) : (
+                    o.bdsLead
+                  )}
+                </td>
                 <td className="px-1 py-0 border font-bold text-center" style={{ borderColor: GRID, color: BLUE }}>{t.code}</td>
                 <td colSpan={2} className="px-1 py-0 border" style={{ borderColor: GRID, color: "#222" }}>{t.label}</td>
                 <td className="px-1 py-0 border font-bold text-right" style={{ borderColor: GRID, color: NAVY }}>{t.n}</td>
@@ -148,7 +226,7 @@ export function AttendeeExcelSheet({
                 const section = data.columns[colIdx]
                 if (!block) {
                   return (
-                    <FragmentRow key={`${section.id}-empty-${rowIdx}`} role="" name="" org="" travel="" bg="#fff" />
+                    <EmptyCells key={`${section.id}-empty-${rowIdx}`} bg="#fff" />
                   )
                 }
                 if (block.kind === "sub") {
@@ -161,25 +239,36 @@ export function AttendeeExcelSheet({
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span>{block.title}</span>
-                        <span className="tabular-nums">({block.count})</span>
+                        <span className="inline-flex items-center gap-1">
+                          <span className="tabular-nums">({block.count})</span>
+                          {editable && (
+                            <button
+                              type="button"
+                              title="Add row"
+                              className="cursor-pointer text-white/90 hover:text-white text-[10px] leading-none px-0.5"
+                              onClick={() => onChange?.(addAttendeeRow(data, section.id, block.subsectionId))}
+                            >
+                              +
+                            </button>
+                          )}
+                        </span>
                       </div>
                     </td>
                   )
                 }
                 const bg = block.zebra ? ZEBRA : "#fff"
-                const travelCell =
-                  block.travel && block.seats > 1
-                    ? `${block.travel}·${block.seats}`
-                    : block.travel
                 return (
-                  <FragmentRow
+                  <EditableRow
                     key={`${section.id}-r-${rowIdx}`}
                     role={block.role}
                     name={block.name}
                     org={block.org}
-                    travel={travelCell}
-                    note={block.seats > 1 ? `${block.seats} seats` : undefined}
+                    travel={block.travel}
+                    seats={block.seats}
                     bg={bg}
+                    editable={editable}
+                    onPatch={(patch) => patchRow(section.id, block.subsectionId, block.rowId, patch)}
+                    onRemove={() => onChange?.(removeAttendeeRow(data, section.id, block.subsectionId, block.rowId))}
                   />
                 )
               })}
@@ -191,28 +280,94 @@ export function AttendeeExcelSheet({
   )
 }
 
-function FragmentRow({
+function EmptyCells({ bg }: { bg: string }) {
+  return (
+    <>
+      <td className="px-0.5 py-0 border" style={{ borderColor: GRID, background: bg }} />
+      <td className="px-0.5 py-0 border" style={{ borderColor: GRID, background: bg }} />
+      <td className="px-0.5 py-0 border" style={{ borderColor: GRID, background: bg }} />
+      <td className="px-0.5 py-0 border" style={{ borderColor: GRID, background: bg }} />
+    </>
+  )
+}
+
+function EditableRow({
   role,
   name,
   org,
   travel,
-  note,
+  seats,
   bg,
+  editable,
+  onPatch,
+  onRemove,
 }: {
   role: string
   name: string
   org: string
-  travel: string
-  note?: string
-  title?: string
+  travel: TravelCode | ""
+  seats: number
   bg: string
+  editable: boolean
+  onPatch: (patch: { roleLabel?: string; name?: string; organization?: string; travel?: TravelCode | ""; count?: number }) => void
+  onRemove: () => void
 }) {
+  const travelDisplay =
+    travel && seats > 1 ? `${travel}·${seats}` : travel
+
+  if (!editable) {
+    return (
+      <>
+        <td className="px-0.5 py-0 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>{role}</td>
+        <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }} title={seats > 1 ? `${seats} seats` : undefined}>{name}</td>
+        <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>{org}</td>
+        <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>{travelDisplay}</td>
+      </>
+    )
+  }
+
   return (
     <>
-      <td className="px-0.5 py-0 border font-bold align-top" style={{ borderColor: GRID, color: NAVY, background: bg }}>{role}</td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }} title={note}>{name}</td>
-      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>{org}</td>
-      <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }} title={note}>{travel}</td>
+      <td className="px-0.5 py-0 border font-bold align-top relative group" style={{ borderColor: GRID, color: NAVY, background: bg }}>
+        <input value={role} onChange={(e) => onPatch({ roleLabel: e.target.value })} style={{ ...cellInput, fontWeight: 700 }} />
+        <button
+          type="button"
+          title="Remove row"
+          onClick={onRemove}
+          className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 cursor-pointer text-[9px] px-0.5"
+          style={{ color: "#8B1E2D", background: bg }}
+        >
+          ×
+        </button>
+      </td>
+      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#222", background: bg }}>
+        <input
+          value={name}
+          onChange={(e) => {
+            const nextName = e.target.value
+            onPatch({ name: nextName, count: nextName.trim() ? Math.max(seats, 1) : seats })
+          }}
+          style={cellInput}
+        />
+      </td>
+      <td className="px-0.5 py-0 border align-top" style={{ borderColor: GRID, color: "#555", background: bg }}>
+        <input value={org} onChange={(e) => onPatch({ organization: e.target.value })} style={cellInput} />
+      </td>
+      <td className="px-0.5 py-0 border text-center font-bold align-top" style={{ borderColor: GRID, color: BLUE, background: bg }}>
+        <select
+          value={travel}
+          onChange={(e) => {
+            const v = e.target.value as TravelCode | ""
+            onPatch({ travel: v, count: v ? Math.max(seats, 1) : seats })
+          }}
+          style={{ ...cellInput, textAlign: "center", fontWeight: 700, color: BLUE, cursor: "pointer" }}
+        >
+          <option value="">—</option>
+          <option value="I">I</option>
+          <option value="D">D</option>
+          <option value="L">L</option>
+        </select>
+      </td>
     </>
   )
 }

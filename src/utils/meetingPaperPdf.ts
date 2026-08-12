@@ -12,7 +12,6 @@ const CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R
 const LABEL_W = 25.1 // ~1422 DXA
 const VALUE_W = CONTENT_W - LABEL_W
 const BLUE: [number, number, number] = [0, 0, 255]
-const BLACK: [number, number, number] = [0, 0, 0]
 const FONT = "helvetica" // Arial Narrow unavailable in jsPDF standard fonts
 
 function drawHeader(doc: jsPDF, dateLabel: string, y: number): number {
