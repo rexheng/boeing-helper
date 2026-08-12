@@ -16,7 +16,7 @@ AI-powered stakeholder meeting preparation for Boeing — event briefing, biogra
 - React 18 + TypeScript + Vite 6
 - Tailwind CSS
 - Express API (Vercel serverless via `api/index.ts`)
-- Optional: Manus AI, Apollo.io, Groq
+- Optional: Manus AI, Apollo.io, meeting AI (via `GROQ_API_KEY`)
 
 ## Commands
 
@@ -32,7 +32,7 @@ Copy `.env.example` to `.env` (all keys optional — demo companies use hardcode
 
 - `MANUS_API_KEY` — custom-company research
 - `APOLLO_API_KEY` — contact lookup
-- `GROQ_API_KEY` — meeting summary
+- `GROQ_API_KEY` — meeting AI (copilot, frameworks, summary)
 
 ## Deploy
 

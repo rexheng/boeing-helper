@@ -30,7 +30,7 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     service: "boeing-helper",
-    groq: Boolean(process.env.GROQ_API_KEY),
+    ai: Boolean(process.env.GROQ_API_KEY),
     manus: Boolean(process.env.MANUS_API_KEY),
     apollo: Boolean(process.env.APOLLO_API_KEY),
   })

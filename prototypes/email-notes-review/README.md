@@ -19,7 +19,7 @@ Static prototypes only. No product UI changes yet.
 
 ## Recommendation
 
-**Hybrid B → A:** docked paste beside the sheet for intake; after Propose, left rail swaps to hunk list with sticky Accept; sheet cells pulse on hunk hover/focus. No Groq/API mention in subtitle.
+**Hybrid B → A:** docked paste beside the sheet for intake; after Propose, left rail swaps to hunk list with sticky Accept; sheet cells pulse on hunk hover/focus. No provider/API mention in subtitle.
 
 ## Ask
 

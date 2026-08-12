@@ -68,7 +68,7 @@ npm install`}
               </p>
 
               <CodeBlock>
-                {`GROQ_API_KEY=your_key      # groq.com — mic transcription
+                {`GROQ_API_KEY=your_key      # optional — meeting AI (copilot, summary)
 MANUS_API_KEY=your_key     # manus.ai — research agent
 KIMI_API_KEY=your_key      # moonshot.ai — chat & vision`}
               </CodeBlock>

@@ -149,7 +149,7 @@ export async function frameworksHandler(req: Request, res: Response): Promise<vo
   }
 
   if (!process.env.GROQ_API_KEY) {
-    res.status(500).json({ error: "GROQ_API_KEY not configured" })
+    res.status(500).json({ error: "AI service not configured" })
     return
   }
 

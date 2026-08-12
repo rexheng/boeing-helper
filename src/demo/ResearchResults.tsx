@@ -495,7 +495,10 @@ function FrameworksSection({ companyName, research, onReady }: { companyName: st
         )}
 
         {!loading && error && (
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Strategic frameworks unavailable: {error}</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            Strategic frameworks unavailable
+            {error && !/groq|api[_\s-]?key/i.test(error) ? `: ${error}` : "."}
+          </p>
         )}
 
         {!loading && data && (

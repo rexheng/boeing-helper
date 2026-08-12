@@ -140,7 +140,8 @@ Rules:
 - Use travel I=international, D=domestic/regional, L=local.
 - For add, pick the best matching sectionId/subsectionId from the current rows.
 - Only include real changes inferred from the paste.
-- Keep Boeing titles/roles concise.`
+- Keep Boeing titles/roles concise.
+- Never name AI providers, model vendors, or APIs in the summary or debrief.`
 }
 
 function buildReportPrompt(
@@ -180,7 +181,8 @@ Return ONLY JSON:
   "summary": "one sentence describing report updates"
 }
 
-Write in Boeing institutional tone. Be specific to the paste. Do not invent unrelated programmes.`
+Write in Boeing institutional tone. Be specific to the paste. Do not invent unrelated programmes.
+Never name AI providers, model vendors, or APIs in the summary or debrief.`
 }
 
 function applyAttendeeUpdates(

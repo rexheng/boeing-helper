@@ -37,7 +37,7 @@ Full briefing with fade-in sections:
 3. **Company Overview** — overview, news, key metrics grid
 4. **Financial Press** — live news from `/api/news`
 5. **Industry Landscape** — trend tags, competitive context
-6. **Strategic Frameworks** — SWOT + Porter's Five Forces via `/api/frameworks` (Groq). Shows error message if Groq fails.
+6. **Strategic Frameworks** — SWOT + Porter's Five Forces via `/api/frameworks`. Shows a generic error if generation fails.
 7. **Internal Notes** — user's notes from step 4
 8. **GitHub Setup Guide** — collapsible card with clone/install/env var instructions + keyboard shortcuts
 
@@ -57,13 +57,13 @@ One card at a time. New key replaces current. Same key toggles off. `slideInLeft
 - `2` **Rapport Builder** — conversation starters from LinkedIn posts
 - `3` **Meeting Prep** — agenda + key questions
 - `4` **Quick Lookup** — key facts table, competitive landscape, trends
-- `5` **AI Copilot** — Groq-powered chat (`llama-3.3-70b-versatile`). Full research context as system prompt. SSE streaming from `/api/copilot-chat`. Quick-suggestion buttons. `stopPropagation` on input.
+- `5` **AI Copilot** — streaming chat (`llama-3.3-70b-versatile`). Full research context as system prompt. SSE streaming from `/api/copilot-chat`. Quick-suggestion buttons. `stopPropagation` on input.
 - `6` **Strategic Frameworks** — SWOT + Porter's (if generated)
 
 Keys 1-4/6 close copilot. Key 5 closes overlay cards. Escape exits meeting.
 
 ## Step 7: Post-Meeting Summary (`MeetingSummary.tsx`)
-Full-screen AI-generated meeting debrief. Receives transcript + meeting duration from step 6 via `onMeetingEnd` callback. Calls `/api/meeting-summary` (Groq) to generate:
+Full-screen AI-generated meeting debrief. Receives transcript + meeting duration from step 6 via `onMeetingEnd` callback. Calls `/api/meeting-summary` to generate:
 
 - **Meeting score ring** — visual score out of 100
 - **Sentiment analysis** — Excellent / Positive / Neutral / Needs Follow-up
@@ -91,7 +91,7 @@ Full-screen AI-generated meeting debrief. Receives transcript + meeting duration
 - **Custom company pipeline:** Company search (Manus SSE) → Contact lookup (Apollo, prefetched) → Research (Manus SSE, prefetched) → results. Server caches to disk.
 - **Background prefetch:** Contacts start at step 1. Research starts at step 2. `prefetchInProgress` flag prevents duplicate API calls.
 - **Video embeds:** `Person.videoId` (YouTube ID) + `Person.videoStart` (seconds). Renders as muted autoplay iframe, falls back to photo.
-- **Env vars:** `MANUS_API_KEY` (required), `GROQ_API_KEY` (optional — copilot, frameworks, meeting summary), `APOLLO_API_KEY` (optional — contact lookup). Demo companies work with zero API keys.
+- **Env vars:** `MANUS_API_KEY` (required), `GROQ_API_KEY` (optional — meeting AI for copilot, frameworks, summary), `APOLLO_API_KEY` (optional — contact lookup). Demo companies work with zero API keys.
 - **Design system:** Dark glass-morphism theme. CSS variables. `glass-card`, `glass-panel`, `system-badge` classes. JetBrains Mono for code, Open Sans for body.
 
 ## Server Endpoints
@@ -100,7 +100,7 @@ Full-screen AI-generated meeting debrief. Receives transcript + meeting duration
 | `POST /api/company-search` | `companySearch.ts` | SSE — Manus agent searches for company info |
 | `POST /api/research` | `manus.ts` | SSE — Manus agent generates full research briefing |
 | `POST /api/company-contacts` | `apollo.ts` | Apollo.io contact lookup |
-| `POST /api/copilot-chat` | `groqChat.ts` | SSE — Groq streaming chat for meeting copilot |
-| `POST /api/frameworks` | `frameworks.ts` | Groq generates SWOT + Porter's Five Forces |
+| `POST /api/copilot-chat` | `groqChat.ts` | SSE — streaming chat for meeting copilot |
+| `POST /api/frameworks` | `frameworks.ts` | Generates SWOT + Porter's Five Forces |
 | `GET /api/news` | `news.ts` | Live financial press for company |
-| `POST /api/meeting-summary` | `meetingSummary.ts` | Groq generates post-meeting AI summary |
+| `POST /api/meeting-summary` | `meetingSummary.ts` | Generates post-meeting AI summary |

@@ -60,7 +60,7 @@ export async function copilotChatHandler(req: Request, res: Response): Promise<v
   }
 
   if (!process.env.GROQ_API_KEY) {
-    res.status(500).json({ error: "GROQ_API_KEY not configured" })
+    res.status(500).json({ error: "AI service not configured" })
     return
   }
 
