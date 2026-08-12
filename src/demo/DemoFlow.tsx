@@ -11,7 +11,7 @@ import { MeetingPaperView } from "./MeetingPaperView"
 import { MaterialsHub } from "./MaterialsHub"
 import { MeetingReportView } from "./MeetingReportView"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
-import { BoeingLogo } from "../components/BoeingLogo"
+import { HelperLogo } from "../components/HelperLogo"
 
 interface DemoFlowProps {
   onClose: () => void
@@ -217,8 +217,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
         <div className="demo-topbar">
           <div className="max-w-5xl mx-auto px-4 md:px-6 flex items-center justify-between gap-4" style={{ minHeight: "2.75rem" }}>
             <div className="flex items-center gap-3 min-w-0">
-              <BoeingLogo variant="white" height={18} />
-              <span className="text-sm font-semibold tracking-tight text-white">Helper</span>
+              <HelperLogo variant="white" height={22} />
               <span className="hidden sm:inline text-[11px] uppercase tracking-[0.14em] truncate" style={{ color: "var(--boeing-cyan-bright)" }}>
                 Briefing Materials
               </span>

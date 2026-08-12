@@ -3,6 +3,8 @@
 | Asset | Source | Notes |
 |-------|--------|--------|
 | `boeing-logo.svg` / `boeing-logo-white.svg` | [Wikimedia Commons — Boeing full logo.svg](https://commons.wikimedia.org/wiki/File:Boeing_full_logo.svg) | Official Boeing wordmark; white fill variant created for navy chrome |
+| `Boeing H Arc Fix.png` / `helper-icon.png` (+ white) | User-provided brand art | Product H mark; web-optimized transparent + white variants derived from upload |
+| `Boeing Helper Slant Fix.png` / `boeing-helper-logo.png` (+ white) | User-provided brand art | Product lockup; web-optimized transparent + white variants derived from upload |
 | `hero-airshow.jpg` | [Unsplash — aircraft wing / clouds](https://unsplash.com/photos/1436491865332-7a61a109cc05) | Commercial aviation photography; compressed for web |
 | `capability-briefing.jpg` | Unsplash (stock) | Desk / briefing-material scene used as capability tile |
 | `capability-bio.jpg` | Unsplash (stock) | Portrait-style office photography for biography tile |

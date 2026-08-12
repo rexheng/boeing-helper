@@ -6,7 +6,7 @@ import type { ResearchResult } from "../types/research"
 import type { FrameworksData } from "../types/frameworks"
 import { generateBriefing } from "../utils/briefingGenerator"
 import { Search, TrendingUp, Presentation, ShieldCheck, MessageCircle, BarChart3, Globe2, X, Mic, MicOff, Video, VideoOff, PhoneOff, MoreVertical } from "lucide-react"
-import { BoeingLogo } from "../components/BoeingLogo"
+import { HelperLogo } from "../components/HelperLogo"
 
 interface MeetingSimulationProps {
   person: Person
@@ -443,8 +443,8 @@ function ResearchSidebar({ research, person, company, meetingType, internalNotes
   return (
     <div className="h-full overflow-y-auto p-4 space-y-6" style={{ scrollbarWidth: "thin" }}>
       <div className="pb-3 border-b" style={{ borderColor: BORDER }}>
-        <p className="text-[10px] uppercase font-semibold" style={{ color: BLUE, letterSpacing: "0.14em" }}>Boeing Helper</p>
-        <p className="text-sm font-semibold" style={{ color: NAVY }}>Research brief</p>
+        <HelperLogo height={18} />
+        <p className="mt-1.5 text-sm font-semibold" style={{ color: NAVY }}>Research brief</p>
       </div>
 
       {/* Person */}
@@ -895,9 +895,8 @@ export function MeetingSimulation({ person, company, research, meetingType, inte
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 px-4 py-2.5 shrink-0" style={{ background: "#fff", borderBottom: `1px solid ${BORDER}` }}>
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <BoeingLogo variant="blue" height={16} />
-            <span className="text-sm font-bold shrink-0" style={{ color: NAVY, letterSpacing: "-0.01em" }}>Helper</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <HelperLogo height={20} />
           </div>
           <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-pill text-[10px] font-semibold uppercase shrink-0" style={{ background: "rgba(198,40,40,0.08)", color: "#C62828", letterSpacing: "0.1em" }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#C62828" }} />

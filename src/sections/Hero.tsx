@@ -1,5 +1,5 @@
 import { Button } from "../components/Button"
-import { BoeingLogo } from "../components/BoeingLogo"
+import { HelperLogo } from "../components/HelperLogo"
 
 interface HeroProps {
   onStartDemo: () => void
@@ -18,11 +18,8 @@ export function Hero({ onStartDemo }: HeroProps) {
     <div className="relative">
       <header className="site-header">
         <div className="constrain site-header__inner">
-          <a href="#top" className="site-header__logo flex items-center gap-3">
-            <BoeingLogo variant="white" height={20} />
-            <span className="hidden sm:inline text-sm font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Helper
-            </span>
+          <a href="#top" className="site-header__logo flex items-center">
+            <HelperLogo variant="white" height={28} />
           </a>
 
           <nav className="site-header__nav" aria-label="Primary">
@@ -52,7 +49,9 @@ export function Hero({ onStartDemo }: HeroProps) {
           <div className="constrain animate-[fadeInUp_0.9s_ease-out_both]">
             <p className="system-badge mb-5">Boeing Internal Tool</p>
 
-            <h1 className="hero__brand">Boeing Helper</h1>
+            <h1 className="hero__brand">
+              <HelperLogo variant="white" height={72} className="hero__brand-logo" />
+            </h1>
 
             <p className="hero__headline">
               Event meeting, biography preparation, and procurement positions for every engagement.

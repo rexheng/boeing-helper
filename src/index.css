@@ -267,12 +267,14 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .hero__brand {
-  font-size: clamp(2.75rem, 7vw, 4.75rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  color: #fff;
   margin: 0;
+  line-height: 0;
+}
+
+.hero__brand-logo {
+  height: clamp(3rem, 8vw, 5rem) !important;
+  width: auto !important;
+  max-width: min(100%, 28rem);
 }
 
 .hero__headline {

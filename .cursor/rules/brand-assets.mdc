@@ -1,0 +1,11 @@
+---
+description: Brand assets — never recreate user-provided logos/icons
+alwaysApply: true
+---
+
+# Brand assets (logos / icons)
+
+- If the user provides logos, icons, or brand art (paste, attachment, or upload) and the agent **cannot access the actual image files** (only descriptions), **do not recreate, regenerate, or approximate them**.
+- **Stop and tell the user** that the files are not available; ask them to upload real files into the repo (e.g. `public/images/`) or attach downloadable assets.
+- Only use brand art that exists as real files on disk in the workspace.
+- Do not invent SVG/PNG stand-ins for missing provided brand assets unless the user explicitly asks you to recreate them.
