@@ -159,6 +159,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
         id: ct.id,
         companyId: c.id,
         name: ct.name,
+        surname: ct.surname,
         title: ct.title,
         headline: ct.headline,
         initial: ct.name.charAt(0).toUpperCase(),

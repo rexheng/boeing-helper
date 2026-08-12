@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { Download, LayoutGrid, List } from "lucide-react"
 import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
-import type { Person } from "../data/people"
+import { personSurname, type Person } from "../data/people"
 import {
   buildAttendeeDashboard,
   flattenAttendees,
@@ -35,7 +35,7 @@ export function MaterialsHub({
   countryName,
   onContinue,
 }: MaterialsHubProps) {
-  const [tab, setTab] = useState<Tab>("invite")
+  const [tab, setTab] = useState<Tab>("attendee")
   const [attendeeView, setAttendeeView] = useState<AttendeeView>("excel")
   const [close, setClose] = useState<InviteClose>("meeting")
   const defaultEvent = /mspo/i.test(meetingType)
@@ -46,18 +46,21 @@ export function MaterialsHub({
   const [eventName, setEventName] = useState(defaultEvent)
   const [showcase, setShowcase] = useState("Programme focus")
   const [senderName, setSenderName] = useState("Rex Heng")
-  const senderTitle = "Regional Integrator, International Business Development"
-  const [contactEmail, setContactEmail] = useState("rex.heng@boeing.example")
+  const senderTitle = "Office of President Boeing Southeast Asia & Taiwan"
+  const [contactEmail, setContactEmail] = useState("rex.heng@boeing.com")
+  const contactPhone = "+65 8xxx xxxx"
 
   const dashboard = useMemo(
     () => buildAttendeeDashboard(company, person, meetingType, countryName),
     [company, person, meetingType, countryName],
   )
 
-  const surname = person.name.split(" ").slice(-1)[0]
   const salutation = person.title.toLowerCase().includes("minister")
-    ? `Minister ${surname}`
-    : person.name.split(" ")[0]
+    ? `Minister ${personSurname(person)}`
+    : person.name
+        .replace(/^(HH Sheikh|Gen\.|Lt Gen\.|ACM|AVM|MG|VADM|AIRMSHL|Brig\. Gen\.|Dato' Seri|Dato'|Tan Sri)\s+/i, "")
+        .trim()
+        .split(/\s+/)[0] || personSurname(person)
 
   const closing = useMemo(() => {
     if (close === "special") {
@@ -84,7 +87,7 @@ export function MaterialsHub({
       <div className="text-center mb-2">
         <p className="system-badge system-badge--dark mb-3">Step 06 · Materials</p>
         <h2 className="text-2xl md:text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
-          Invitation and attendee dashboard
+          Attendee dashboard and invitation
         </h2>
         <p className="mt-3 max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
           Invitation letter and attendee dashboard.
@@ -98,8 +101,8 @@ export function MaterialsHub({
       >
         {(
           [
-            { id: "invite" as const, label: "Invitation" },
             { id: "attendee" as const, label: "Attendee dashboard" },
+            { id: "invite" as const, label: "Invitation" },
           ] as const
         ).map((t) => (
           <button
@@ -190,9 +193,24 @@ export function MaterialsHub({
             <p>{closing}</p>
             <div className="pt-4">
               <p>Sincerely,</p>
-              <p className="mt-4 font-medium" style={{ color: NAVY }}>{senderName}</p>
-              <p>{senderTitle}</p>
-              <p>The Boeing Company</p>
+              <div className="mt-4 space-y-0.5" style={{ color: NAVY }}>
+                <p className="font-semibold">{senderName} | Boeing Global</p>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{senderTitle}</p>
+                <p className="text-sm">
+                  <span className="font-semibold">E:</span>{" "}
+                  <a href={`mailto:${contactEmail}`} style={{ color: BLUE, textDecoration: "underline" }}>
+                    {contactEmail}
+                  </a>
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Tel:</span> {contactPhone}
+                </p>
+                <img
+                  src="/images/boeing-logo.svg"
+                  alt="Boeing"
+                  className="mt-3 h-5 w-auto"
+                />
+              </div>
             </div>
           </article>
         </div>
