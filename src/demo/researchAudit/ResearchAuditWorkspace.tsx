@@ -66,6 +66,7 @@ export function ResearchAuditWorkspace({
   const [laneFilter, setLaneFilter] = useState<Set<ResearchLane>>(new Set(["company", "industry", "country"]))
   const [inspectorOpen, setInspectorOpen] = useState(false)
   const [inspectorTick, setInspectorTick] = useState(0)
+  const [notesOpen, setNotesOpen] = useState(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -201,94 +202,73 @@ export function ResearchAuditWorkspace({
 
   const initial = person.initial || person.name.charAt(0).toUpperCase()
   const highFindings = audit.findings.filter((f) => f.confidence === "high")
-  const highSourceCount = new Set(highFindings.flatMap((f) => f.sourceIds)).size
 
   return (
     <div className="audit-workspace">
-      <header className="bh-panel overflow-hidden">
-        <div style={{ height: 4, background: BLUE }} />
-        <div className="px-5 sm:px-6 py-3 grid gap-4 lg:grid-cols-[1fr_auto] items-start">
-          <div className="flex items-start gap-4 min-w-0">
+      <header className="audit-toolbar">
+        <div className="audit-toolbar__bar" />
+        <div className="audit-toolbar__row">
+          <div className="flex items-center gap-3 min-w-0">
             {person.photoUrl ? (
               <img
                 src={person.photoUrl}
                 alt=""
-                className="w-12 h-12 rounded-full object-cover shrink-0"
+                className="w-9 h-9 rounded-full object-cover shrink-0"
                 style={{ border: "2px solid var(--boeing-ice)" }}
               />
             ) : (
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
                 style={{ background: BLUE }}
               >
                 {initial}
               </div>
             )}
             <div className="min-w-0">
-              <h2 className="text-2xl font-bold truncate" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+              <h2 className="text-[17px] font-bold truncate leading-tight" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
                 {person.name}
               </h2>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              <p className="text-[12px] truncate" style={{ color: "var(--text-secondary)" }}>
                 {person.title}
-              </p>
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-                {company.name}
-                {audit.subject.countryName ? ` · ${audit.subject.countryName}` : ""}
+                <span style={{ color: "var(--text-muted)" }}>
+                  {" · "}
+                  {company.name}
+                  {audit.subject.countryName ? ` · ${audit.subject.countryName}` : ""}
+                </span>
               </p>
             </div>
           </div>
 
-          <div className="audit-indices">
-            <p className="audit-indices__cited">
-              Cited findings
+          <ul className="audit-toolbar__stats" aria-label="Research indices">
+            <li>
               <strong>{audit.indices.findings}</strong>
-            </p>
-            <table>
-              <thead>
-                <tr>
-                  <th />
-                  <th>All</th>
-                  <th>High conf.</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Sources</td>
-                  <td>{audit.indices.sources}</td>
-                  <td>{highSourceCount}</td>
-                </tr>
-                <tr>
-                  <td>Findings</td>
-                  <td>{audit.indices.findings}</td>
-                  <td>{highFindings.length}</td>
-                </tr>
-                <tr>
-                  <td>Supporting</td>
-                  <td>{audit.indices.supporting}</td>
-                  <td>{highFindings.filter((f) => f.stance === "supporting").length}</td>
-                </tr>
-                <tr>
-                  <td>Contested</td>
-                  <td>{audit.indices.disputing}</td>
-                  <td>{highFindings.filter((f) => f.stance === "disputing").length}</td>
-                </tr>
-              </tbody>
-            </table>
-            <p className="audit-indices__hint">
-              Cite counts are how many findings rest on each source.
-              {" "}{audit.indices.internal} internal (simulated) · {audit.indices.open} open · {audit.sources.filter((s) => s.classification === "synthesized").length} synthesized.
-            </p>
-          </div>
-        </div>
+              findings
+            </li>
+            <li>
+              <strong>{audit.indices.sources}</strong>
+              sources
+            </li>
+            <li>
+              <strong>{highFindings.length}</strong>
+              high conf.
+            </li>
+            <li>
+              <strong>{audit.indices.supporting}</strong>
+              supporting
+            </li>
+          </ul>
 
-        <div
-          className="px-5 sm:px-7 py-3 flex flex-wrap items-center justify-between gap-3"
-          style={{ borderTop: "1px solid var(--surface-border)", background: "var(--bg-muted)" }}
-        >
-          <p className="text-[11px] max-w-md leading-relaxed" style={{ color: "var(--text-muted)" }}>
-            Unchecked sources are excluded from the views below. The meeting paper is still drafted from the full research set.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {notesSlot && (
+              <button
+                type="button"
+                onClick={() => setNotesOpen((v) => !v)}
+                className={`audit-quiet-btn ${notesOpen ? "is-on" : ""}`}
+                aria-expanded={notesOpen}
+              >
+                Notes
+              </button>
+            )}
             <button type="button" onClick={exportCsv} className="audit-quiet-btn" title="Export selected sources">
               <Download size={14} />
               Export
@@ -476,7 +456,7 @@ export function ResearchAuditWorkspace({
         </div>
       </div>
 
-      {notesSlot && (
+      {notesSlot && notesOpen && (
         <div className="audit-notes">
           {notesSlot}
         </div>
