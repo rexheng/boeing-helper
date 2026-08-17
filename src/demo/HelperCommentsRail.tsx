@@ -27,8 +27,9 @@ export function HelperCommentsRail({
         <p className="helper-comments__eyebrow">Boeing Helper · Review</p>
         <h3>Comments on this paper</h3>
         <p>
-          The document is scaffolding. These are the follow-ups to lock before freeze — the same comments
-          land in Word’s Review pane on download.
+          The document is scaffolding. These are the freeze questions — name, date, number, or cut the
+          claim. Click a card to highlight that field on the paper. The same comments land in Word’s Review
+          pane on download.
         </p>
         <p className="helper-comments__count">{comments.length} comments · BH</p>
       </header>

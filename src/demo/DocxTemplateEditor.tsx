@@ -3,6 +3,7 @@ import { DocxEditor, type DocxEditorRef } from "@docx-editor.dev/react"
 import "@docx-editor.dev/core/styles/editor.css"
 import { Download, FileText, Loader2 } from "lucide-react"
 import { jsPDF } from "jspdf"
+import { highlightPaperField } from "../utils/highlightPaperField"
 
 const BLUE = "#0033A1"
 const NAVY = "#0A2240"
@@ -36,6 +37,8 @@ export function DocxTemplateEditor({
   pdfFallbackText,
   reloadKey,
   loadingLabel = "Building document…",
+  highlightNeedles,
+  highlightToken,
 }: {
   buildDocument: () => Promise<ArrayBuffer>
   title: string
@@ -44,8 +47,13 @@ export function DocxTemplateEditor({
   /** Bump to rebuild the docx (e.g. after LLM accept). */
   reloadKey: number
   loadingLabel?: string
+  /** Distinctive strings to find in the on-screen Word editor */
+  highlightNeedles?: string[]
+  /** Change to re-run highlight (e.g. selected comment id) */
+  highlightToken?: string | null
 }) {
   const ref = useRef<DocxEditorRef>(null)
+  const hostRef = useRef<HTMLDivElement>(null)
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<"load" | "docx" | "pdf" | null>("load")
@@ -74,6 +82,23 @@ export function DocxTemplateEditor({
       cancelled = true
     }
   }, [reloadKey])
+
+  useEffect(() => {
+    if (!buffer || !highlightNeedles?.length) return
+    const host = hostRef.current
+    if (!host) return
+    let cancelled = false
+    const timers = [80, 280, 700, 1400].map((ms) =>
+      window.setTimeout(() => {
+        if (cancelled) return
+        highlightPaperField(host, highlightNeedles)
+      }, ms),
+    )
+    return () => {
+      cancelled = true
+      timers.forEach((id) => window.clearTimeout(id))
+    }
+  }, [buffer, highlightNeedles, highlightToken])
 
   const handleWord = async () => {
     setBusy("docx")
@@ -167,6 +192,7 @@ export function DocxTemplateEditor({
       )}
 
       <div
+        ref={hostRef}
         className="report-docx-host bg-white overflow-hidden"
         style={{ border: "1px solid var(--surface-border)", minHeight: 560 }}
       >

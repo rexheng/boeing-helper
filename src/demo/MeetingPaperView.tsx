@@ -4,7 +4,7 @@ import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
-import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
+import { commentHighlightNeedles, generateMeetingPaper } from "../utils/meetingPaperGenerator"
 import { buildMeetingPaperDocx } from "../utils/templateExport"
 import { HelperCommentsRail } from "./HelperCommentsRail"
 
@@ -39,6 +39,12 @@ export function MeetingPaperView({
   )
   const [reloadKey] = useState(0)
   const [activeComment, setActiveComment] = useState<string | null>(paper.reviewComments[0]?.id ?? null)
+  const selected = paper.reviewComments.find((c) => c.id === activeComment) ?? paper.reviewComments[0] ?? null
+
+  const highlightNeedles = useMemo(
+    () => (selected ? commentHighlightNeedles(paper, selected) : []),
+    [paper, selected],
+  )
 
   const buildDocument = useCallback(() => buildMeetingPaperDocx(paper), [paper])
   const title = paper.meetingTitle.replace(/^MEETING WITH\s+/i, "Meeting With ")
@@ -74,8 +80,9 @@ export function MeetingPaperView({
             Meeting paper
           </h2>
           <p className="mt-2 text-sm max-w-2xl" style={{ color: "var(--text-secondary)" }}>
-            The paper is scaffolding from the official template. Boeing Helper’s value is the review
-            comments — the questions to lock before freeze. They travel with the Word file.
+            The document is official scaffolding. Boeing Helper’s product is the review comments — freeze
+            questions a campaign lead would write in Word before this leaves the building. Click a comment
+            to jump to that field. They travel in the Word Review pane on download.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -88,6 +95,17 @@ export function MeetingPaperView({
           <Button onClick={onContinue}>Continue to materials</Button>
         </div>
       </div>
+
+      {selected && (
+        <div className="paper-comment-banner" role="status">
+          <span className="paper-comment-banner__bh">BH</span>
+          <p>
+            <strong>{selected.sectionLabel}</strong>
+            <span className="paper-comment-banner__sev">{selected.severity}</span>
+            {selected.text}
+          </p>
+        </div>
+      )}
 
       <div className="paper-with-comments">
         <Suspense
@@ -104,6 +122,8 @@ export function MeetingPaperView({
             pdfFallbackText={pdfFallback}
             reloadKey={reloadKey}
             loadingLabel="Building meeting paper…"
+            highlightNeedles={highlightNeedles}
+            highlightToken={activeComment}
           />
         </Suspense>
 

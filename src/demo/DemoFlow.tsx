@@ -230,7 +230,12 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
   }, [step])
 
   return (
-    <div ref={scrollRef} className="demo-shell fixed inset-0 z-50 overflow-y-auto">
+    <div
+      ref={scrollRef}
+      className={`demo-shell fixed inset-0 z-50 ${
+        step === 4 ? "demo-shell--stage overflow-hidden flex flex-col" : "overflow-y-auto"
+      }`}
+    >
       <div className="sticky top-0 z-20">
         <div className="demo-topbar">
           <div className="max-w-5xl mx-auto px-4 md:px-6 flex items-center justify-between gap-4" style={{ minHeight: "2.75rem" }}>
@@ -357,9 +362,9 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
       </div>
 
       <div
-        className={`relative z-10 mx-auto px-4 md:px-6 py-10 md:py-14 ${
+        className={`relative z-10 mx-auto px-4 md:px-6 ${
           step === 4 || step === 5 || step === 6 ? "max-w-[96rem]" : step === 7 ? "max-w-5xl" : "max-w-4xl"
-        } ${step === 4 ? "!py-5 md:!py-6" : ""}`}
+        } ${step === 4 ? "demo-stage flex-1 min-h-0 w-full overflow-y-auto py-3 md:py-4" : "py-10 md:py-14"}`}
       >
         {step === 1 && <CompanySelect onSelect={handleCompanySelect} />}
         {step === 2 && company && (

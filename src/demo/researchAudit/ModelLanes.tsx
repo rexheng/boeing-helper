@@ -20,7 +20,7 @@ export function ModelLanes({
   onSelectFinding,
 }: ModelLanesProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3 overflow-auto audit-scroll h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3 overflow-auto audit-scroll flex-1 min-h-0">
       {RESEARCH_MODELS.map((model) => {
         const findings = audit.findings.filter((f) => f.modelId === model.id)
         const sources = audit.sources.filter((s) => s.modelIds.includes(model.id))

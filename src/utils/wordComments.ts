@@ -71,7 +71,7 @@ ${commentItems}
 
   // Anchor each comment near a matching field marker or at end of body
   comments.forEach((c, i) => {
-    const marker = findAnchorSpot(documentXml, c.anchor)
+    const marker = findAnchorSpot(documentXml, c.anchor, c.quote)
     if (!marker) return
     const insertAt = marker.index + marker.length
     const bookmark = `<w:commentRangeStart w:id="${i}"/><w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr><w:commentReference w:id="${i}"/></w:r><w:commentRangeEnd w:id="${i}"/>`
@@ -103,27 +103,38 @@ function escapeXml(s: string) {
     .replace(/"/g, "&quot;")
 }
 
-function findAnchorSpot(xml: string, anchor: string): { index: number; length: number } | null {
+function findAnchorSpot(xml: string, anchor: string, quote?: string): { index: number; length: number } | null {
+  const quoteNeedles = quote
+    ? [xmlSnippet(quote), xmlSnippet(quote.slice(0, 36)), quote.slice(0, 24)].filter((n) => n.length >= 8)
+    : []
   const needles: Record<string, string[]> = {
-    contact: ["Contact", "CONTACT", "Rex Heng"],
-    customer: ["Customer", "CUSTOMER", "Salutation"],
-    objectives: ["Objective", "OBJECTIVES", "Objectives"],
-    key_messages: ["Key Message", "KEY MESSAGE", "Key messages"],
-    engagement_background: ["Engagement", "ENGAGEMENT", "Background"],
-    campaign_background: ["Campaign", "CAMPAIGN"],
-    cust_sat: ["Customer Sat", "CUST SAT", "Satisfaction", "Issues"],
-    biography: ["Biography", "BIOGRAPHY"],
-    agenda: ["Agenda", "AGENDA", "Logistics"],
+    contact: [...quoteNeedles, "Rex Heng", "Contact", "CONTACT"],
+    customer: [...quoteNeedles, "Customer", "CUSTOMER", "Salutation"],
+    objectives: [...quoteNeedles, "Objective", "OBJECTIVES", "Objectives"],
+    key_messages: [...quoteNeedles, "Key Message", "KEY MESSAGE", "Key messages"],
+    engagement_background: [...quoteNeedles, "Engagement", "ENGAGEMENT", "Background"],
+    campaign_background: [...quoteNeedles, "Campaign", "CAMPAIGN"],
+    cust_sat: [...quoteNeedles, "Customer Sat", "CUST SAT", "Satisfaction", "Issues"],
+    biography: [...quoteNeedles, "Biography", "BIOGRAPHY"],
+    agenda: [...quoteNeedles, "Agenda", "AGENDA", "Logistics"],
   }
-  const list = needles[anchor] ?? [anchor]
+  const list = needles[anchor] ?? [...quoteNeedles, anchor]
   for (const n of list) {
     const idx = xml.indexOf(n)
     if (idx !== -1) {
-      // find end of containing <w:t>...</w:t> or just after the match
       const close = xml.indexOf("</w:t>", idx)
       if (close !== -1) return { index: close + "</w:t>".length, length: 0 }
       return { index: idx + n.length, length: 0 }
     }
   }
   return null
+}
+
+function xmlSnippet(s: string) {
+  return s
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
 }

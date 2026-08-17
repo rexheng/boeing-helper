@@ -11,7 +11,7 @@ interface GroundedBriefProps {
 
 export function GroundedBrief({ audit, enabled, selectedSourceId, onSelectSource }: GroundedBriefProps) {
   return (
-    <div className="overflow-auto audit-scroll h-full p-5 sm:p-7">
+    <div className="overflow-auto audit-scroll flex-1 min-h-0 p-5 sm:p-7">
       <div className="max-w-3xl mx-auto space-y-8">
         <header>
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--boeing-blue)" }}>
@@ -21,7 +21,7 @@ export function GroundedBrief({ audit, enabled, selectedSourceId, onSelectSource
             What the models found
           </h3>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            Click a superscript to open the excerpt and the model that retrieved it.
+            Click a superscript to open the excerpt. The inspector stays on the right — scroll this column, not the page.
           </p>
         </header>
 

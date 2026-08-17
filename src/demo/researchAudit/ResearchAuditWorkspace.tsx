@@ -65,6 +65,7 @@ export function ResearchAuditWorkspace({
   const [hasMentioning, setHasMentioning] = useState(false)
   const [laneFilter, setLaneFilter] = useState<Set<ResearchLane>>(new Set(["company", "industry", "country"]))
   const [inspectorOpen, setInspectorOpen] = useState(false)
+  const [inspectorTick, setInspectorTick] = useState(0)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -82,6 +83,7 @@ export function ResearchAuditWorkspace({
     const src = audit.sources.find((s) => s.id === id)
     if (src?.findingIds[0]) setSelectedFindingId(src.findingIds[0])
     setInspectorOpen(true)
+    setInspectorTick((n) => n + 1)
   }
 
   const selectFinding = (id: string) => {
@@ -89,6 +91,7 @@ export function ResearchAuditWorkspace({
     const f = audit.findings.find((x) => x.id === id)
     if (f?.sourceIds[0]) setSelectedSourceId(f.sourceIds[0])
     setInspectorOpen(true)
+    setInspectorTick((n) => n + 1)
   }
 
   const filtered: AuditSource[] = useMemo(() => {
@@ -452,7 +455,10 @@ export function ResearchAuditWorkspace({
           )}
         </section>
 
-        <div className={`audit-inspector-wrap ${inspectorOpen ? "is-open" : ""} ${view === "corpus" ? "audit-inspector-wrap--overlay" : ""}`}>
+        <div
+          className={`audit-inspector-wrap ${inspectorOpen ? "is-open" : ""} ${view === "corpus" ? "audit-inspector-wrap--overlay" : ""}`}
+          data-flash={inspectorTick || undefined}
+        >
           <button
             type="button"
             className="audit-inspector-backdrop"

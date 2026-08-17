@@ -707,7 +707,7 @@ export function AgentResearch({
 
   if (isComplete && result) {
     return (
-      <div className="space-y-3">
+      <div className="h-full min-h-0 flex flex-col gap-3">
         {isFallback && (
           <div
             className="flex flex-wrap items-center gap-3 rounded px-4 py-3"
