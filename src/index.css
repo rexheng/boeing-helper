@@ -1090,7 +1090,7 @@ a:hover { color: var(--boeing-blue); }
   background: #fff;
   border: 1px solid var(--border-glass);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   min-height: 0;
 }
 
@@ -1107,17 +1107,19 @@ a:hover { color: var(--boeing-blue); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding: 0 4px;
-  border-radius: 3px;
-  font-size: 10px;
+  min-width: 0.95rem;
+  height: 0.95rem;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-size: 9px;
   font-weight: 700;
   font-family: var(--font-mono);
   line-height: 1;
   cursor: pointer;
   border: 0;
   vertical-align: super;
+  position: relative;
+  top: -0.15em;
   transition: background-color 120ms linear, color 120ms linear;
 }
 
@@ -1156,6 +1158,118 @@ a:hover { color: var(--boeing-blue); }
 
 .audit-indices {
   min-width: 16rem;
+}
+
+.audit-indices__cited {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.audit-indices__cited strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--boeing-navy);
+  font-weight: 700;
+  text-transform: none;
+}
+
+.audit-skip {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.audit-skip:hover {
+  color: var(--boeing-blue);
+}
+
+.audit-quiet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.audit-quiet-btn:hover {
+  color: var(--boeing-blue);
+}
+
+.audit-notes {
+  background: #fff;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+
+.audit-grid--corpus {
+  grid-template-columns: minmax(232px, 280px) minmax(0, 1fr);
+}
+
+.audit-grid--corpus .audit-inspector-wrap,
+.audit-inspector-wrap--overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.audit-grid--corpus .audit-inspector-wrap.is-open,
+.audit-inspector-wrap--overlay.is-open {
+  pointer-events: auto;
+}
+
+.audit-grid--corpus .audit-inspector-wrap .audit-pane--inspector,
+.audit-inspector-wrap--overlay .audit-pane--inspector {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(100%, 380px);
+  transform: translateX(110%);
+  transition: transform 0.28s var(--ease-out-expo);
+  z-index: 2;
+  border-radius: 0;
+}
+
+.audit-grid--corpus .audit-inspector-wrap.is-open .audit-pane--inspector,
+.audit-inspector-wrap--overlay.is-open .audit-pane--inspector {
+  transform: translateX(0);
+}
+
+.audit-grid--corpus .audit-inspector-backdrop,
+.audit-inspector-wrap--overlay .audit-inspector-backdrop {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 34, 64, 0.32);
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s linear;
+}
+
+.audit-grid--corpus .audit-inspector-wrap.is-open .audit-inspector-backdrop,
+.audit-inspector-wrap--overlay.is-open .audit-inspector-backdrop {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .audit-indices table {

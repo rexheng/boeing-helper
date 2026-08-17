@@ -11,7 +11,6 @@ import type {
   ResearchLane,
   ResearchModel,
   SourceKind,
-  StanceCounts,
 } from "../types/researchAudit"
 
 export const RESEARCH_MODELS: ResearchModel[] = [
@@ -43,15 +42,6 @@ const DISPUTE_RE =
 const SUPPORT_RE =
   /\b(confirm|order|deliver|sign|enhance|on order|game-changer|induct|upgrade|commit|launch|agree|expand)\b/i
 
-function hash(s: string): number {
-  let h = 2166136261
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
-
 function parseYear(date?: string): number {
   const m = date?.match(/(20\d{2})/)
   return m ? Number(m[1]) : 2026
@@ -73,17 +63,6 @@ function headlineStance(headline: string): CitationStance {
   if (DISPUTE_RE.test(headline)) return "disputing"
   if (SUPPORT_RE.test(headline)) return "supporting"
   return "mentioning"
-}
-
-function stanceCountsFor(seed: string, kind: SourceKind, primary: CitationStance): StanceCounts {
-  const h = hash(seed)
-  if (kind === "internal") {
-    return { supporting: 2 + (h % 5), disputing: 0, mentioning: 1 + (h % 3) }
-  }
-  const supporting = primary === "supporting" ? 3 + (h % 7) : 1 + (h % 4)
-  const disputing = primary === "disputing" ? 2 + (h % 5) : h % 3
-  const mentioning = 4 + (h % 11)
-  return { supporting, disputing, mentioning }
 }
 
 const PUBLISHER_QUERY: { match: RegExp; site: string }[] = [
@@ -109,18 +88,13 @@ const PUBLISHER_QUERY: { match: RegExp; site: string }[] = [
 ]
 
 function sourceUrl(publisher: string, title: string, kind: SourceKind, domain?: string): string | undefined {
-  if (kind === "internal") return undefined
   if (kind === "website" && domain) {
     const host = domain.replace(/^https?:\/\//, "").replace(/\/$/, "")
     return `https://${host}`
   }
-  if (kind === "linkedin") {
-    return `https://www.google.com/search?q=${encodeURIComponent(`${title} site:linkedin.com`)}`
-  }
+  if (kind !== "article" && kind !== "press") return undefined
   const hit = PUBLISHER_QUERY.find((p) => p.match.test(publisher))
-  const q = hit
-    ? `"${title}" site:${hit.site}`
-    : `"${title}" ${publisher}`
+  const q = hit ? `"${title}" site:${hit.site}` : `"${title}" ${publisher}`
   return `https://www.google.com/search?q=${encodeURIComponent(q)}`
 }
 
@@ -160,7 +134,7 @@ interface SourceDraft {
   lanes: ResearchLane[]
   modelIds: ResearchLane[]
   primaryStance: CitationStance
-  classification?: "open" | "internal"
+  classification?: "open" | "internal" | "synthesized"
   url?: string
 }
 
@@ -216,10 +190,10 @@ export function buildResearchAudit(
     title: `Campaign memo — ${company.name}`,
     kind: "internal",
     publisher: "Boeing SEA Campaign Archive",
-    authors: "Boeing Helper · Internal Index",
+    authors: "Boeing SEA Account Archive",
     year: 2026,
     date: "2026",
-    snippet: `RAG hit: prior campaign framing for ${company.name}. Programme posture, open items and account history retrieved from the secured index.`,
+    snippet: `Simulated RAG in this environment: campaign framing for ${company.name}. Programme posture and open items for ${meetingType}.`,
     excerpt: `Internal campaign memo retrieved via RAG for ${company.name}. ${firstSentence(research.company.overview || company.tagline)} Account team notes flag sustainment, schedule credibility and local-industry participation as the live issues for ${meetingType}.`,
     lanes: ["company"],
     modelIds: ["company"],
@@ -232,9 +206,9 @@ export function buildResearchAudit(
     title: `Prior meeting notes — ${person.name}`,
     kind: "internal",
     publisher: "Boeing SEA Account Archive",
-    authors: "Boeing Helper · Internal Index",
+    authors: "Boeing SEA Account Archive",
     year: 2026,
-    snippet: `Matched internal records for ${person.name}, ${person.title}. Retrieval-augmented search against meeting notes and campaign memos.`,
+    snippet: `Simulated RAG match for ${person.name}, ${person.title}. Internal record search is simulated in this environment.`,
     excerpt: `Secured index match for ${person.name} (${person.title}). ${clip(research.person.profile_overview || research.person.background, 400)}`,
     lanes: ["company"],
     modelIds: ["company"],
@@ -247,9 +221,9 @@ export function buildResearchAudit(
     title: `Account history — ${company.name} / Boeing installed base`,
     kind: "internal",
     publisher: "Boeing Customer Support · SEA",
-    authors: "Boeing Helper · Internal Index",
+    authors: "Boeing SEA Account Archive",
     year: 2026,
-    snippet: "Installed-base and sustainment history pulled from the internal record store — not reachable from open web search.",
+    snippet: "Simulated installed-base extract — not reachable from open web search. Internal record search is simulated here.",
     excerpt: `Internal installed-base extract for ${company.name}. ${research.company.key_metrics.map((m) => `${m.label}: ${m.value}`).join("; ") || firstSentence(research.company.overview)}`,
     lanes: ["company"],
     modelIds: ["company"],
@@ -286,7 +260,7 @@ export function buildResearchAudit(
       snippet: `${item.source}${item.date ? ` · ${item.date}` : ""} — open-source coverage used by the company-research model.`,
       excerpt: item.headline,
       lanes: ["company"],
-      modelIds: ["company", "industry"],
+      modelIds: ["company"],
       primaryStance: stance,
     })
     findings.push({
@@ -309,14 +283,15 @@ export function buildResearchAudit(
       id,
       title: `${metric.label} — ${company.name}`,
       kind: "metric",
-      publisher: "Programme & fleet status extract",
-      authors: "Company research model",
+      publisher: company.name,
+      authors: company.name,
       year: 2026,
       snippet: `${metric.label}: ${metric.value}`,
       excerpt: `Extracted programme metric for ${company.name}. ${metric.label} is recorded as ${metric.value}. Cross-checked against internal account history and open reporting.`,
       lanes: ["company"],
       modelIds: ["company"],
       primaryStance: "supporting",
+      classification: "synthesized",
     })
     findings.push({
       id: `f-metric-${i}`,
@@ -337,14 +312,16 @@ export function buildResearchAudit(
     id: "src-industry-brief",
     title: `Sector intelligence brief — ${company.industry || countryName} aerospace`,
     kind: "report",
-    publisher: "Industry research model",
-    authors: "Industry research model",
+    publisher: `${countryName} aerospace reporting`,
+    authors: "Open-source compilation",
     year: 2026,
     snippet: clip(research.industry.competitive_context),
     excerpt: research.industry.competitive_context,
     lanes: ["industry"],
     modelIds: ["industry"],
     primaryStance: "mentioning",
+    classification: "synthesized",
+    url: undefined,
   })
 
   if (research.industry.competitive_context) {
@@ -368,14 +345,16 @@ export function buildResearchAudit(
       id,
       title: `Industry trend ${i + 1}: ${clip(trend, 88)}`,
       kind: "report",
-      publisher: "Industry research model",
-      authors: "Industry research model",
+      publisher: `${countryName} aerospace reporting`,
+      authors: "Open-source compilation",
       year: 2026,
       snippet: clip(trend),
       excerpt: trend,
       lanes: ["industry"],
-      modelIds: ["industry", "country"],
+      modelIds: ["industry"],
       primaryStance: DISPUTE_RE.test(trend) ? "disputing" : "mentioning",
+      classification: "synthesized",
+      url: undefined,
     })
     findings.push({
       id: `f-trend-${i}`,
@@ -401,9 +380,10 @@ export function buildResearchAudit(
       year: parseYear(research.person.linkedin_posts[0]?.date) || 2026,
       snippet: clip(research.person.background),
       excerpt: research.person.background,
-      lanes: ["industry", "company"],
-      modelIds: ["industry", "company"],
+      lanes: ["industry"],
+      modelIds: ["industry"],
       primaryStance: "supporting",
+      classification: "synthesized",
     })
     findings.push({
       id: "f-bio",
@@ -436,6 +416,7 @@ export function buildResearchAudit(
 
   research.person.linkedin_posts.forEach((post, i) => {
     const id = `src-post-${i}`
+    const stance = headlineStance(post.text)
     pushSource({
       id,
       title: `Public remarks — ${person.name}${post.date ? ` (${post.date})` : ""}`,
@@ -448,7 +429,7 @@ export function buildResearchAudit(
       excerpt: post.text,
       lanes: ["industry"],
       modelIds: ["industry"],
-      primaryStance: "supporting",
+      primaryStance: stance,
       url: person.linkedinUrl,
     })
     findings.push({
@@ -457,7 +438,7 @@ export function buildResearchAudit(
       lane: "industry",
       modelId: "industry",
       sourceIds: [id, "src-bio"],
-      stance: "supporting",
+      stance,
       excerpt: post.text,
       confidence: "medium",
       tags: ["remarks", post.date || "undated"],
@@ -471,14 +452,15 @@ export function buildResearchAudit(
       id: "src-country-brief",
       title: `Country brief — ${countryName}`,
       kind: "briefing",
-      publisher: "Country research model",
-      authors: "Country research model",
+      publisher: `${countryName} open-source brief`,
+      authors: "Open-source compilation",
       year: 2026,
       snippet: clip(research.country.overview),
       excerpt: research.country.overview,
       lanes: ["country"],
       modelIds: ["country"],
       primaryStance: "mentioning",
+      classification: "synthesized",
     })
 
     if (research.country.overview) {
@@ -501,14 +483,15 @@ export function buildResearchAudit(
         id: "src-bilateral",
         title: `Bilateral aerospace agenda — US / ${countryName}`,
         kind: "briefing",
-        publisher: "Country research model",
-        authors: "Country research model",
+        publisher: `${countryName} bilateral brief`,
+        authors: "Open-source compilation",
         year: 2026,
         snippet: clip(research.country.bilateral_context),
         excerpt: research.country.bilateral_context,
-        lanes: ["country", "company"],
-        modelIds: ["country", "company"],
+        lanes: ["country"],
+        modelIds: ["country"],
         primaryStance: "supporting",
+        classification: "synthesized",
       })
       findings.push({
         id: "f-bilateral",
@@ -531,13 +514,14 @@ export function buildResearchAudit(
         title: `National priority ${i + 1} — ${countryName}`,
         kind: "briefing",
         publisher: `${countryName} defence / aviation agenda`,
-        authors: "Country research model",
+        authors: "Open-source compilation",
         year: 2026,
         snippet: clip(item),
         excerpt: item,
         lanes: ["country"],
         modelIds: ["country"],
         primaryStance: "supporting",
+        classification: "synthesized",
       })
       findings.push({
         id: `f-priority-${i}`,
@@ -559,14 +543,15 @@ export function buildResearchAudit(
         id,
         title: `Counterpart concern ${i + 1} — ${person.name}`,
         kind: "briefing",
-        publisher: "Country research model",
-        authors: "Country research model",
+        publisher: `${countryName} counterpart brief`,
+        authors: "Open-source compilation",
         year: 2026,
         snippet: clip(item),
         excerpt: item,
         lanes: ["country"],
-        modelIds: ["country", "industry"],
+        modelIds: ["country"],
         primaryStance: "disputing",
+        classification: "synthesized",
       })
       findings.push({
         id: `f-concern-${i}`,
@@ -595,18 +580,26 @@ export function buildResearchAudit(
   const citeMap = new Map<string, number>()
   sortedDrafts.forEach((s, i) => citeMap.set(s.id, i + 1))
 
-  const findingIdsBySource = new Map<string, string[]>()
-  for (const f of findings) {
-    for (const sid of f.sourceIds) {
-      const list = findingIdsBySource.get(sid) ?? []
-      list.push(f.id)
-      findingIdsBySource.set(sid, list)
-    }
-  }
+  const finalFindings: AuditFinding[] = findings.map((f) => ({
+    id: f.id,
+    claim: f.claim,
+    lane: f.lane,
+    modelId: f.modelId,
+    sourceIds: f.sourceIds.filter((id) => sources.some((s) => s.id === id)),
+    stance: f.stance,
+    excerpt: f.excerpt,
+    confidence: f.confidence,
+    tags: f.tags,
+    field: f.field,
+  }))
 
   const finalSources: AuditSource[] = sources.map((s) => {
-    const counts = stanceCountsFor(`${company.id}:${s.id}:${s.title}`, s.kind, s.primaryStance)
-    const findingIds = findingIdsBySource.get(s.id) ?? []
+    const citing = finalFindings.filter((f) => f.sourceIds.includes(s.id))
+    const counts = {
+      supporting: citing.filter((f) => f.stance === "supporting").length,
+      disputing: citing.filter((f) => f.stance === "disputing").length,
+      mentioning: citing.filter((f) => f.stance === "mentioning").length,
+    }
     return {
       id: s.id,
       citeIndex: citeMap.get(s.id) ?? 0,
@@ -622,24 +615,11 @@ export function buildResearchAudit(
       lanes: s.lanes,
       modelIds: s.modelIds,
       stanceCounts: counts,
-      citedBy: counts.supporting + counts.disputing + counts.mentioning,
-      findingIds,
+      citedBy: citing.length,
+      findingIds: citing.map((f) => f.id),
       classification: s.classification,
     }
   })
-
-  const finalFindings: AuditFinding[] = findings.map((f) => ({
-    id: f.id,
-    claim: f.claim,
-    lane: f.lane,
-    modelId: f.modelId,
-    sourceIds: f.sourceIds.filter((id) => sources.some((s) => s.id === id)),
-    stance: f.stance,
-    excerpt: f.excerpt,
-    confidence: f.confidence,
-    tags: f.tags,
-    field: f.field,
-  }))
 
   const sourceById = new Map(finalSources.map((s) => [s.id, s]))
 
@@ -677,6 +657,15 @@ export function buildResearchAudit(
       ["f-company-overview", ...research.company.recent_news.map((_, i) => `f-news-${i}`)],
     )
   }
+  if (research.company.key_metrics.length) {
+    addGrounded(
+      "g-metrics",
+      "company",
+      "Programme metrics",
+      research.company.key_metrics.map((m) => `${m.label}: ${m.value}`).join(". ") + ".",
+      research.company.key_metrics.map((_, i) => `f-metric-${i}`),
+    )
+  }
   if (research.industry.competitive_context) {
     addGrounded(
       "g-industry",
@@ -702,6 +691,15 @@ export function buildResearchAudit(
       countryName,
       `${research.country.overview} ${research.country.bilateral_context}`.trim(),
       ["f-country-overview", "f-bilateral"],
+    )
+  }
+  if (research.country?.priorities.length) {
+    addGrounded(
+      "g-priorities",
+      "country",
+      "National priorities",
+      research.country.priorities.join(" "),
+      research.country.priorities.map((_, i) => `f-priority-${i}`),
     )
   }
   if (research.country?.concerns.length) {
@@ -740,7 +738,7 @@ export function buildResearchAudit(
       disputing,
       mentioning,
       internal: finalSources.filter((s) => s.classification === "internal").length,
-      open: finalSources.filter((s) => s.classification !== "internal").length,
+      open: finalSources.filter((s) => s.classification === "open" || !s.classification).length,
     },
   }
 }

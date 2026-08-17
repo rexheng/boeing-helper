@@ -1,4 +1,4 @@
-import { ExternalLink, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 import type { AuditSource, CitationStance } from "../../types/researchAudit"
 import { sourceKindLabel } from "../../utils/researchAudit"
 import { BLUE, NAVY, SortButton, StanceIcon, SUPPORT, DISPUTE, MENTION } from "./ui"
@@ -8,7 +8,8 @@ function StanceCell({ stance, n }: { stance: CitationStance; n: number }) {
   return (
     <span
       className="inline-flex items-center justify-end gap-1 tabular-nums font-semibold"
-      style={{ color, fontSize: 12 }}
+      style={{ color, fontSize: 12, minWidth: 28 }}
+      title={`${stance}: ${n}`}
     >
       <StanceIcon stance={stance} size={13} />
       {n}
@@ -30,6 +31,7 @@ interface CorpusTableProps {
   total: number
   onPage: (p: number) => void
   onPageSize: (n: number) => void
+  onClearFilters?: () => void
 }
 
 export function CorpusTable({
@@ -44,13 +46,18 @@ export function CorpusTable({
   total,
   onPage,
   onPageSize,
+  onClearFilters,
 }: CorpusTableProps) {
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const from = total === 0 ? 0 : page * pageSize + 1
   const to = Math.min(total, (page + 1) * pageSize)
 
   const header = (key: CorpusSortKey, label: string, align: "left" | "right" = "left") => (
-    <th className={`px-3 py-2 ${align === "right" ? "text-right" : "text-left"}`} scope="col">
+    <th
+      className={`px-3 py-2 ${align === "right" ? "text-right" : "text-left"}`}
+      scope="col"
+      aria-sort={sortKey === key ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+    >
       <SortButton label={label} active={sortKey === key} dir={sortDir} onClick={() => onSort(key)} align={align} />
     </th>
   )
@@ -63,17 +70,20 @@ export function CorpusTable({
             <tr style={{ background: "#fff", borderBottom: "1px solid var(--surface-border)" }}>
               {header("title", "Title")}
               {header("year", "Year")}
-              {header("authors", "Authors")}
-              {header("supporting", "Supporting", "right")}
-              {header("disputing", "Disputing", "right")}
-              {header("mentioning", "Mentioning", "right")}
+              {header("supporting", "Cites", "right")}
+              {header("citedBy", "Cited by", "right")}
             </tr>
           </thead>
           <tbody>
             {sources.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                  No sources match these filters.
+                <td colSpan={4} className="px-3 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                  <p>No sources match these filters.</p>
+                  {onClearFilters && (
+                    <button type="button" onClick={onClearFilters} className="mt-2 text-xs font-semibold" style={{ color: BLUE }}>
+                      Clear filters
+                    </button>
+                  )}
                 </td>
               </tr>
             )}
@@ -97,7 +107,7 @@ export function CorpusTable({
                   }}
                 >
                   <td className="px-3 py-3 align-top">
-                    <p className="text-[13px] leading-snug font-medium">
+                    <p className="text-[13px] leading-snug">
                       <span className="tabular-nums mr-1.5 text-[11px] font-semibold" style={{ color: "var(--text-muted)" }}>
                         [{s.citeIndex}]
                       </span>
@@ -110,35 +120,35 @@ export function CorpusTable({
                           className="audit-title-link"
                         >
                           {s.title}
-                          <ExternalLink size={11} className="inline ml-1 -mt-px opacity-60" />
                         </a>
                       ) : (
-                        <span style={{ color: BLUE }}>{s.title}</span>
+                        <span className="audit-title-link" style={{ cursor: "pointer" }}>{s.title}</span>
                       )}
                     </p>
-                    <p className="text-[11px] mt-1 leading-snug" style={{ color: "var(--text-muted)" }}>
+                    <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "var(--text-muted)" }}>
+                      {s.authors}
+                      {s.publisher ? ` — ${s.publisher}` : ""}
+                      {s.date ? `, ${s.date}` : `, ${s.year}`}
                       {s.classification === "internal" && (
-                        <Lock size={10} className="inline mr-1 -mt-px" />
+                        <><Lock size={10} className="inline ml-1.5 -mt-px" /> Internal</>
                       )}
+                      {s.classification === "synthesized" && " · Synthesized"}
+                      {" · "}
                       {sourceKindLabel(s.kind)}
-                      {s.date ? ` · ${s.date}` : ` · ${s.year}`}
-                      {s.publisher ? ` · ${s.publisher}` : ""}
                     </p>
                   </td>
                   <td className="px-3 py-3 align-top text-[13px] tabular-nums" style={{ color: NAVY }}>
                     {s.year}
                   </td>
-                  <td className="px-3 py-3 align-top text-[12px] leading-snug" style={{ color: "var(--text-secondary)" }}>
-                    {s.authors}
+                  <td className="px-3 py-3 align-top">
+                    <div className="flex items-center justify-end gap-2.5">
+                      <StanceCell stance="supporting" n={s.stanceCounts.supporting} />
+                      <StanceCell stance="disputing" n={s.stanceCounts.disputing} />
+                      <StanceCell stance="mentioning" n={s.stanceCounts.mentioning} />
+                    </div>
                   </td>
-                  <td className="px-3 py-3 align-top text-right">
-                    <StanceCell stance="supporting" n={s.stanceCounts.supporting} />
-                  </td>
-                  <td className="px-3 py-3 align-top text-right">
-                    <StanceCell stance="disputing" n={s.stanceCounts.disputing} />
-                  </td>
-                  <td className="px-3 py-3 align-top text-right">
-                    <StanceCell stance="mentioning" n={s.stanceCounts.mentioning} />
+                  <td className="px-3 py-3 align-top text-right text-[13px] font-semibold tabular-nums" style={{ color: BLUE }}>
+                    {s.citedBy}
                   </td>
                 </tr>
               )

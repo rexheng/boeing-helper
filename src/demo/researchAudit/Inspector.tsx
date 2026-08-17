@@ -100,12 +100,16 @@ export function Inspector({ audit, source, finding, onSelectSource, onSelectFind
                 className="inline-flex items-center gap-1.5 text-xs font-medium"
                 style={{ color: BLUE }}
               >
-                Open source
+                {source.kind === "article" || source.kind === "press" ? "Search for this article" : "Open source"}
                 <ExternalLink size={12} />
               </a>
+            ) : source.classification === "synthesized" ? (
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Synthesized from this research lane — not a primary URL.
+              </p>
             ) : (
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                No public URL — held in the Boeing internal index.
+                No public URL — held in the Boeing internal index (simulated in this environment).
               </p>
             )}
           </section>

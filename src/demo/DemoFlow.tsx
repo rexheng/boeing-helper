@@ -381,6 +381,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
             prefetchedResult={prefetchedResult}
             prefetchInProgress={prefetchInProgress}
             completedResult={research}
+            initialNotes={internalNotes}
             onReady={(r, notes) => {
               setResearch(r)
               setInternalNotes(notes)

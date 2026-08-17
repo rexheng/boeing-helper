@@ -82,7 +82,7 @@ export function SourceLibrary({
           </button>
           <span style={{ color: "var(--surface-border)" }}>·</span>
           <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-            Unchecked sources drop out of the corpus
+            Unchecked sources hide from this library only
           </p>
         </div>
       </header>

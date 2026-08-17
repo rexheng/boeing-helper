@@ -15,6 +15,7 @@ interface AgentResearchProps {
   prefetchInProgress?: boolean
   /** Already-finished research — skip the trace and open the audit library. */
   completedResult?: ResearchResult | null
+  initialNotes?: string
   onReady?: (result: ResearchResult, internalNotes: string) => void
   onComplete: (result: ResearchResult, internalNotes: string) => void
 }
@@ -291,6 +292,7 @@ export function AgentResearch({
   prefetchedResult,
   prefetchInProgress,
   completedResult,
+  initialNotes,
   onReady,
   onComplete,
 }: AgentResearchProps) {
@@ -298,7 +300,7 @@ export function AgentResearch({
   const [isFallback, setIsFallback] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ResearchResult | null>(null)
-  const [internalNotes, setInternalNotes] = useState("")
+  const [internalNotes, setInternalNotes] = useState(initialNotes ?? "")
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [agents, setAgents] = useState<TraceAgent[]>([
     {

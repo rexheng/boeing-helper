@@ -18,12 +18,10 @@ export function GroundedBrief({ audit, enabled, selectedSourceId, onSelectSource
             Grounded brief
           </p>
           <h3 className="mt-1 text-xl font-bold" style={{ color: NAVY }}>
-            What the models found — with citations
+            What the models found
           </h3>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            Every sentence below is backed by a source in the library. Click a superscript to open the
-            excerpt, the model that retrieved it, and the underlying record. This is the research, not the
-            meeting paper.
+            Click a superscript to open the excerpt and the model that retrieved it.
           </p>
         </header>
 
@@ -77,7 +75,7 @@ function GroundedBlock({
             <span key={i}>
               {sentence.trimEnd()}
               {assigned.length > 0 && (
-                <span className="inline-flex items-center gap-0.5 ml-1 mr-0.5 align-middle relative -top-[1px]">
+                <span className="inline-flex items-center gap-0.5 ml-0.5">
                   {assigned.map((c) => {
                     const src = sources.find((s) => s.id === c.sourceId)
                     if (!src) return null

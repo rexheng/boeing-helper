@@ -44,6 +44,11 @@ export function ModelLanes({
               </div>
             </header>
             <ul className="flex-1 overflow-y-auto audit-scroll p-2 space-y-1.5">
+              {liveFindings.length === 0 && (
+                <li className="px-3 py-6 text-[12px]" style={{ color: "var(--text-muted)" }}>
+                  This model has no findings in the current source set.
+                </li>
+              )}
               {liveFindings.map((f) => (
                 <FindingCard
                   key={f.id}

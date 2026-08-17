@@ -46,7 +46,7 @@ export interface AuditSource {
   stanceCounts: StanceCounts
   citedBy: number
   findingIds: string[]
-  classification?: "open" | "internal"
+  classification?: "open" | "internal" | "synthesized"
 }
 
 export interface AuditFinding {

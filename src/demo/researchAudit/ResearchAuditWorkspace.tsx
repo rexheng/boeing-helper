@@ -6,7 +6,6 @@ import {
   Library,
   PanelsTopLeft,
   Search,
-  SkipForward,
 } from "lucide-react"
 import type { Company } from "../../data/companies"
 import type { Person } from "../../data/people"
@@ -23,7 +22,7 @@ import { GroundedBrief } from "./GroundedBrief"
 import { Inspector } from "./Inspector"
 import { ModelLanes } from "./ModelLanes"
 import { SourceLibrary } from "./SourceLibrary"
-import { BLUE, NAVY, StanceCountsRow } from "./ui"
+import { BLUE, NAVY } from "./ui"
 
 type View = "corpus" | "models" | "grounded"
 
@@ -51,7 +50,7 @@ export function ResearchAuditWorkspace({
     [research, company, person, meetingType],
   )
 
-  const [view, setView] = useState<View>("corpus")
+  const [view, setView] = useState<View>("grounded")
   const [sourceQuery, setSourceQuery] = useState("")
   const [titleQuery, setTitleQuery] = useState("")
   const [enabled, setEnabled] = useState<Set<string>>(() => new Set(audit.sources.map((s) => s.id)))
@@ -64,7 +63,6 @@ export function ResearchAuditWorkspace({
   const [hasSupporting, setHasSupporting] = useState(false)
   const [hasDisputing, setHasDisputing] = useState(false)
   const [hasMentioning, setHasMentioning] = useState(false)
-  const [includeZero, setIncludeZero] = useState(true)
   const [laneFilter, setLaneFilter] = useState<Set<ResearchLane>>(new Set(["company", "industry", "country"]))
   const [inspectorOpen, setInspectorOpen] = useState(false)
 
@@ -107,11 +105,6 @@ export function ResearchAuditWorkspace({
     if (hasSupporting) rows = rows.filter((s) => s.stanceCounts.supporting > 0)
     if (hasDisputing) rows = rows.filter((s) => s.stanceCounts.disputing > 0)
     if (hasMentioning) rows = rows.filter((s) => s.stanceCounts.mentioning > 0)
-    if (!includeZero) {
-      rows = rows.filter(
-        (s) => s.stanceCounts.supporting + s.stanceCounts.disputing + s.stanceCounts.mentioning > 0,
-      )
-    }
     const dir = sortDir === "asc" ? 1 : -1
     rows = [...rows].sort((a, b) => {
       const val = (s: AuditSource) => {
@@ -146,14 +139,13 @@ export function ResearchAuditWorkspace({
     hasSupporting,
     hasDisputing,
     hasMentioning,
-    includeZero,
     sortKey,
     sortDir,
   ])
 
   useEffect(() => {
     setPage(0)
-  }, [titleQuery, pageSize, hasSupporting, hasDisputing, hasMentioning, includeZero, sortKey, sortDir, enabled, laneFilter])
+  }, [titleQuery, pageSize, hasSupporting, hasDisputing, hasMentioning, sortKey, sortDir, enabled, laneFilter])
 
   const pageRows = filtered.slice(page * pageSize, page * pageSize + pageSize)
 
@@ -193,13 +185,14 @@ export function ResearchAuditWorkspace({
 
   const exportCsv = () => {
     const stem = person.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    downloadTextFile(`research-audit-${stem}.csv`, auditToCsv(audit), "text/csv;charset=utf-8")
+    const subset = { ...audit, sources: audit.sources.filter((s) => enabled.has(s.id)) }
+    downloadTextFile(`research-audit-${stem}.csv`, auditToCsv(subset), "text/csv;charset=utf-8")
   }
 
   const views: { id: View; label: string; icon: typeof Library }[] = [
-    { id: "corpus", label: "Corpus", icon: Library },
-    { id: "models", label: "By model", icon: PanelsTopLeft },
     { id: "grounded", label: "Grounded brief", icon: LayoutList },
+    { id: "models", label: "By model", icon: PanelsTopLeft },
+    { id: "corpus", label: "Corpus", icon: Library },
   ]
 
   const initial = person.initial || person.name.charAt(0).toUpperCase()
@@ -228,8 +221,7 @@ export function ResearchAuditWorkspace({
               </div>
             )}
             <div className="min-w-0">
-              <p className="system-badge system-badge--dark">Step 04 · Research library</p>
-              <h2 className="mt-1 text-2xl font-bold truncate" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+              <h2 className="text-2xl font-bold truncate" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
                 {person.name}
               </h2>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -237,20 +229,20 @@ export function ResearchAuditWorkspace({
               </p>
               <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 {company.name}
-                {audit.subject.countryName ? ` · ${audit.subject.countryName}` : ""} · {meetingType}
-              </p>
-              <p className="mt-2 text-xs leading-relaxed max-w-2xl" style={{ color: "var(--text-secondary)" }}>
-                Full transparency of what each research model retrieved — sources, excerpts and citation
-                character — before anything is written into the meeting paper.
+                {audit.subject.countryName ? ` · ${audit.subject.countryName}` : ""}
               </p>
             </div>
           </div>
 
           <div className="audit-indices">
+            <p className="audit-indices__cited">
+              Cited findings
+              <strong>{audit.indices.findings}</strong>
+            </p>
             <table>
               <thead>
                 <tr>
-                  <th>Research indices</th>
+                  <th />
                   <th>All</th>
                   <th>High conf.</th>
                 </tr>
@@ -279,8 +271,8 @@ export function ResearchAuditWorkspace({
               </tbody>
             </table>
             <p className="audit-indices__hint">
-              High conf. = claims the models marked high-confidence, and the sources those claims rest on.
-              {" "}{audit.indices.internal} internal · {audit.indices.open} open.
+              Cite counts are how many findings rest on each source — not a web citation index.
+              {" "}{audit.indices.internal} internal (simulated) · {audit.indices.open} open.
             </p>
           </div>
         </div>
@@ -289,31 +281,26 @@ export function ResearchAuditWorkspace({
           className="px-5 sm:px-7 py-3 flex flex-wrap items-center justify-between gap-3"
           style={{ borderTop: "1px solid var(--surface-border)", background: "var(--bg-muted)" }}
         >
-          <StanceCountsRow
-            counts={{
-              supporting: audit.indices.supporting,
-              disputing: audit.indices.disputing,
-              mentioning: audit.indices.mentioning,
-            }}
-          />
-          <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={exportCsv} className="btn-secondary !min-h-0 !h-9 !px-3 !text-[11px] !tracking-[0.08em]">
+          <p className="text-[11px] max-w-md leading-relaxed" style={{ color: "var(--text-muted)" }}>
+            Unchecked sources hide from this library only. The meeting paper is drafted from the full research set.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={exportCsv} className="audit-quiet-btn" title="Export selected sources">
               <Download size={14} />
-              Export corpus
+              Export
             </button>
-            <button type="button" onClick={onSkip} className="btn-secondary !min-h-0 !h-9 !px-3 !text-[11px] !tracking-[0.08em]">
-              <SkipForward size={14} />
+            <button type="button" onClick={onSkip} className="audit-skip">
               Skip to paper
             </button>
-            <Button onClick={onContinue} className="!min-h-0 !h-9 !px-4 !text-[11px] !tracking-[0.08em]">
-              <FileText size={14} />
+            <Button onClick={onContinue}>
+              <FileText size={16} />
               Compose paper
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="audit-grid">
+      <div className={`audit-grid ${view === "corpus" ? "audit-grid--corpus" : ""}`}>
         <SourceLibrary
           sources={audit.sources}
           enabled={enabled}
@@ -324,7 +311,6 @@ export function ResearchAuditWorkspace({
           onSelect={selectSource}
           onToggleLane={toggleLaneSources}
           onToggleAll={toggleAll}
-          notesSlot={notesSlot}
         />
 
         <section className="audit-pane audit-pane--main flex flex-col min-h-0 min-w-0">
@@ -392,10 +378,6 @@ export function ResearchAuditWorkspace({
                     <input type="checkbox" className="accent-[#0033A1]" checked={hasMentioning} onChange={(e) => setHasMentioning(e.target.checked)} />
                     Has mentioning cites
                   </label>
-                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                    <input type="checkbox" className="accent-[#0033A1]" checked={includeZero} onChange={(e) => setIncludeZero(e.target.checked)} />
-                    Include zero cites
-                  </label>
                   {(["company", "industry", "country"] as ResearchLane[]).map((lane) => (
                     <label key={lane} className="inline-flex items-center gap-1.5 cursor-pointer capitalize">
                       <input
@@ -432,6 +414,13 @@ export function ResearchAuditWorkspace({
                   setPageSize(n)
                   setPage(0)
                 }}
+                onClearFilters={() => {
+                  setTitleQuery("")
+                  setHasSupporting(false)
+                  setHasDisputing(false)
+                  setHasMentioning(false)
+                  setLaneFilter(new Set(["company", "industry", "country"]))
+                }}
               />
             </>
           )}
@@ -457,7 +446,7 @@ export function ResearchAuditWorkspace({
           )}
         </section>
 
-        <div className={`audit-inspector-wrap ${inspectorOpen ? "is-open" : ""}`}>
+        <div className={`audit-inspector-wrap ${inspectorOpen ? "is-open" : ""} ${view === "corpus" ? "audit-inspector-wrap--overlay" : ""}`}>
           <button
             type="button"
             className="audit-inspector-backdrop"
@@ -470,10 +459,16 @@ export function ResearchAuditWorkspace({
             finding={selectedFinding}
             onSelectSource={selectSource}
             onSelectFinding={selectFinding}
-            onClose={() => setInspectorOpen(false)}
+            onClose={view === "corpus" ? () => setInspectorOpen(false) : undefined}
           />
         </div>
       </div>
+
+      {notesSlot && (
+        <div className="audit-notes">
+          {notesSlot}
+        </div>
+      )}
     </div>
   )
 }
