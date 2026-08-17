@@ -358,7 +358,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
 
       <div
         className={`relative z-10 mx-auto px-4 md:px-6 py-10 md:py-14 ${
-          step === 4 || step === 6 ? "max-w-[96rem]" : step === 5 || step === 7 ? "max-w-5xl" : "max-w-4xl"
+          step === 4 || step === 5 || step === 6 ? "max-w-[96rem]" : step === 7 ? "max-w-5xl" : "max-w-4xl"
         } ${step === 4 ? "!py-5 md:!py-6" : ""}`}
       >
         {step === 1 && <CompanySelect onSelect={handleCompanySelect} />}

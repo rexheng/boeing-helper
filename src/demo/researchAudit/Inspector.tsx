@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react"
 import { ExternalLink, Lock, X } from "lucide-react"
 import type { AuditFinding, AuditSource, ResearchAudit } from "../../types/researchAudit"
 import { RESEARCH_MODELS, sourceKindLabel } from "../../utils/researchAudit"
@@ -13,6 +14,11 @@ interface InspectorProps {
 }
 
 export function Inspector({ audit, source, finding, onSelectSource, onSelectFinding, onClose }: InspectorProps) {
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 })
+  }, [source?.id, finding?.id])
   const relatedFindings = source
     ? audit.findings.filter((f) => f.sourceIds.includes(source.id))
     : finding
@@ -49,7 +55,7 @@ export function Inspector({ audit, source, finding, onSelectSource, onSelectFind
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto audit-scroll p-4 space-y-5">
+      <div ref={bodyRef} className="flex-1 overflow-y-auto audit-scroll p-4 space-y-5">
         {!source && !finding && (
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
             Click an article, a finding, or a citation chip to see the excerpt, which model retrieved it, and

@@ -108,7 +108,11 @@ function findAnchorSpot(xml: string, anchor: string): { index: number; length: n
     contact: ["Contact", "CONTACT", "Rex Heng"],
     customer: ["Customer", "CUSTOMER", "Salutation"],
     objectives: ["Objective", "OBJECTIVES", "Objectives"],
+    key_messages: ["Key Message", "KEY MESSAGE", "Key messages"],
     engagement_background: ["Engagement", "ENGAGEMENT", "Background"],
+    campaign_background: ["Campaign", "CAMPAIGN"],
+    cust_sat: ["Customer Sat", "CUST SAT", "Satisfaction", "Issues"],
+    biography: ["Biography", "BIOGRAPHY"],
     agenda: ["Agenda", "AGENDA", "Logistics"],
   }
   const list = needles[anchor] ?? [anchor]

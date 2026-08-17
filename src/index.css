@@ -1076,14 +1076,25 @@ a:hover { color: var(--boeing-blue); }
 
 .audit-workspace {
   animation: fadeInUp 0.45s var(--ease-out-expo);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100vh - 9rem);
+  min-height: 32rem;
+}
+
+.audit-workspace > header {
+  flex-shrink: 0;
 }
 
 .audit-grid {
   display: grid;
   grid-template-columns: minmax(232px, 280px) minmax(0, 1fr) minmax(280px, 340px);
   gap: 12px;
-  min-height: min(72vh, 840px);
+  flex: 1;
+  min-height: 0;
   align-items: stretch;
+  overflow: hidden;
 }
 
 .audit-pane {
@@ -1094,8 +1105,27 @@ a:hover { color: var(--boeing-blue); }
   min-height: 0;
 }
 
+.audit-pane--sources {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .audit-pane--main {
-  min-height: 28rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.audit-inspector-wrap {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.audit-inspector-wrap .audit-pane--inspector {
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
 }
 
 .audit-scroll {
@@ -1213,10 +1243,13 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .audit-notes {
+  flex-shrink: 0;
   background: #fff;
   border: 1px solid var(--border-glass);
   border-radius: var(--radius);
   padding: 12px 16px;
+  max-height: 8.5rem;
+  overflow: auto;
 }
 
 .audit-grid--corpus {
@@ -1375,9 +1408,14 @@ a:hover { color: var(--boeing-blue); }
 }
 
 @media (max-width: 860px) {
+  .audit-workspace {
+    height: auto;
+  }
+
   .audit-grid {
     grid-template-columns: 1fr;
     min-height: 0;
+    overflow: visible;
   }
 
   .audit-pane--sources {
@@ -1386,5 +1424,154 @@ a:hover { color: var(--boeing-blue); }
 
   .audit-pane--main {
     min-height: 24rem;
+  }
+}
+
+/* Boeing Helper Word comments — paper step rail */
+.helper-comments {
+  background: #fff;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: min(78vh, 920px);
+}
+
+.helper-comments__head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.helper-comments__eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--boeing-blue);
+}
+
+.helper-comments__head h3 {
+  margin: 6px 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--boeing-navy);
+  letter-spacing: -0.02em;
+}
+
+.helper-comments__head p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.helper-comments__count {
+  margin-top: 8px !important;
+  font-size: 11px !important;
+  font-weight: 600;
+  color: var(--text-muted) !important;
+}
+
+.helper-comments__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c5cdd4 transparent;
+}
+
+.helper-comment {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 12px 12px 12px 14px;
+  margin-bottom: 6px;
+  background: #fffbeb;
+  box-shadow: inset 3px 0 0 #e8b923;
+}
+
+.helper-comment:hover,
+.helper-comment.is-active {
+  background: #fff6d6;
+  border-color: rgba(232, 185, 35, 0.45);
+}
+
+.helper-comment__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.helper-comment__bh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: var(--boeing-blue);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.helper-comment__n {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.helper-comment__section {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--boeing-navy);
+}
+
+.helper-comment__sev {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.helper-comment__text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.paper-with-comments {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .paper-with-comments {
+    grid-template-columns: 1fr;
+  }
+
+  .helper-comments {
+    max-height: none;
   }
 }

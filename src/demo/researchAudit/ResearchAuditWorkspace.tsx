@@ -201,21 +201,21 @@ export function ResearchAuditWorkspace({
   const highSourceCount = new Set(highFindings.flatMap((f) => f.sourceIds)).size
 
   return (
-    <div className="audit-workspace space-y-4">
+    <div className="audit-workspace">
       <header className="bh-panel overflow-hidden">
         <div style={{ height: 4, background: BLUE }} />
-        <div className="px-5 sm:px-7 py-5 grid gap-6 lg:grid-cols-[1fr_auto] items-start">
+        <div className="px-5 sm:px-6 py-3 grid gap-4 lg:grid-cols-[1fr_auto] items-start">
           <div className="flex items-start gap-4 min-w-0">
             {person.photoUrl ? (
               <img
                 src={person.photoUrl}
                 alt=""
-                className="w-16 h-16 rounded-full object-cover shrink-0"
+                className="w-12 h-12 rounded-full object-cover shrink-0"
                 style={{ border: "2px solid var(--boeing-ice)" }}
               />
             ) : (
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold shrink-0"
+                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0"
                 style={{ background: BLUE }}
               >
                 {initial}

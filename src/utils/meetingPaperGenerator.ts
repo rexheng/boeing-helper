@@ -1,14 +1,18 @@
 import type { ResearchResult } from "../types/research"
 import type { Company } from "../data/companies"
 import { personSurname, type Person } from "../data/people"
+import { buildHelperComments } from "./helperComments"
 
 export interface ReviewComment {
   /** Stable id for Word comment anchoring */
   id: string
   /** Field / section this guidance applies to */
   anchor: string
-  /** Meta guidance for human review — not printed in body text */
+  /** Section label shown in the on-screen Helper rail */
+  sectionLabel: string
+  /** Meta guidance for human review — Word comment + Helper rail, not paper body */
   text: string
+  severity: "ask" | "caution" | "verify"
 }
 
 export interface MeetingPaper {
@@ -41,7 +45,7 @@ export interface MeetingPaper {
     photoUrl?: string
   }
   countryPaperBlurb?: string
-  /** Word-only review comments — never shown in on-screen body copy */
+  /** Boeing Helper Word comments — also shown in the paper UI rail */
   reviewComments: ReviewComment[]
 }
 
@@ -103,23 +107,6 @@ function flagshipOverrides(person: Person, company: Company): Partial<MeetingPap
     ],
     engagementBackground:
       "Public marker Feb 2026: Chief of Air Force framed F-35 and P-8A as RSAF game-changers (CNA). Prior programme touchpoints cover Apache life extension and Chinook sustainment with the Singapore in-country team.",
-    reviewComments: [
-      {
-        id: "rc-phone",
-        anchor: "contact",
-        text: "Reviewer: verify Rex Heng’s in-country mobile before travel and update the phone field.",
-      },
-      {
-        id: "rc-owner",
-        anchor: "objectives",
-        text: "Reviewer: lock the Singapore-side owner for the next written ask before paper freeze.",
-      },
-      {
-        id: "rc-engagement",
-        anchor: "engagement_background",
-        text: "Reviewer: add date, attendees, and open actions from the last Boeing bilateral with Singapore.",
-      },
-    ],
   }
 }
 
@@ -179,32 +166,6 @@ export function generateMeetingPaper(
       ? truncate(research.person.background, 420)
       : research.person.background
 
-  const defaultComments: ReviewComment[] = [
-    {
-      id: "rc-phone",
-      anchor: "contact",
-      text: "Reviewer: verify the Regional Integrator’s in-country number before travel.",
-    },
-    {
-      id: "rc-phonetic",
-      anchor: "customer",
-      text: "Reviewer: validate phonetic pronunciation with the in-country team before the paper locks.",
-    },
-    {
-      id: "rc-engagement",
-      anchor: "engagement_background",
-      text: "Reviewer: add the date of the last engagement, who attended, and open actions before freeze.",
-    },
-  ]
-
-  if (!isAirShow) {
-    defaultComments.push({
-      id: "rc-agenda",
-      anchor: "agenda",
-      text: "Reviewer: gift / photographer arrangements — coordinate with the integrator; delete this block for air-show bilaterals.",
-    })
-  }
-
   return {
     dateLabel: new Date().toLocaleDateString("en-GB", {
       day: "numeric",
@@ -248,6 +209,6 @@ export function generateMeetingPaper(
     countryPaperBlurb: country
       ? truncate(`${country.overview} Priorities: ${country.priorities.slice(0, 2).join("; ")}.`, 280)
       : undefined,
-    reviewComments: flagship?.reviewComments ?? defaultComments,
+    reviewComments: buildHelperComments(research, company, person, meetingType),
   }
 }

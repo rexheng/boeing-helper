@@ -6,6 +6,7 @@ import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
 import { generateMeetingPaper } from "../utils/meetingPaperGenerator"
 import { buildMeetingPaperDocx } from "../utils/templateExport"
+import { HelperCommentsRail } from "./HelperCommentsRail"
 
 const DocxTemplateEditor = lazy(() =>
   import("./DocxTemplateEditor").then((m) => ({ default: m.DocxTemplateEditor })),
@@ -37,6 +38,7 @@ export function MeetingPaperView({
     [research, company, person, meetingType],
   )
   const [reloadKey] = useState(0)
+  const [activeComment, setActiveComment] = useState<string | null>(paper.reviewComments[0]?.id ?? null)
 
   const buildDocument = useCallback(() => buildMeetingPaperDocx(paper), [paper])
   const title = paper.meetingTitle.replace(/^MEETING WITH\s+/i, "Meeting With ")
@@ -64,16 +66,16 @@ export function MeetingPaperView({
   ].join("\n")
 
   return (
-    <div className="space-y-6 pb-12 max-w-5xl mx-auto">
+    <div className="space-y-5 pb-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="system-badge system-badge--dark">Meeting Paper</p>
           <h2 className="mt-2 text-2xl md:text-3xl font-bold" style={{ color: NAVY }}>
             Meeting paper
           </h2>
-          <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-            Research is already on the record. Edit the official Boeing Meeting Paper, or go back to the
-            library to inspect every source.
+          <p className="mt-2 text-sm max-w-2xl" style={{ color: "var(--text-secondary)" }}>
+            The paper is scaffolding from the official template. Boeing Helper’s value is the review
+            comments — the questions to lock before freeze. They travel with the Word file.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -87,22 +89,30 @@ export function MeetingPaperView({
         </div>
       </div>
 
-      <Suspense
-        fallback={
-          <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
-            Loading Word editor…
-          </div>
-        }
-      >
-        <DocxTemplateEditor
-          buildDocument={buildDocument}
-          title={title}
-          fileStem={fileStem}
-          pdfFallbackText={pdfFallback}
-          reloadKey={reloadKey}
-          loadingLabel="Building meeting paper…"
+      <div className="paper-with-comments">
+        <Suspense
+          fallback={
+            <div className="py-16 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+              Loading Word editor…
+            </div>
+          }
+        >
+          <DocxTemplateEditor
+            buildDocument={buildDocument}
+            title={title}
+            fileStem={fileStem}
+            pdfFallbackText={pdfFallback}
+            reloadKey={reloadKey}
+            loadingLabel="Building meeting paper…"
+          />
+        </Suspense>
+
+        <HelperCommentsRail
+          comments={paper.reviewComments}
+          activeId={activeComment}
+          onSelect={setActiveComment}
         />
-      </Suspense>
+      </div>
 
       {internalNotes && (
         <div className="px-5 py-4 text-sm" style={{ background: "var(--bg-muted)", color: "var(--text-secondary)" }}>
