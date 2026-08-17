@@ -5,6 +5,7 @@ import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
 import { getHardcodedResearch } from "../data/research"
 import { Button } from "../components/Button"
+import { ResearchAuditWorkspace } from "./researchAudit"
 
 interface AgentResearchProps {
   company: Company
@@ -12,6 +13,9 @@ interface AgentResearchProps {
   meetingType: string
   prefetchedResult?: ResearchResult | null
   prefetchInProgress?: boolean
+  /** Already-finished research — skip the trace and open the audit library. */
+  completedResult?: ResearchResult | null
+  onReady?: (result: ResearchResult, internalNotes: string) => void
   onComplete: (result: ResearchResult, internalNotes: string) => void
 }
 
@@ -129,7 +133,15 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / 1048576).toFixed(1)} MB`
 }
 
-function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string; onNotesChange: (v: string) => void }) {
+function NotesSection({
+  internalNotes,
+  onNotesChange,
+  compact,
+}: {
+  internalNotes: string
+  onNotesChange: (v: string) => void
+  compact?: boolean
+}) {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -176,7 +188,7 @@ function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string;
   }
 
   return (
-    <div className="bh-panel p-4 space-y-3">
+    <div className={compact ? "space-y-2" : "bh-panel p-4 space-y-3"}>
       <div className="flex items-center gap-2">
         <FileText size={14} style={{ color: "var(--boeing-blue)" }} />
         <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Your notes</span>
@@ -190,8 +202,8 @@ function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string;
         className="w-full rounded text-sm leading-relaxed outline-none resize-none"
         style={{
           background: "var(--bg-input)",
-          padding: "12px",
-          minHeight: "80px",
+          padding: compact ? "8px" : "12px",
+          minHeight: compact ? "56px" : "80px",
           color: "var(--text-primary)",
           border: "1px solid var(--surface-border)",
           fontFamily: "inherit",
@@ -206,7 +218,7 @@ function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string;
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className="rounded py-4 px-3 flex flex-col items-center gap-2 cursor-pointer transition-colors"
+        className={`rounded px-3 flex flex-col items-center gap-2 cursor-pointer transition-colors ${compact ? "py-2.5" : "py-4"}`}
         style={{
           border: `1.5px dashed ${dragOver ? "var(--boeing-blue)" : "var(--border-hover)"}`,
           background: dragOver ? "var(--boeing-ice)" : "var(--bg-muted)",
@@ -272,7 +284,16 @@ function NotesSection({ internalNotes, onNotesChange }: { internalNotes: string;
   )
 }
 
-export function AgentResearch({ company, person, meetingType, prefetchedResult, prefetchInProgress, onComplete }: AgentResearchProps) {
+export function AgentResearch({
+  company,
+  person,
+  meetingType,
+  prefetchedResult,
+  prefetchInProgress,
+  completedResult,
+  onReady,
+  onComplete,
+}: AgentResearchProps) {
   const [isComplete, setIsComplete] = useState(false)
   const [isFallback, setIsFallback] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -632,6 +653,16 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
   useEffect(() => {
     if (hasFired.current) return
     hasFired.current = true
+
+    if (completedResult) {
+      setResult(completedResult)
+      setIsComplete(true)
+      setAgents((prev) =>
+        prev.map((a) => ({ ...a, status: "complete" as const, elapsed: a.elapsed ?? "—" })),
+      )
+      return
+    }
+
     // If prefetch already resolved, use it immediately
     if (prefetchedResult) {
       setResult(prefetchedResult)
@@ -646,9 +677,19 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
       return
     }
     // If prefetch is in progress, don't fire a duplicate API call — wait for it
-    if (prefetchInProgress) return
+    if (prefetchInProgress) {
+      hasFired.current = false
+      return
+    }
     doResearch()
-  }, [doResearch, prefetchedResult, prefetchInProgress, completeAgent])
+  }, [doResearch, prefetchedResult, prefetchInProgress, completeAgent, completedResult])
+
+  const onReadyRef = useRef(onReady)
+  onReadyRef.current = onReady
+
+  useEffect(() => {
+    if (result) onReadyRef.current?.(result, internalNotes)
+  }, [result, internalNotes])
 
   // If prefetch resolves WHILE we're already researching, pick it up
   useEffect(() => {
@@ -661,6 +702,47 @@ export function AgentResearch({ company, person, meetingType, prefetchedResult, 
       }
     }
   }, [prefetchedResult, isComplete, result, completeAgent, elapsedSeconds])
+
+  if (isComplete && result) {
+    return (
+      <div className="space-y-3">
+        {isFallback && (
+          <div
+            className="flex flex-wrap items-center gap-3 rounded px-4 py-3"
+            style={{ background: "#FFF8E8", color: "#B45309", border: "1px solid #F3E0B8" }}
+          >
+            <AlertCircle size={16} className="shrink-0" />
+            <p className="text-sm flex-1">Agent returned limited data. Review the library, or retry.</p>
+            <button
+              type="button"
+              className="text-xs font-semibold underline"
+              onClick={() => {
+                hasFired.current = false
+                setResult(null)
+                setIsComplete(false)
+                setIsFallback(false)
+                setElapsedSeconds(0)
+                doResearch()
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        <ResearchAuditWorkspace
+          company={company}
+          person={person}
+          research={result}
+          meetingType={meetingType}
+          notesSlot={
+            <NotesSection compact internalNotes={internalNotes} onNotesChange={setInternalNotes} />
+          }
+          onContinue={() => onComplete(result, internalNotes)}
+          onSkip={() => onComplete(result, internalNotes)}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">

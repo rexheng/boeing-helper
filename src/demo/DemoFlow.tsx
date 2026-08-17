@@ -185,11 +185,12 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     setStep(4)
   }, [])
 
-  const canGoBack = step > 1 && step !== 4
+  const canGoBack = step > 1 && (step !== 4 || !!research)
   const canGoForward =
     (step === 1 && company) ||
     (step === 2 && person) ||
     (step === 3 && meetingType) ||
+    (step === 4 && research) ||
     (step === 5 && research) ||
     step === 6
 
@@ -201,6 +202,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
     if (step === 1 && company) setStep(2)
     else if (step === 2 && person) setStep(3)
     else if (step === 3 && meetingType) setStep(4)
+    else if (step === 4 && research) setStep(5)
     else if (step === 5 && research) setStep(6)
     else if (step === 6) setStep(7)
   }
@@ -356,8 +358,8 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
 
       <div
         className={`relative z-10 mx-auto px-4 md:px-6 py-10 md:py-14 ${
-          step === 6 ? "max-w-[92rem]" : step === 5 || step === 7 ? "max-w-5xl" : "max-w-4xl"
-        }`}
+          step === 4 || step === 6 ? "max-w-[96rem]" : step === 5 || step === 7 ? "max-w-5xl" : "max-w-4xl"
+        } ${step === 4 ? "!py-5 md:!py-6" : ""}`}
       >
         {step === 1 && <CompanySelect onSelect={handleCompanySelect} />}
         {step === 2 && company && (
@@ -378,6 +380,11 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
             meetingType={meetingType}
             prefetchedResult={prefetchedResult}
             prefetchInProgress={prefetchInProgress}
+            completedResult={research}
+            onReady={(r, notes) => {
+              setResearch(r)
+              setInternalNotes(notes)
+            }}
             onComplete={(r, notes) => {
               setResearch(r)
               setInternalNotes(notes)
@@ -393,6 +400,7 @@ export default function DemoFlow({ onClose }: DemoFlowProps) {
             meetingType={meetingType}
             internalNotes={internalNotes}
             onContinue={() => setStep(6)}
+            onBackToResearch={() => setStep(4)}
           />
         )}
         {step === 6 && company && person && (

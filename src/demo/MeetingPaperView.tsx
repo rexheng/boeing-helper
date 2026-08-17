@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react"
+import { Library } from "lucide-react"
 import { Button } from "../components/Button"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
@@ -17,6 +18,7 @@ interface MeetingPaperViewProps {
   meetingType: string
   internalNotes?: string
   onContinue: () => void
+  onBackToResearch?: () => void
 }
 
 const NAVY = "#0A2240"
@@ -28,6 +30,7 @@ export function MeetingPaperView({
   meetingType,
   internalNotes,
   onContinue,
+  onBackToResearch,
 }: MeetingPaperViewProps) {
   const paper = useMemo(
     () => generateMeetingPaper(research, company, person, meetingType),
@@ -69,10 +72,19 @@ export function MeetingPaperView({
             Meeting paper
           </h2>
           <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-            Edit the official Boeing Meeting Paper template in Word in the browser, then download Word or PDF.
+            Research is already on the record. Edit the official Boeing Meeting Paper, or go back to the
+            library to inspect every source.
           </p>
         </div>
-        <Button onClick={onContinue}>Continue to materials</Button>
+        <div className="flex flex-wrap gap-2">
+          {onBackToResearch && (
+            <button type="button" onClick={onBackToResearch} className="btn-secondary">
+              <Library size={16} />
+              Research library
+            </button>
+          )}
+          <Button onClick={onContinue}>Continue to materials</Button>
+        </div>
       </div>
 
       <Suspense

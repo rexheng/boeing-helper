@@ -1069,3 +1069,208 @@ a:hover { color: var(--boeing-blue); }
     height: auto;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Research audit library — Scholar corpus + NotebookLM source pane   */
+/* ------------------------------------------------------------------ */
+
+.audit-workspace {
+  animation: fadeInUp 0.45s var(--ease-out-expo);
+}
+
+.audit-grid {
+  display: grid;
+  grid-template-columns: minmax(232px, 280px) minmax(0, 1fr) minmax(280px, 340px);
+  gap: 12px;
+  min-height: min(72vh, 840px);
+  align-items: stretch;
+}
+
+.audit-pane {
+  background: #fff;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  min-height: 0;
+}
+
+.audit-pane--main {
+  min-height: 28rem;
+}
+
+.audit-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c5cdd4 transparent;
+}
+
+.audit-cite-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  line-height: 1;
+  cursor: pointer;
+  border: 0;
+  vertical-align: super;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+
+.audit-cite-chip:hover {
+  filter: brightness(0.96);
+}
+
+.audit-title-link {
+  color: var(--boeing-blue) !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.audit-title-link:hover {
+  text-decoration: underline;
+  color: var(--boeing-sky) !important;
+}
+
+.audit-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.audit-row {
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.audit-row:hover {
+  background: #f7fafc;
+}
+
+.audit-row:focus-visible {
+  outline: 2px solid rgba(0, 51, 161, 0.35);
+  outline-offset: -2px;
+}
+
+.audit-indices {
+  min-width: 16rem;
+}
+
+.audit-indices table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  font-family: var(--font-ui);
+}
+
+.audit-indices th,
+.audit-indices td {
+  padding: 4px 10px;
+  text-align: right;
+  tabular-nums: true;
+  font-variant-numeric: tabular-nums;
+}
+
+.audit-indices th:first-child,
+.audit-indices td:first-child {
+  text-align: left;
+  padding-left: 0;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.audit-indices th {
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.audit-indices td {
+  color: var(--boeing-navy);
+  font-weight: 600;
+}
+
+.audit-indices tbody tr:first-child td {
+  padding-top: 8px;
+}
+
+.audit-indices__hint {
+  margin-top: 8px;
+  max-width: 28rem;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.audit-inspector-backdrop {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .audit-grid {
+    grid-template-columns: minmax(220px, 250px) minmax(0, 1fr);
+  }
+
+  .audit-inspector-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .audit-inspector-wrap.is-open {
+    pointer-events: auto;
+  }
+
+  .audit-inspector-wrap .audit-pane--inspector {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(100%, 380px);
+    transform: translateX(110%);
+    transition: transform 0.28s var(--ease-out-expo);
+    z-index: 2;
+    border-radius: 0;
+  }
+
+  .audit-inspector-wrap.is-open .audit-pane--inspector {
+    transform: translateX(0);
+  }
+
+  .audit-inspector-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 34, 64, 0.32);
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s linear;
+  }
+
+  .audit-inspector-wrap.is-open .audit-inspector-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .audit-grid {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .audit-pane--sources {
+    max-height: 22rem;
+  }
+
+  .audit-pane--main {
+    min-height: 24rem;
+  }
+}
