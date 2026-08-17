@@ -70,7 +70,7 @@ const mockResearch: ResearchResult = {
 function getInitialState(): { step: Step; company: Company | null; person: Person | null; meetingType: string; research: ResearchResult | null } {
   const params = new URLSearchParams(window.location.search)
   const skipTo = params.get("step")
-  if (skipTo === "5" || skipTo === "6" || skipTo === "7" || skipTo === "8") {
+  if (skipTo === "4" || skipTo === "5" || skipTo === "6" || skipTo === "7" || skipTo === "8") {
     const co = companies.find((c) => c.id === "mindef-sg") ?? companies[0]
     const pe = people.find((p) => p.companyId === co.id)!
     // Legacy ?step=8 deep-links now land on Report (step 7)
