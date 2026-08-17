@@ -10,7 +10,9 @@ export interface ReviewComment {
   anchor: string
   /** Section label shown in the on-screen Helper rail */
   sectionLabel: string
-  /** Meta guidance for human review — Word comment + Helper rail, not paper body */
+  /** Short 4–5 word gap title, e.g. "P-8A delivery dates" */
+  topic: string
+  /** 1–2 sentence question — missing context only, no opinion */
   text: string
   severity: "ask" | "caution" | "verify"
   /** Distinctive paper-body text used to pin the Word comment and on-screen highlight */

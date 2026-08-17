@@ -26,7 +26,7 @@ export function injectWordComments(
       <w:p>
         <w:pPr><w:pStyle w:val="CommentText"/></w:pPr>
         <w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr></w:r>
-        <w:r><w:t>${escapeXml(c.text)}</w:t></w:r>
+        <w:r><w:t>${escapeXml(formatCommentBody(c))}</w:t></w:r>
       </w:p>
     </w:comment>`,
     )
@@ -101,6 +101,11 @@ function escapeXml(s: string) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
+}
+
+function formatCommentBody(c: ReviewComment) {
+  const topic = c.topic || c.sectionLabel
+  return `Missing context -- ${topic}: ${c.text}`
 }
 
 function findAnchorSpot(xml: string, anchor: string, quote?: string): { index: number; length: number } | null {

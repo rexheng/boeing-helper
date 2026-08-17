@@ -80,9 +80,8 @@ export function MeetingPaperView({
             Meeting paper
           </h2>
           <p className="mt-2 text-sm max-w-2xl" style={{ color: "var(--text-secondary)" }}>
-            The document is official scaffolding. Boeing Helper’s product is the review comments — freeze
-            questions a campaign lead would write in Word before this leaves the building. Click a comment
-            to jump to that field. They travel in the Word Review pane on download.
+            The paper is the official template. Boeing Helper flags missing context as short questions on
+            the document — the same notes travel in Word’s Review pane on download.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -100,8 +99,7 @@ export function MeetingPaperView({
         <div className="paper-comment-banner" role="status">
           <span className="paper-comment-banner__bh">BH</span>
           <p>
-            <strong>{selected.sectionLabel}</strong>
-            <span className="paper-comment-banner__sev">{selected.severity}</span>
+            <strong>Boeing Helper: Missing context — {selected.topic || selected.sectionLabel}</strong>
             {selected.text}
           </p>
         </div>

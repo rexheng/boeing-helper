@@ -1652,6 +1652,14 @@ a:hover { color: var(--boeing-blue); }
   font-variant-numeric: tabular-nums;
 }
 
+.helper-comment__label {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--boeing-navy);
+}
+
 .helper-comment__section {
   font-size: 10px;
   font-weight: 600;
