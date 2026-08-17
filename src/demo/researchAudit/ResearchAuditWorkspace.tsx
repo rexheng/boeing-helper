@@ -67,11 +67,12 @@ export function ResearchAuditWorkspace({
   const [inspectorOpen, setInspectorOpen] = useState(false)
 
   useEffect(() => {
-    setEnabled(new Set(audit.sources.map((s) => s.id)))
-    setSelectedSourceId(audit.sources[0]?.id ?? null)
-    setSelectedFindingId(null)
-    setPage(0)
-  }, [audit])
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setInspectorOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [])
 
   const selectedSource = audit.sources.find((s) => s.id === selectedSourceId) ?? null
   const selectedFinding = audit.findings.find((f) => f.id === selectedFindingId) ?? null
@@ -271,8 +272,8 @@ export function ResearchAuditWorkspace({
               </tbody>
             </table>
             <p className="audit-indices__hint">
-              Cite counts are how many findings rest on each source — not a web citation index.
-              {" "}{audit.indices.internal} internal (simulated) · {audit.indices.open} open.
+              Cite counts are how many findings rest on each source.
+              {" "}{audit.indices.internal} internal (simulated) · {audit.indices.open} open · {audit.sources.filter((s) => s.classification === "synthesized").length} synthesized.
             </p>
           </div>
         </div>
@@ -282,7 +283,7 @@ export function ResearchAuditWorkspace({
           style={{ borderTop: "1px solid var(--surface-border)", background: "var(--bg-muted)" }}
         >
           <p className="text-[11px] max-w-md leading-relaxed" style={{ color: "var(--text-muted)" }}>
-            Unchecked sources hide from this library only. The meeting paper is drafted from the full research set.
+            Unchecked sources are excluded from the views below. The meeting paper is still drafted from the full research set.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={exportCsv} className="audit-quiet-btn" title="Export selected sources">
@@ -397,6 +398,11 @@ export function ResearchAuditWorkspace({
                       {lane}
                     </label>
                   ))}
+                  <span className="ml-auto inline-flex items-center gap-3 text-[11px]">
+                    <span className="inline-flex items-center gap-1" style={{ color: "#2E7D32" }}><span aria-hidden>✓</span> supporting</span>
+                    <span className="inline-flex items-center gap-1" style={{ color: "#B26A00" }}>? disputing</span>
+                    <span className="inline-flex items-center gap-1" style={{ color: "#66737E" }}>– mentioning</span>
+                  </span>
                 </div>
               </div>
               <CorpusTable

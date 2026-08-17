@@ -1,21 +1,7 @@
 import { Lock } from "lucide-react"
-import type { AuditSource, CitationStance } from "../../types/researchAudit"
+import type { AuditSource } from "../../types/researchAudit"
 import { sourceKindLabel } from "../../utils/researchAudit"
-import { BLUE, NAVY, SortButton, StanceIcon, SUPPORT, DISPUTE, MENTION } from "./ui"
-
-function StanceCell({ stance, n }: { stance: CitationStance; n: number }) {
-  const color = stance === "supporting" ? SUPPORT : stance === "disputing" ? DISPUTE : MENTION
-  return (
-    <span
-      className="inline-flex items-center justify-end gap-1 tabular-nums font-semibold"
-      style={{ color, fontSize: 12, minWidth: 28 }}
-      title={`${stance}: ${n}`}
-    >
-      <StanceIcon stance={stance} size={13} />
-      {n}
-    </span>
-  )
-}
+import { BLUE, NAVY, SortButton, StanceCountsRow } from "./ui"
 
 export type CorpusSortKey = "title" | "year" | "authors" | "supporting" | "disputing" | "mentioning" | "citedBy"
 
@@ -70,14 +56,13 @@ export function CorpusTable({
             <tr style={{ background: "#fff", borderBottom: "1px solid var(--surface-border)" }}>
               {header("title", "Title")}
               {header("year", "Year")}
-              {header("supporting", "Cites", "right")}
               {header("citedBy", "Cited by", "right")}
             </tr>
           </thead>
           <tbody>
             {sources.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                <td colSpan={3} className="px-3 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
                   <p>No sources match these filters.</p>
                   {onClearFilters && (
                     <button type="button" onClick={onClearFilters} className="mt-2 text-xs font-semibold" style={{ color: BLUE }}>
@@ -136,16 +121,12 @@ export function CorpusTable({
                       {" · "}
                       {sourceKindLabel(s.kind)}
                     </p>
+                    <p className="mt-1">
+                      <StanceCountsRow counts={s.stanceCounts} compact />
+                    </p>
                   </td>
                   <td className="px-3 py-3 align-top text-[13px] tabular-nums" style={{ color: NAVY }}>
                     {s.year}
-                  </td>
-                  <td className="px-3 py-3 align-top">
-                    <div className="flex items-center justify-end gap-2.5">
-                      <StanceCell stance="supporting" n={s.stanceCounts.supporting} />
-                      <StanceCell stance="disputing" n={s.stanceCounts.disputing} />
-                      <StanceCell stance="mentioning" n={s.stanceCounts.mentioning} />
-                    </div>
                   </td>
                   <td className="px-3 py-3 align-top text-right text-[13px] font-semibold tabular-nums" style={{ color: BLUE }}>
                     {s.citedBy}

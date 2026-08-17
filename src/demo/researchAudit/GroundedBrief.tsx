@@ -55,7 +55,6 @@ function GroundedBlock({
 }) {
   const model = RESEARCH_MODELS.find((m) => m.id === para.modelId)
   const liveCites = para.citations.filter((c) => enabled.has(c.sourceId))
-  const sentences = para.text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) ?? [para.text]
 
   return (
     <article>
@@ -66,33 +65,23 @@ function GroundedBlock({
         </p>
       </div>
       <p className="text-[15px] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
-        {sentences.map((sentence, i) => {
-          const assigned =
-            i < sentences.length - 1
-              ? (liveCites[i] ? [liveCites[i]] : [])
-              : liveCites.slice(i)
-          return (
-            <span key={i}>
-              {sentence.trimEnd()}
-              {assigned.length > 0 && (
-                <span className="inline-flex items-center gap-0.5 ml-0.5">
-                  {assigned.map((c) => {
-                    const src = sources.find((s) => s.id === c.sourceId)
-                    if (!src) return null
-                    return (
-                      <CiteChip
-                        key={`${para.id}-${c.sourceId}-${i}`}
-                        n={src.citeIndex}
-                        active={selectedSourceId === src.id}
-                        onClick={() => onSelectSource(src.id)}
-                      />
-                    )
-                  })}
-                </span>
-              )}{" "}
-            </span>
-          )
-        })}
+        {para.text}
+        {liveCites.length > 0 && (
+          <span className="inline-flex items-center gap-0.5 ml-1">
+            {liveCites.map((c) => {
+              const src = sources.find((s) => s.id === c.sourceId)
+              if (!src) return null
+              return (
+                <CiteChip
+                  key={`${para.id}-${c.sourceId}`}
+                  n={src.citeIndex}
+                  active={selectedSourceId === src.id}
+                  onClick={() => onSelectSource(src.id)}
+                />
+              )
+            })}
+          </span>
+        )}
       </p>
     </article>
   )

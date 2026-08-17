@@ -13,7 +13,6 @@ interface SourceLibraryProps {
   onSelect: (id: string) => void
   onToggleLane: (lane: ResearchLane, on: boolean) => void
   onToggleAll: (on: boolean) => void
-  notesSlot?: React.ReactNode
 }
 
 export function SourceLibrary({
@@ -26,7 +25,6 @@ export function SourceLibrary({
   onSelect,
   onToggleLane,
   onToggleAll,
-  notesSlot,
 }: SourceLibraryProps) {
   const q = query.trim().toLowerCase()
   const visible = q
@@ -82,7 +80,7 @@ export function SourceLibrary({
           </button>
           <span style={{ color: "var(--surface-border)" }}>·</span>
           <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-            Unchecked sources hide from this library only
+            Unchecked sources leave the views below
           </p>
         </div>
       </header>
@@ -158,12 +156,6 @@ export function SourceLibrary({
           )
         })}
       </div>
-
-      {notesSlot && (
-        <div className="shrink-0 p-3" style={{ borderTop: "1px solid var(--surface-border)" }}>
-          {notesSlot}
-        </div>
-      )}
     </aside>
   )
 }
