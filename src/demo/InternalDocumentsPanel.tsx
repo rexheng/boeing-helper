@@ -18,7 +18,7 @@ interface Beat {
 
 const BEATS: Beat[] = [
   { id: "read", label: "Reading the meeting paper", at: 0, fieldIds: ["date", "event", "contact", "counterpart"] },
-  { id: "extract", label: "Extracting open items and commitments", at: 640, fieldIds: ["obj-0", "obj-1", "obj-2", "msg-0", "open-0", "open-1", "open-2", "cmt-0"] },
+  { id: "extract", label: "Extracting open items and commitments", at: 640, fieldIds: ["obj-0", "obj-1", "obj-2", "msg-0", "msg-1", "open-0", "open-1", "open-2", "cmt-0", "cmt-1"] },
 ]
 
 const FINISH_AT = 1080
@@ -159,8 +159,8 @@ export function InternalDocumentsPanel({
   const displayPaper = extracted?.paper ?? paper
   const completeFields = new Set([
     "date", "event", "contact", "counterpart",
-    "obj-0", "obj-1", "obj-2", "msg-0",
-    "open-0", "open-1", "open-2", "cmt-0",
+    "obj-0", "obj-1", "obj-2", "msg-0", "msg-1",
+    "open-0", "open-1", "open-2", "cmt-0", "cmt-1",
   ])
 
   return (
@@ -284,16 +284,6 @@ export function InternalDocumentsPanel({
               doneFields={completeFields}
               settled
             />
-          )}
-          {compact && (
-            <ul className="idp-insights">
-              {extracted.paper.openItems.slice(0, 2).map((item) => (
-                <li key={item}>
-                  <span>Open</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
           )}
           <p className="idp-result__foot">
             <FileText size={12} />

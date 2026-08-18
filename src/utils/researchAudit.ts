@@ -750,13 +750,16 @@ export function buildResearchAudit(
 
   if (research.priorEngagement) {
     const pe = research.priorEngagement
-    const firstOpen = pe.openItems[0] ? ` The live carry-forward is ${pe.openItems[0].replace(/\.$/, "")}.` : ""
-    const commitSent = pe.commitments[0] ? ` ${pe.commitments[0]}` : ""
+    const carry = pe.openItems[0]
+      ? ` The live carry-forward is ${pe.openItems[0].replace(/\.$/, "")}.`
+      : pe.commitments[0]
+        ? ` ${pe.commitments[0]}`
+        : ""
     addGrounded(
       "g-prior-paper",
       "company",
       "Prior engagement",
-      `${pe.dateLabel} ${pe.event} produced a meeting paper on this account.${firstOpen}${commitSent}`.trim(),
+      `The ${pe.dateLabel} meeting paper from ${pe.event} is on this account.${carry}`,
       ["f-prior-paper", "f-prior-commit"],
     )
   }
