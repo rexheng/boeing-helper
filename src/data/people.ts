@@ -28,6 +28,18 @@ export function personSurname(person: Pick<Person, "name" | "surname">): string 
 }
 
 export const people: Person[] = [
+  // American Airlines — titles from aa.com corporate structure
+  { id: "robert-isom", companyId: "american", name: "Robert D. Isom", surname: "Isom", title: "Chief Executive Officer, American Airlines Group & American Airlines", headline: "CEO since 2022 — dual-source fleet, 89 737-8 MAX in service, remaining 787-9 stream and MAX 10 certification timing", initial: "R", seniority: "C-Suite" },
+  { id: "david-seymour", companyId: "american", name: "David Seymour", surname: "Seymour", title: "Chief Operating Officer", headline: "COO absorbing 737-8 MAX and 787-9 induction while DFW re-banks to a 13-bank structure", initial: "D", seniority: "C-Suite" },
+  { id: "devon-may", companyId: "american", name: "Devon May", surname: "May", title: "Chief Financial Officer", headline: "CFO defending 2026 free-cash-flow >$2B and scoring Boeing delivery dates against the debt path", initial: "D", seniority: "C-Suite" },
+  { id: "nat-pieper", companyId: "american", name: "Nat Pieper", surname: "Pieper", title: "Chief Commercial Officer", headline: "CCO converting Flagship Suite on 787-9 and 777 retrofits into the premium-seat lead American has already claimed", initial: "N", seniority: "C-Suite" },
+
+  // Delta Air Lines — titles from news.delta.com leader bios / 5 Mar 2026 employee memo
+  { id: "ed-bastian", companyId: "delta", name: "Ed Bastian", surname: "Bastian", title: "Chief Executive Officer", headline: "Tenth year as CEO in 2026 — owns 737-10 EIS credibility and Delta’s first direct 787-10 order", initial: "E", seniority: "C-Suite" },
+  { id: "peter-carter", companyId: "delta", name: "Peter Carter", surname: "Carter", title: "President", headline: "President from April 2026 — international portfolio, JV product and 787-10 cabin commonality with A350", initial: "P", seniority: "C-Suite" },
+  { id: "dan-janki", companyId: "delta", name: "Dan Janki", surname: "Janki", title: "EVP and Chief Operating Officer", headline: "COO from April 2026 after the CFO chair — 737-10 entry-into-service and the cost of a further slip", initial: "D", seniority: "C-Suite" },
+  { id: "alain-bellemare", companyId: "delta", name: "Alain Bellemare", surname: "Bellemare", title: "President – International and Chairman, Delta TechOps", headline: "International equity plus TechOps chair — LEAP-1B shop now, GEnx path for the 787-10", initial: "A", seniority: "C-Suite" },
+
   // Ministry of Defence Singapore / RSAF
   // Chinese Singapore names: family name first (Chan Chun Sing → Chan), except Western-given + Chinese surname (Kelvin Fan… → Fan; Aaron Beng → Beng).
   { id: "chan-chun-sing", companyId: "mindef-sg", name: "Chan Chun Sing", surname: "Chan", title: "Minister for Defence", headline: "Former Chief of Army, Defence Minister since May 2025 — owns the 20-aircraft F-35 commitment and Singapore's 'diversified fleet' doctrine", initial: "C", photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/2025_Chan_Chun_Sing_%28cropped%29.jpg/330px-2025_Chan_Chun_Sing_%28cropped%29.jpg", seniority: "Minister" },

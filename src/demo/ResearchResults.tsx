@@ -187,6 +187,17 @@ function CompanySection({ research }: { research: ResearchResult }) {
               <div key={i} className="rounded p-4" style={{ background: "var(--bg-muted)", borderTop: `2px solid ${BLUE}` }}>
                 <p className="text-base font-bold leading-tight" style={{ color: NAVY }}>{metric.value}</p>
                 <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>{metric.label}</p>
+                {metric.source && (
+                  <p className="text-[10px] mt-1 leading-snug" style={{ color: "var(--text-muted)" }}>
+                    {metric.url ? (
+                      <a href={metric.url} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline" style={{ color: BLUE }}>
+                        {metric.source}
+                      </a>
+                    ) : (
+                      metric.source
+                    )}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -201,7 +212,14 @@ function CompanySection({ research }: { research: ResearchResult }) {
               <div key={i} className="rounded border p-4" style={{ borderColor: "var(--surface-border)" }}>
                 <p className="text-sm font-semibold leading-snug" style={{ color: NAVY }}>{item.headline}</p>
                 <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
-                  {item.source}{item.date ? ` \u2014 ${item.date}` : ""}
+                  {item.url ? (
+                    <a href={item.url} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline" style={{ color: BLUE }}>
+                      {item.source}
+                    </a>
+                  ) : (
+                    item.source
+                  )}
+                  {item.date ? ` \u2014 ${item.date}` : ""}
                 </p>
               </div>
             ))}

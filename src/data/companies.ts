@@ -42,6 +42,14 @@ export const regions: RegionGroup[] = [
     ],
   },
   {
+    id: "americas",
+    name: "Americas",
+    blurb: "U.S. network carriers and Boeing Commercial home-market accounts.",
+    countries: [
+      { id: "united-states", name: "United States", ministryHint: "American Airlines · Delta Air Lines" },
+    ],
+  },
+  {
     id: "northeast-asia",
     name: "Northeast Asia",
     blurb: "Japan and Republic of Korea partners.",
@@ -82,6 +90,34 @@ const LOGO_DEV = (domain: string) =>
   `https://img.logo.dev/${domain}?token=pk_QufBYgm5Q2u3paTKjIOIdw&size=128&format=png`
 
 export const companies: Company[] = [
+  // —— Americas ——
+  {
+    id: "american",
+    name: "American Airlines",
+    domain: "aa.com",
+    tagline:
+      "1,013 mainline aircraft — 89 737-8 MAX in service, 129 737-family remaining (MAX 10 from 2029), 19 787s still to come",
+    logoUrl: LOGO("american"),
+    fallbackLogoUrl: LOGO_DEV("aa.com"),
+    industry: "Commercial Aviation",
+    country: "united-states",
+    countryName: "United States",
+    regionId: "americas",
+  },
+  {
+    id: "delta",
+    name: "Delta Air Lines",
+    domain: "delta.com",
+    tagline:
+      "1,314-aircraft fleet — 100 737-10s with first contractual 2027, 30 787-10s from 2031, TechOps LEAP-1B",
+    logoUrl: LOGO("delta"),
+    fallbackLogoUrl: LOGO_DEV("delta.com"),
+    industry: "Commercial Aviation",
+    country: "united-states",
+    countryName: "United States",
+    regionId: "americas",
+  },
+
   // —— Southeast Asia ——
   {
     id: "mindef-sg",
@@ -301,6 +337,100 @@ export interface PartnerLookupEntry {
 }
 
 export const partnerDirectory: PartnerLookupEntry[] = [
+  {
+    id: "american",
+    name: "American Airlines",
+    domain: "aa.com",
+    tagline: "U.S. major — 737 MAX induction, 787-9 Flagship Suite, MAX 10 certification watch",
+    overview:
+      "American operates 1,013 mainline aircraft (31 Dec 2025 10-K) with a Boeing installed base of 737-800, 737-8 MAX, 777 and 787. Remaining Boeing firm book is 129 737-family and 19 787-family aircraft. Dual-source narrowbody with A321neo/XLR.",
+    industry: "Commercial Aviation",
+    country: "united-states",
+    countryName: "United States",
+    regionId: "americas",
+    aliases: ["american", "american airlines", "aal", "aa", "american eagle"],
+    contacts: [
+      {
+        id: "robert-isom",
+        name: "Robert D. Isom",
+        surname: "Isom",
+        title: "Chief Executive Officer, American Airlines Group & American Airlines",
+        headline: "CEO owning dual-source fleet, remaining 787-9 stream and MAX 10 certification timing",
+        seniority: "C-Suite",
+      },
+      {
+        id: "david-seymour",
+        name: "David Seymour",
+        surname: "Seymour",
+        title: "Chief Operating Officer, American Airlines",
+        headline: "COO absorbing 737-8 MAX and 787-9 induction into the DFW 13-bank operation",
+        seniority: "C-Suite",
+      },
+      {
+        id: "devon-may",
+        name: "Devon May",
+        surname: "May",
+        title: "Chief Financial Officer, American Airlines",
+        headline: "CFO scoring Boeing delivery dates against the 2026 debt and free-cash-flow path",
+        seniority: "C-Suite",
+      },
+      {
+        id: "nat-pieper",
+        name: "Nat Pieper",
+        surname: "Pieper",
+        title: "Chief Commercial Officer, American Airlines",
+        headline: "CCO converting 787-9 Flagship Suite and future MAX 10 upgauge into premium seats",
+        seniority: "C-Suite",
+      },
+    ],
+  },
+  {
+    id: "delta",
+    name: "Delta Air Lines",
+    domain: "delta.com",
+    tagline: "U.S. major — 737-10 EIS 2027, first direct 787-10 order, Delta TechOps",
+    overview:
+      "Delta’s 10-K fleet is 1,314 aircraft. Next-generation Boeing metal is 100 737-10s (first 27 contractual in 2027) and 30 787-10s from 2031. Current widebodies are Airbus; TechOps is the aftermarket centre of gravity.",
+    industry: "Commercial Aviation",
+    country: "united-states",
+    countryName: "United States",
+    regionId: "americas",
+    aliases: ["delta", "delta air lines", "dal", "delta airlines", "techops"],
+    contacts: [
+      {
+        id: "ed-bastian",
+        name: "Ed Bastian",
+        surname: "Bastian",
+        title: "Chief Executive Officer, Delta Air Lines",
+        headline: "Tenth year as CEO — owns 737-10 EIS credibility and the 787-10 widebody return",
+        seniority: "C-Suite",
+      },
+      {
+        id: "peter-carter",
+        name: "Peter Carter",
+        surname: "Carter",
+        title: "President, Delta Air Lines",
+        headline: "President owning international portfolio, JV product and 787-10 cabin commonality",
+        seniority: "C-Suite",
+      },
+      {
+        id: "dan-janki",
+        name: "Dan Janki",
+        surname: "Janki",
+        title: "EVP and Chief Operating Officer, Delta Air Lines",
+        headline: "COO (from April 2026) running 737-10 entry-into-service and ops alignment",
+        seniority: "C-Suite",
+      },
+      {
+        id: "alain-bellemare",
+        name: "Alain Bellemare",
+        surname: "Bellemare",
+        title: "President – International and Chairman, Delta TechOps",
+        headline: "International portfolio plus TechOps chair — LEAP-1B now, GEnx path for 787-10",
+        seniority: "C-Suite",
+      },
+    ],
+  },
   {
     id: "mindef-sg",
     name: "Ministry of Defence Singapore",
@@ -589,10 +719,11 @@ export function searchPartnerDirectory(query: string): PartnerLookupEntry[] {
   // SEA-first ranking for the demo’s primary theatre
   const rank = (regionId: string) =>
     regionId === "southeast-asia" ? 0
-      : regionId === "northeast-asia" ? 1
-        : regionId === "india" ? 2
-          : regionId === "anz" ? 3
-            : 4
+      : regionId === "americas" ? 1
+        : regionId === "northeast-asia" ? 2
+          : regionId === "india" ? 3
+            : regionId === "anz" ? 4
+              : 5
   return matched.sort((a, b) => rank(a.regionId) - rank(b.regionId) || a.name.localeCompare(b.name))
 }
 

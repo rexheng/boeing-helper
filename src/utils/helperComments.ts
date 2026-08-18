@@ -60,6 +60,14 @@ function flagshipComments(person: Person, company: Company): ReviewComment[] | n
     "tonny-harjono": tonnyComments(),
     "rico-sirait": kemhanFallback(),
     "donny-ermawan": donnyComments(),
+    "robert-isom": isomComments(),
+    "david-seymour": seymourComments(),
+    "devon-may": mayComments(),
+    "nat-pieper": pieperComments(),
+    "ed-bastian": bastianComments(),
+    "peter-carter": carterComments(),
+    "dan-janki": jankiComments(),
+    "alain-bellemare": bellemareComments(),
   }
   if (byPerson[person.id]) return byPerson[person.id]
 
@@ -68,6 +76,8 @@ function flagshipComments(person: Person, company: Company): ReviewComment[] | n
     sia: siaFallback,
     garuda: garudaFallback,
     "mod-id": kemhanFallback,
+    american: americanFallback,
+    delta: deltaFallback,
   }
   return byCompany[company.id]?.() ?? null
 }
@@ -457,6 +467,222 @@ function kemhanFallback(): ReviewComment[] {
       "objectives",
       "Next-action owner",
       "Who at Kemhan owns the next written ask, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function isomComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-max8",
+      "objectives",
+      "737-8 MAX reliability",
+      "What 737-8 MAX first-90-day reliability or AOG figure (89 in service per the 10-K) goes on this paper?",
+    ),
+    gap(
+      "rc-787",
+      "objectives",
+      "787-9 Flagship calendar",
+      "What dated 787-9 / Flagship Suite install calendar matches the newsroom product claim?",
+    ),
+    gap(
+      "rc-max10",
+      "cust_sat",
+      "MAX 10 certification date",
+      "What MAX 10 certification date is on this paper, given 115 737-family aircraft sit in 2029 and thereafter on the 10-K?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who at American owns the next written ask, and by what date?",
+    ),
+    gap(
+      "rc-press",
+      "engagement_background",
+      "Last Boeing attendees",
+      "Who from Boeing last discussed the 27 January 2026 newsroom earnings release with Isom, and what was left in writing?",
+    ),
+    PHONE,
+  ]
+}
+
+function seymourComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-ops",
+      "objectives",
+      "MAX induction plan",
+      "What 737-8 MAX spares and AOG plan for the DFW 13-bank goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who in American operations owns the next written item, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function mayComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-capex",
+      "objectives",
+      "PDP if certification moves",
+      "What happens to pre-delivery payments if MAX 10 certification moves — is that in writing?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who in American finance owns the next written artefact, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function pieperComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-cabin",
+      "objectives",
+      "Premium-seat calendar",
+      "What premium-seat delivery calendar for 787-9 Flagship Suite and 777 retrofit goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who on the commercial side owns the next written ask, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function americanFallback(): ReviewComment[] {
+  return [
+    gap(
+      "rc-max10",
+      "objectives",
+      "MAX 10 date",
+      "What MAX 10 certification date goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who at American owns the next written ask, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function bastianComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-73710",
+      "objectives",
+      "737-10 EIS date",
+      "What dated 737-10 EIS (10-K: 27 aircraft in 2027, none in 2026) goes on this paper?",
+    ),
+    gap(
+      "rc-787",
+      "objectives",
+      "787-10 working group",
+      "What 787-10 cabin / GEnx working-group charter is in writing for the 2031 stream?",
+    ),
+    gap(
+      "rc-techops",
+      "objectives",
+      "TechOps workshare",
+      "What LEAP-1B / GEnx TechOps workshare goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who at Delta owns the next written ask, and by what date?",
+    ),
+    gap(
+      "rc-press",
+      "engagement_background",
+      "Last Boeing attendees",
+      "Who from Boeing last discussed the 12 January 2026 787-10 8-K with Bastian, and what was left in writing?",
+    ),
+    PHONE,
+  ]
+}
+
+function carterComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-cabin",
+      "objectives",
+      "787 vs A350 product",
+      "What 787-10 cabin specification sits in the same product family as the A350?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who in the President’s office owns the next written ask, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function jankiComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-eis",
+      "objectives",
+      "737-10 training plan",
+      "What 737-10 training, spares and maintenance-programme plan assumes 2027 — and what is the written cost if that date moves?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who in Delta operations owns the next written item, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function bellemareComments(): ReviewComment[] {
+  return [
+    gap(
+      "rc-mro",
+      "objectives",
+      "LEAP-1B / GEnx shop",
+      "What TechOps LEAP-1B workshare, and GEnx path for 787-10, goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who at TechOps owns the next written artefact, and by what date?",
+    ),
+    PHONE,
+  ]
+}
+
+function deltaFallback(): ReviewComment[] {
+  return [
+    gap(
+      "rc-73710",
+      "objectives",
+      "737-10 EIS date",
+      "What dated 737-10 EIS goes on this paper?",
+    ),
+    gap(
+      "rc-owner",
+      "objectives",
+      "Next-action owner",
+      "Who at Delta owns the next written ask, and by what date?",
     ),
     PHONE,
   ]

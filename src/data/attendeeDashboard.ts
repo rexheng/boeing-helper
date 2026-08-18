@@ -73,10 +73,14 @@ export function buildAttendeeDashboard(
 ): AttendeeDashboardData {
   const eventName = /mspo/i.test(meetingType)
     ? "MSPO 2026"
-    : "Singapore Airshow 2026"
+    : company.regionId === "americas"
+      ? "Farnborough International Airshow 2026"
+      : "Singapore Airshow 2026"
 
   const customerTravel: TravelCode =
-    countryName === "Singapore" || company.country === "singapore" ? "L" : "I"
+    countryName === "Singapore" || company.country === "singapore" || company.country === "united-states"
+      ? "L"
+      : "I"
 
   const counterpartLabel = person.title.toLowerCase().includes("minister")
     ? `Minister ${personSurname(person)}`

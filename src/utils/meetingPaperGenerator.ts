@@ -59,6 +59,12 @@ const INTEGRATOR = {
   phone: "+65 8xxx xxxx",
 } as const
 
+const AMERICAS_INTEGRATOR = {
+  name: "Rex Heng",
+  title: "Boeing Commercial Airplanes · Americas Airline Accounts",
+  phone: "+1 206 xxx xxxx",
+} as const
+
 function truncate(s: string, n: number) {
   if (s.length <= n) return s
   return s.slice(0, n - 1).trimEnd() + "…"
@@ -82,6 +88,8 @@ function flagshipOverrides(person: Person, company: Company): Partial<MeetingPap
   if (person.id === "rosan-roeslani") return rosanPaper(person)
   if (company.id === "garuda") return garudaPaper(person)
   if (person.id === "sjafrie-sjamsoeddin" || company.id === "mod-id") return kemhanPaper(person)
+  if (person.id === "robert-isom" || company.id === "american") return americanPaper(person)
+  if (person.id === "ed-bastian" || company.id === "delta") return deltaPaper(person)
   return null
 }
 
@@ -281,6 +289,74 @@ function kemhanPaper(person: Person): Partial<MeetingPaper> {
       "Public marker Feb 2026 (Janes / Jakarta Post): no active Indonesia F-15EX campaign. Confirm the room script matches that exit.",
     campaignBackground:
       "Kemhan: Rafale induction underway; F-15EX withdrawn on price. Boeing’s remaining defence position is Apache, ScanEagle and the commercial 50-jet trade track.",
+  }
+}
+
+function americanPaper(person: Person): Partial<MeetingPaper> {
+  const isCeo = person.id === "robert-isom"
+  return {
+    contact: { ...AMERICAS_INTEGRATOR },
+    customer: {
+      name: person.name,
+      title: person.title,
+      salutation: isCeo ? "Mr. Isom" : inferSalutation(person),
+      phonetic: "—",
+      raa: "American Airlines counterpart on 737-8 MAX induction, remaining 787-9 stream, and MAX 10 certification timing.",
+    },
+    objectives: [
+      "Customer confirms the 737-8 MAX reliability / spares item that goes on this paper (89 aircraft already in service).",
+      "Lock a dated 787-9 / Flagship Suite install calendar that matches the newsroom product claim.",
+      "Name the American-side owner for the MAX 10 certification watch item — 115 aircraft sit in 2029 and thereafter on the 10-K.",
+    ],
+    keyMessages: [
+      { message: "Do not lead with new metal. Lead with delivery fidelity on 737-8 MAX and 787-9 already on the property." },
+      { message: "The MAX 10 block is a date risk American has already disclosed — 14 737-family aircraft in 2026, none in 2027–2028, 115 from 2029." },
+      { message: "A321XLR is doing thin transatlantic work; any 787 slip makes that substitution easier to defend." },
+    ],
+    customerSatIssues: [
+      "737-8 MAX first-90-day reliability and AOG/spares",
+      "Flagship Suite install quality on 787-9",
+      "MAX 10 certification date versus the 2029-and-thereafter remainder",
+      "777-200ER replacement timing (average age 25.0 years)",
+    ],
+    engagementBackground:
+      "Public marker 27 Jan 2026 (American Airlines Newsroom): record $54.6B FY2025 revenue; 23 737-8 MAX and 11 787-9 delivered in 2025 (10-K). Confirm last Boeing attendees at DFW.",
+    campaignBackground:
+      "American: 1,013 mainline aircraft. Boeing remaining firm book 129 737-family and 19 787-family (10-K). Dual-source with A321neo/XLR. Centennial year 2026 — premium product is the public story.",
+  }
+}
+
+function deltaPaper(person: Person): Partial<MeetingPaper> {
+  const isCeo = person.id === "ed-bastian"
+  return {
+    contact: { ...AMERICAS_INTEGRATOR },
+    customer: {
+      name: person.name,
+      title: person.title,
+      salutation: isCeo ? "Mr. Bastian" : inferSalutation(person),
+      phonetic: "—",
+      raa: "Delta counterpart on 737-10 EIS (first contractual 2027) and 787-10 configuration for 2031.",
+    },
+    objectives: [
+      "Customer confirms the 737-10 EIS date that goes on this paper — 10-K shows 27 aircraft in 2027, none in 2026.",
+      "Lock a 787-10 cabin / GEnx working-group charter that can sit next to the A350 product.",
+      "Name the TechOps owner for LEAP-1B workshare now and the GEnx path later.",
+    ],
+    keyMessages: [
+      { message: "Do not re-announce the 2022 Farnborough 737-10 order. Put a 2027 EIS plan in writing, including the date if certification moves." },
+      { message: "The January 2026 787-10 order is a win; it does not retire MAX 10 date risk or 767 replacement timing." },
+      { message: "TechOps LEAP-1B is a public claim on the News Hub — hold ourselves to it." },
+    ],
+    customerSatIssues: [
+      "737-10 certification versus the original 2025 media-kit date",
+      "Cost of keeping 737-800 / 717 / 757 flying if 2027 does not hold",
+      "787-10 interiors versus A350 product family",
+      "GEnx shop path at TechOps",
+    ],
+    engagementBackground:
+      "Public marker 12–13 Jan 2026 (Delta 8-K / News Hub): 30 787-10s firm, options 30, EIS 2031. 737-10 first contractual year 2027 (10-K). Confirm last Boeing attendees in Atlanta.",
+    campaignBackground:
+      "Delta: 1,314-aircraft fleet. Firm Boeing book 100× 737-10 and 30× 787-10. Current widebodies are Airbus. TechOps is the aftermarket centre of gravity.",
   }
 }
 

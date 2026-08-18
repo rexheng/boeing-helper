@@ -85,14 +85,33 @@ const PUBLISHER_QUERY: { match: RegExp; site: string }[] = [
   { match: /the nation/i, site: "nationthailand.com" },
   { match: /thai mfa/i, site: "mfa.go.th" },
   { match: /linkedin/i, site: "linkedin.com" },
+  { match: /american airlines newsroom/i, site: "news.aa.com" },
+  { match: /delta news hub/i, site: "news.delta.com" },
+  { match: /form 10-k|form 8-k|securities and exchange/i, site: "sec.gov" },
+  { match: /boeing media room/i, site: "boeing.mediaroom.com" },
 ]
+
+function accountArchive(company: Company): { publisher: string; authors: string; support: string } {
+  if (company.regionId === "americas") {
+    return {
+      publisher: "Boeing Commercial Americas Campaign Archive",
+      authors: "Boeing BCA Americas Account Archive",
+      support: "Boeing Customer Support · Americas",
+    }
+  }
+  return {
+    publisher: "Boeing SEA Campaign Archive",
+    authors: "Boeing SEA Account Archive",
+    support: "Boeing Customer Support · SEA",
+  }
+}
 
 function sourceUrl(publisher: string, title: string, kind: SourceKind, domain?: string): string | undefined {
   if (kind === "website" && domain) {
     const host = domain.replace(/^https?:\/\//, "").replace(/\/$/, "")
     return `https://${host}`
   }
-  if (kind !== "article" && kind !== "press") return undefined
+  if (kind !== "article" && kind !== "press" && kind !== "report") return undefined
   const hit = PUBLISHER_QUERY.find((p) => p.match.test(publisher))
   const q = hit ? `"${title}" site:${hit.site}` : `"${title}" ${publisher}`
   return `https://www.google.com/search?q=${encodeURIComponent(q)}`
@@ -161,6 +180,10 @@ export function buildResearchAudit(
   const findings: FindingDraft[] = []
   const countryName = research.country?.name || company.countryName
   const domain = company.domain
+  const archive = accountArchive(company)
+  const curated = research.company.sources ?? []
+  const firstOpenId = curated.find((s) => s.classification === "open")?.id
+  const firstInternalId = curated.find((s) => s.classification === "internal")?.id
 
   const pushSource = (s: SourceDraft) => {
     sources.push({
@@ -189,8 +212,8 @@ export function buildResearchAudit(
     id: "src-internal-memo",
     title: `Campaign memo — ${company.name}`,
     kind: "internal",
-    publisher: "Boeing SEA Campaign Archive",
-    authors: "Boeing SEA Account Archive",
+    publisher: archive.publisher,
+    authors: archive.authors,
     year: 2026,
     date: "2026",
     snippet: `Simulated RAG in this environment: campaign framing for ${company.name}. Programme posture and open items for ${meetingType}.`,
@@ -205,8 +228,8 @@ export function buildResearchAudit(
     id: "src-internal-notes",
     title: `Prior meeting notes — ${person.name}`,
     kind: "internal",
-    publisher: "Boeing SEA Account Archive",
-    authors: "Boeing SEA Account Archive",
+    publisher: archive.publisher,
+    authors: archive.authors,
     year: 2026,
     snippet: `Simulated RAG match for ${person.name}, ${person.title}. Internal record search is simulated in this environment.`,
     excerpt: `Secured index match for ${person.name} (${person.title}). ${clip(research.person.profile_overview || research.person.background, 400)}`,
@@ -220,8 +243,8 @@ export function buildResearchAudit(
     id: "src-internal-history",
     title: `Account history — ${company.name} / Boeing installed base`,
     kind: "internal",
-    publisher: "Boeing Customer Support · SEA",
-    authors: "Boeing SEA Account Archive",
+    publisher: archive.support,
+    authors: archive.authors,
     year: 2026,
     snippet: "Simulated installed-base extract — not reachable from open web search. Internal record search is simulated here.",
     excerpt: `Internal installed-base extract for ${company.name}. ${research.company.key_metrics.map((m) => `${m.label}: ${m.value}`).join("; ") || firstSentence(research.company.overview)}`,
@@ -231,13 +254,33 @@ export function buildResearchAudit(
     classification: "internal",
   })
 
+  for (const extra of curated) {
+    const lanes = extra.lanes?.length ? extra.lanes : (["company"] as ResearchLane[])
+    pushSource({
+      id: extra.id,
+      title: extra.title,
+      kind: extra.kind,
+      publisher: extra.publisher,
+      authors: extra.authors || extra.publisher,
+      year: parseYear(extra.date),
+      date: extra.date,
+      snippet: extra.snippet,
+      excerpt: extra.excerpt || extra.snippet,
+      lanes,
+      modelIds: lanes,
+      primaryStance: extra.classification === "internal" ? "mentioning" : "supporting",
+      classification: extra.classification,
+      url: extra.url,
+    })
+  }
+
   if (research.company.overview) {
     findings.push({
       id: "f-company-overview",
       claim: firstSentence(research.company.overview),
       lane: "company",
       modelId: "company",
-      sourceIds: ["src-site", "src-internal-memo"],
+      sourceIds: ["src-site", "src-internal-memo", ...(firstOpenId ? [firstOpenId] : [])],
       stance: "supporting",
       excerpt: clip(research.company.overview, 360),
       confidence: "high",
@@ -257,11 +300,13 @@ export function buildResearchAudit(
       authors: `${item.source} staff`,
       year: parseYear(item.date),
       date: item.date,
-      snippet: `${item.source}${item.date ? ` · ${item.date}` : ""} — open-source coverage used by the company-research model.`,
+      snippet: `${item.source}${item.date ? ` · ${item.date}` : ""} — ${item.url ? "citable company or regulatory publication." : "open-source coverage used by the company-research model."}`,
       excerpt: item.headline,
       lanes: ["company"],
       modelIds: ["company"],
       primaryStance: stance,
+      url: item.url,
+      classification: item.url ? "open" : "synthesized",
     })
     findings.push({
       id: `f-news-${i}`,
@@ -279,26 +324,30 @@ export function buildResearchAudit(
 
   research.company.key_metrics.forEach((metric, i) => {
     const id = `src-metric-${i}`
+    const cited = Boolean(metric.source || metric.url)
     pushSource({
       id,
       title: `${metric.label} — ${company.name}`,
       kind: "metric",
-      publisher: company.name,
-      authors: company.name,
+      publisher: metric.source || company.name,
+      authors: metric.source || company.name,
       year: 2026,
-      snippet: `${metric.label}: ${metric.value}`,
-      excerpt: `Extracted programme metric for ${company.name}. ${metric.label} is recorded as ${metric.value}. Cross-checked against internal account history and open reporting.`,
+      snippet: `${metric.label}: ${metric.value}${metric.source ? ` (${metric.source})` : ""}`,
+      excerpt: cited
+        ? `${metric.label} for ${company.name} is ${metric.value}, taken from ${metric.source || "the cited company publication"}. Cross-checked against internal account history.`
+        : `Extracted programme metric for ${company.name}. ${metric.label} is recorded as ${metric.value}. Cross-checked against internal account history and open reporting.`,
       lanes: ["company"],
       modelIds: ["company"],
       primaryStance: "supporting",
-      classification: "synthesized",
+      classification: cited ? "open" : "synthesized",
+      url: metric.url,
     })
     findings.push({
       id: `f-metric-${i}`,
       claim: `${metric.label}: ${metric.value}`,
       lane: "company",
       modelId: "company",
-      sourceIds: [id, "src-internal-history", "src-site"],
+      sourceIds: [id, "src-internal-history", "src-site", ...(firstOpenId ? [firstOpenId] : []), ...(firstInternalId ? [firstInternalId] : [])],
       stance: "supporting",
       excerpt: `${metric.label} for ${company.name} is ${metric.value}.`,
       confidence: "high",
