@@ -1226,6 +1226,12 @@ a:hover { color: var(--boeing-blue); }
   overscroll-behavior: contain;
 }
 
+.research-agent-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .audit-cite-chip {
   display: inline-flex;
   align-items: center;
@@ -1543,6 +1549,12 @@ a:hover { color: var(--boeing-blue); }
 
   .audit-pane--main {
     min-height: 24rem;
+  }
+
+  .research-agent-scroll {
+    overflow: visible;
+    flex: none;
+    min-height: auto;
   }
 }
 

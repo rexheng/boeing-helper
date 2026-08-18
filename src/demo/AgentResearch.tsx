@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Building2, Globe, MapPin, FileText, ChevronDown, ChevronRight, CheckCircle2, AlertCircle, Loader2, Info, Upload, X } from "lucide-react"
+import { Building2, Globe, MapPin, FileText, ChevronDown, ChevronRight, CheckCircle2, AlertCircle, Loader2, Info, Upload, X, LayoutList, ListTree } from "lucide-react"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
@@ -13,7 +13,7 @@ interface AgentResearchProps {
   meetingType: string
   prefetchedResult?: ResearchResult | null
   prefetchInProgress?: boolean
-  /** Already-finished research — skip the trace and open the audit library. */
+  /** Already-finished research — skip the live trace; the brief is available from the toggle. */
   completedResult?: ResearchResult | null
   initialNotes?: string
   onReady?: (result: ResearchResult, internalNotes: string) => void
@@ -285,6 +285,63 @@ function NotesSection({
   )
 }
 
+type ResearchPane = "agents" | "brief"
+
+function ResearchPaneToggle({
+  pane,
+  onChange,
+  briefReady,
+}: {
+  pane: ResearchPane
+  onChange: (pane: ResearchPane) => void
+  briefReady: boolean
+}) {
+  const tabs: { id: ResearchPane; label: string; icon: typeof ListTree; disabled?: boolean }[] = [
+    { id: "agents", label: "Agent activity", icon: ListTree },
+    { id: "brief", label: "Research brief", icon: LayoutList, disabled: !briefReady },
+  ]
+
+  return (
+    <div
+      className="flex items-center gap-1 p-0.5 rounded shrink-0"
+      style={{ background: "var(--bg-muted)" }}
+      role="tablist"
+      aria-label="Research views"
+    >
+      {tabs.map((tab) => {
+        const Icon = tab.icon
+        const active = pane === tab.id
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            disabled={tab.disabled}
+            title={tab.disabled ? "Available when research finishes" : undefined}
+            onClick={() => {
+              if (tab.disabled) return
+              onChange(tab.id)
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[12px] font-medium disabled:cursor-not-allowed disabled:opacity-45"
+            style={{
+              background: active ? "#fff" : "transparent",
+              color: active ? "var(--boeing-blue)" : "var(--text-secondary)",
+              boxShadow: active ? "0 1px 2px rgba(10,34,64,0.08)" : undefined,
+            }}
+          >
+            <Icon size={13} />
+            {tab.label}
+            {tab.id === "brief" && briefReady && !active && (
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--boeing-blue)" }} aria-hidden />
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function AgentResearch({
   company,
   person,
@@ -302,6 +359,9 @@ export function AgentResearch({
   const [result, setResult] = useState<ResearchResult | null>(null)
   const [internalNotes, setInternalNotes] = useState(initialNotes ?? "")
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [pane, setPane] = useState<ResearchPane>("agents")
+  const agentScrollRef = useRef<HTMLDivElement>(null)
+  const stickToBottom = useRef(true)
   const [agents, setAgents] = useState<TraceAgent[]>([
     {
       id: "company", label: "Internal & Company Research", icon: Building2,
@@ -660,7 +720,12 @@ export function AgentResearch({
       setResult(completedResult)
       setIsComplete(true)
       setAgents((prev) =>
-        prev.map((a) => ({ ...a, status: "complete" as const, elapsed: a.elapsed ?? "—" })),
+        prev.map((a) => ({
+          ...a,
+          status: "complete" as const,
+          elapsed: a.elapsed ?? "—",
+          spans: a.spans.map((s) => ({ ...s, status: "complete" as const })),
+        })),
       )
       return
     }
@@ -693,6 +758,13 @@ export function AgentResearch({
     if (result) onReadyRef.current?.(result, internalNotes)
   }, [result, internalNotes])
 
+  useEffect(() => {
+    if (pane !== "agents" || !stickToBottom.current) return
+    const el = agentScrollRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+  }, [agents, pane])
+
   // If prefetch resolves WHILE we're already researching, pick it up
   useEffect(() => {
     if (prefetchedResult && !isComplete && !result) {
@@ -705,174 +777,183 @@ export function AgentResearch({
     }
   }, [prefetchedResult, isComplete, result, completeAgent, elapsedSeconds])
 
-  if (isComplete && result) {
-    return (
-      <div className="h-full min-h-0 flex flex-col gap-3">
-        {isFallback && (
-          <div
-            className="flex flex-wrap items-center gap-3 rounded px-4 py-3"
-            style={{ background: "#FFF8E8", color: "#B45309", border: "1px solid #F3E0B8" }}
-          >
-            <AlertCircle size={16} className="shrink-0" />
-            <p className="text-sm flex-1">Agent returned limited data. Review the library, or retry.</p>
-            <button
-              type="button"
-              className="text-xs font-semibold underline"
-              onClick={() => {
-                hasFired.current = false
-                setResult(null)
-                setIsComplete(false)
-                setIsFallback(false)
-                setElapsedSeconds(0)
-                doResearch()
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-        <ResearchAuditWorkspace
-          company={company}
-          person={person}
-          research={result}
-          meetingType={meetingType}
-          notesSlot={
-            <NotesSection compact internalNotes={internalNotes} onNotesChange={setInternalNotes} />
-          }
-          onContinue={() => onComplete(result, internalNotes)}
-          onSkip={() => onComplete(result, internalNotes)}
-        />
-      </div>
-    )
+  const retryResearch = () => {
+    hasFired.current = false
+    setResult(null)
+    setIsComplete(false)
+    setIsFallback(false)
+    setElapsedSeconds(0)
+    setPane("agents")
+    stickToBottom.current = true
+    doResearch()
   }
 
+  const openBrief = () => {
+    if (!result) return
+    setPane("brief")
+  }
+
+  const showBrief = pane === "brief" && !!result
+
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="text-center">
-        <p className="system-badge system-badge--dark mb-3">Step 04 &middot; Research</p>
-        <h2 className="text-2xl font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
-          Preparing briefing
-        </h2>
-        <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-          {person.name} &middot; {company.name}
-        </p>
-        <p className="mt-1 text-sm font-mono tabular-nums" style={{ color: "var(--text-muted)" }}>
-          {formatTime(elapsedSeconds)}
-        </p>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-full h-0.5 rounded-full overflow-hidden" style={{ background: "var(--surface-border)" }}>
+    <div className="h-full min-h-0 flex flex-col gap-3">
+      {isFallback && (
         <div
-          className="h-full rounded-full"
-          style={
-            isComplete
-              ? { width: "100%", background: "var(--boeing-blue)", transition: "width 0.5s ease-out" }
-              : {
-                  width: "100%",
-                  background: "linear-gradient(90deg, transparent 0%, #0033A1 50%, transparent 100%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 1.5s ease-in-out infinite",
-                }
-          }
-        />
-        <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
-      </div>
-
-      {/* Trace tree */}
-      <div className="space-y-2">
-        {agents.map((agent) => (
-          <AgentTraceBlock
-            key={agent.id}
-            agent={agent}
-            onToggle={() => toggleAgent(agent.id)}
-          />
-        ))}
-      </div>
-
-      {/* Internal Notes input + file upload */}
-      <NotesSection internalNotes={internalNotes} onNotesChange={setInternalNotes} />
-
-      {/* Continue button */}
-      {isComplete && result && (
-        <div
-          className="flex flex-col items-center gap-4 opacity-0"
-          style={{ animation: "fadeInUp 0.6s ease-out forwards" }}
+          className="flex flex-wrap items-center gap-3 rounded px-4 py-3 shrink-0"
+          style={{ background: "#FFF8E8", color: "#B45309", border: "1px solid #F3E0B8" }}
         >
-          {isFallback ? (
-            <>
-              <div className="flex items-center gap-2" style={{ color: "#B45309" }}>
-                <AlertCircle size={16} />
-                <p className="text-sm">Agent returned limited data. You can retry or continue.</p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    hasFired.current = false
-                    setResult(null)
-                    setIsComplete(false)
-                    setIsFallback(false)
-                    setElapsedSeconds(0)
-                    doResearch()
-                  }}
-                  className="btn-secondary"
-                >
-                  Retry
-                </button>
-                <Button onClick={() => onComplete(result, internalNotes)}>Continue with limited data</Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Research complete
-              </p>
-              <Button onClick={() => onComplete(result, internalNotes)}>Continue to meeting paper</Button>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex items-center gap-2" style={{ color: "#B91C1C" }}>
-            <AlertCircle size={18} />
-            <span className="text-sm">{error}</span>
-          </div>
-          <button
-            onClick={() => {
-              hasFired.current = false
-              setResult(null)
-              setElapsedSeconds(0)
-              doResearch()
-            }}
-            className="btn-primary !h-auto !py-2 !px-5 !text-sm"
-          >
+          <AlertCircle size={16} className="shrink-0" />
+          <p className="text-sm flex-1">Agent returned limited data. Review the library, or retry.</p>
+          <button type="button" className="text-xs font-semibold underline" onClick={retryResearch}>
             Retry
           </button>
         </div>
       )}
 
-      {/* RAG disclaimer */}
-      <div className="flex gap-2 pt-2" style={{ color: "var(--text-muted)" }}>
-        <Info size={14} className="shrink-0 mt-0.5" />
-        <p className="text-xs leading-relaxed">
-          The internal record search inside Internal &amp; Company Research uses a{" "}
-          <a
-            href="https://aws.amazon.com/what-is/retrieval-augmented-generation/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2"
-            style={{ color: "var(--boeing-blue)" }}
-          >
-            RAG (Retrieval-Augmented Generation)
-          </a>{" "}
-          system to query Boeing's own meeting notes, campaign memos, and account history through a secured vector
-          database not reachable from web search. Internal record search is simulated in this environment.
+      <div className="flex flex-wrap items-center justify-between gap-3 shrink-0 px-0.5">
+        <div className="min-w-0">
+          <p className="system-badge system-badge--dark">Step 04 &middot; Research</p>
+        </div>
+        <ResearchPaneToggle pane={pane} onChange={setPane} briefReady={!!result} />
+        <p className="text-sm font-mono tabular-nums" style={{ color: "var(--text-muted)" }}>
+          {isComplete ? (result ? "Ready" : formatTime(elapsedSeconds)) : formatTime(elapsedSeconds)}
         </p>
       </div>
+
+      {showBrief && result ? (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <ResearchAuditWorkspace
+            company={company}
+            person={person}
+            research={result}
+            meetingType={meetingType}
+            notesSlot={
+              <NotesSection compact internalNotes={internalNotes} onNotesChange={setInternalNotes} />
+            }
+            onContinue={() => onComplete(result, internalNotes)}
+            onSkip={() => onComplete(result, internalNotes)}
+          />
+        </div>
+      ) : (
+        <div
+          ref={agentScrollRef}
+          className="research-agent-scroll flex-1 min-h-0 overflow-y-auto audit-scroll"
+          onScroll={(e) => {
+            const el = e.currentTarget
+            stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 96
+          }}
+        >
+          <div className="space-y-6 max-w-2xl mx-auto pb-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+                {isComplete && result ? "Research ready" : "Preparing briefing"}
+              </h2>
+              <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+                {person.name} &middot; {company.name}
+              </p>
+            </div>
+
+            <div className="w-full h-0.5 rounded-full overflow-hidden" style={{ background: "var(--surface-border)" }}>
+              <div
+                className="h-full rounded-full"
+                style={
+                  isComplete
+                    ? { width: "100%", background: "var(--boeing-blue)", transition: "width 0.5s ease-out" }
+                    : {
+                        width: "100%",
+                        background: "linear-gradient(90deg, transparent 0%, #0033A1 50%, transparent 100%)",
+                        backgroundSize: "200% 100%",
+                        animation: "shimmer 1.5s ease-in-out infinite",
+                      }
+                }
+              />
+              <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+            </div>
+
+            <div className="space-y-2">
+              {agents.map((agent) => (
+                <AgentTraceBlock
+                  key={agent.id}
+                  agent={agent}
+                  onToggle={() => toggleAgent(agent.id)}
+                />
+              ))}
+            </div>
+
+            <NotesSection internalNotes={internalNotes} onNotesChange={setInternalNotes} />
+
+            {isComplete && result && (
+              <div
+                className="flex flex-col items-center gap-4 opacity-0"
+                style={{ animation: "fadeInUp 0.6s ease-out forwards" }}
+              >
+                {isFallback ? (
+                  <>
+                    <div className="flex items-center gap-2" style={{ color: "#B45309" }}>
+                      <AlertCircle size={16} />
+                      <p className="text-sm">Agent returned limited data. You can retry or continue.</p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      <button type="button" onClick={retryResearch} className="btn-secondary">
+                        Retry
+                      </button>
+                      <button type="button" onClick={openBrief} className="btn-secondary">
+                        Open research brief
+                      </button>
+                      <Button onClick={() => onComplete(result, internalNotes)}>Continue with limited data</Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                      Research complete. Open the brief to review sources, or continue to the paper.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      <button type="button" onClick={openBrief} className="btn-secondary">
+                        Open research brief
+                      </button>
+                      <Button onClick={() => onComplete(result, internalNotes)}>Continue to meeting paper</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {error && (
+              <div className="flex flex-col items-center gap-3 text-center">
+                <div className="flex items-center gap-2" style={{ color: "#B91C1C" }}>
+                  <AlertCircle size={18} />
+                  <span className="text-sm">{error}</span>
+                </div>
+                <button
+                  onClick={retryResearch}
+                  className="btn-primary !h-auto !py-2 !px-5 !text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-2" style={{ color: "var(--text-muted)" }}>
+              <Info size={14} className="shrink-0 mt-0.5" />
+              <p className="text-xs leading-relaxed">
+                The internal record search inside Internal &amp; Company Research uses a{" "}
+                <a
+                  href="https://aws.amazon.com/what-is/retrieval-augmented-generation/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                  style={{ color: "var(--boeing-blue)" }}
+                >
+                  RAG (Retrieval-Augmented Generation)
+                </a>{" "}
+                system to query Boeing's own meeting notes, campaign memos, and account history through a secured vector
+                database not reachable from web search. Internal record search is simulated in this environment.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
