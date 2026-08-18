@@ -35,6 +35,34 @@ function isAirShow(meetingType: string) {
   return /air show|airshow|bilateral|chalet|mspo/i.test(meetingType)
 }
 
+function isAirline(company: Company) {
+  return company.industry === "Commercial Aviation"
+}
+
+/** Date / event already used in seeded airline notes — display only, no new paper body. */
+function airlineStamp(company: Company): Partial<PriorMeetingPaper> | null {
+  if (!isAirline(company)) return null
+  if (company.id === "american") {
+    return {
+      dateLabel: "April 2026",
+      dateIso: "2026-04",
+      locationOrEvent: "DFW account review",
+    }
+  }
+  if (company.id === "delta") {
+    return {
+      dateLabel: "May 2026",
+      dateIso: "2026-05",
+      locationOrEvent: "Atlanta account review",
+    }
+  }
+  return {
+    dateLabel: "12 May 2026",
+    dateIso: "2026-05-12",
+    locationOrEvent: "Programme Status Review",
+  }
+}
+
 function inferSalutation(person: Person): string {
   const t = person.title.toLowerCase()
   const surname = personSurname(person)
@@ -198,7 +226,7 @@ function genericPrior(
   meetingType: string,
   research?: ResearchResult | null,
 ): Partial<PriorMeetingPaper> {
-  const air = isAirShow(meetingType)
+  const air = isAirShow(meetingType) && !isAirline(company)
   const country = research?.country
   const metric = research?.company.key_metrics[0]
   const priority = country?.priorities[0]
@@ -258,10 +286,10 @@ export function generatePriorMeetingPaper(
   meetingType: string,
   research?: ResearchResult | null,
 ): PriorMeetingPaper {
-  const air = isAirShow(meetingType)
+  const air = isAirShow(meetingType) && !isAirline(company)
   const flagship = flagshipPrior(person, company)
   const generic = genericPrior(person, company, meetingType, research)
-  const merged = { ...generic, ...flagship }
+  const merged = { ...generic, ...airlineStamp(company), ...flagship }
   const dateLabel = merged.dateLabel ?? (air ? "11 February 2026" : "12 May 2026")
   const dateIso = merged.dateIso ?? (air ? "2026-02-11" : "2026-05-12")
   const locationOrEvent = merged.locationOrEvent ?? (air ? "Singapore Airshow 2026" : "Programme Status Review")
