@@ -274,6 +274,57 @@ export function buildResearchAudit(
     })
   }
 
+  const prior = research.priorEngagement
+  const priorSourceId = curated.find((s) => s.id === "src-prior-paper")?.id
+  if (prior && !sources.some((s) => s.id === "src-prior-paper")) {
+    pushSource({
+      id: "src-prior-paper",
+      title: `${prior.meetingTitle.replace(/^MEETING WITH\s+/i, "Meeting paper — ")} (${prior.dateLabel})`,
+      kind: "internal",
+      publisher: "Boeing Helper · Internal meeting paper",
+      authors: "Boeing SEA Account Archive",
+      year: parseYear(prior.dateLabel),
+      date: prior.dateLabel,
+      snippet: prior.summary,
+      excerpt: [prior.summary, ...prior.openItems.slice(0, 2)].join(" "),
+      lanes: ["company"],
+      modelIds: ["company"],
+      primaryStance: "mentioning",
+      classification: "internal",
+    })
+  }
+  if (prior || priorSourceId) {
+    const sid = priorSourceId ?? "src-prior-paper"
+    findings.push({
+      id: "f-prior-paper",
+      claim: prior?.openItems[0] || prior?.summary || "Prior meeting paper ingested.",
+      lane: "company",
+      modelId: "company",
+      sourceIds: [sid, "src-internal-notes"],
+      stance: "mentioning",
+      excerpt: prior
+        ? `${prior.dateLabel} · ${prior.event}. ${prior.openItems.join(" ")}`
+        : clip(curated.find((s) => s.id === sid)?.excerpt || "", 360),
+      confidence: "high",
+      tags: ["internal", "prior paper", "open items"],
+      field: "priorEngagement.openItems",
+    })
+    if (prior?.commitments[0]) {
+      findings.push({
+        id: "f-prior-commit",
+        claim: prior.commitments[0],
+        lane: "company",
+        modelId: "company",
+        sourceIds: [sid],
+        stance: "supporting",
+        excerpt: prior.commitments.join(" "),
+        confidence: "high",
+        tags: ["internal", "commitment"],
+        field: "priorEngagement.commitments",
+      })
+    }
+  }
+
   if (research.company.overview) {
     findings.push({
       id: "f-company-overview",
@@ -695,6 +746,22 @@ export function buildResearchAudit(
     }
     citations.sort((a, b) => a.n - b.n)
     grounded.push({ id, lane, modelId: lane, heading, text, citations })
+  }
+
+  if (research.priorEngagement) {
+    const pe = research.priorEngagement
+    const carry = pe.openItems[0]
+      ? ` The live carry-forward is ${pe.openItems[0].replace(/\.$/, "")}.`
+      : pe.commitments[0]
+        ? ` ${pe.commitments[0]}`
+        : ""
+    addGrounded(
+      "g-prior-paper",
+      "company",
+      "Prior engagement",
+      `The ${pe.dateLabel} meeting paper from ${pe.event} is on this account.${carry}`,
+      ["f-prior-paper", "f-prior-commit"],
+    )
   }
 
   if (research.company.overview) {

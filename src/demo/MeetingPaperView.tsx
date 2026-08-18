@@ -135,7 +135,9 @@ export function MeetingPaperView({
       {internalNotes && (
         <div className="px-5 py-4 text-sm" style={{ background: "var(--bg-muted)", color: "var(--text-secondary)" }}>
           <p className="font-semibold text-xs uppercase tracking-wider mb-2" style={{ color: NAVY }}>
-            Internal only — not on the paper
+            {internalNotes.startsWith("PRIOR MEETING PAPER")
+              ? "Prior meeting paper — internal only"
+              : "Internal only — not on the paper"}
           </p>
           <p className="whitespace-pre-wrap">{internalNotes}</p>
         </div>

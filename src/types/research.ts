@@ -1,3 +1,5 @@
+import type { PriorEngagement } from "./internalDocument"
+
 export type ResearchLane = "company" | "industry" | "country"
 
 export type ResearchSourceKind =
@@ -47,6 +49,8 @@ export interface ResearchSource {
 }
 
 export interface ResearchResult {
+  /** Filled when a prior meeting paper is ingested on Step 04. */
+  priorEngagement?: PriorEngagement
   person: {
     name: string
     title: string

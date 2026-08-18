@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Building2, Globe, MapPin, FileText, ChevronDown, ChevronRight, CheckCircle2, AlertCircle, Loader2, Info, Upload, X, LayoutList, ListTree } from "lucide-react"
+import { Building2, Globe, MapPin, ChevronDown, ChevronRight, CheckCircle2, AlertCircle, Loader2, Info, LayoutList, ListTree } from "lucide-react"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import type { ResearchResult } from "../types/research"
+import type { ExtractedInternalDocument } from "../types/internalDocument"
 import { getHardcodedResearch } from "../data/research"
 import { Button } from "../components/Button"
 import { ResearchAuditWorkspace } from "./researchAudit"
+import { InternalDocumentsPanel } from "./InternalDocumentsPanel"
+import { mergePriorEngagement, PRIOR_SOURCE_ID } from "../utils/internalDocumentExtract"
 
 interface AgentResearchProps {
   company: Company
@@ -119,172 +122,6 @@ function formatDuration(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`
 }
 
-// --- Notes section with drag-and-drop file upload ---
-
-interface UploadedFile {
-  name: string
-  size: number
-  type: string
-  status: "uploading" | "done"
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / 1048576).toFixed(1)} MB`
-}
-
-function NotesSection({
-  internalNotes,
-  onNotesChange,
-  compact,
-}: {
-  internalNotes: string
-  onNotesChange: (v: string) => void
-  compact?: boolean
-}) {
-  const [files, setFiles] = useState<UploadedFile[]>([])
-  const [dragOver, setDragOver] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const simulateUpload = useCallback((fileList: FileList | File[]) => {
-    const newFiles: UploadedFile[] = Array.from(fileList).map((f) => ({
-      name: f.name,
-      size: f.size,
-      type: f.type || "application/octet-stream",
-      status: "uploading" as const,
-    }))
-    setFiles((prev) => [...prev, ...newFiles])
-
-    // Simulate upload delay per file
-    newFiles.forEach((file, i) => {
-      setTimeout(() => {
-        setFiles((prev) =>
-          prev.map((f) => f.name === file.name && f.status === "uploading" ? { ...f, status: "done" } : f)
-        )
-      }, 800 + i * 400)
-    })
-  }, [])
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    if (e.dataTransfer.files.length > 0) simulateUpload(e.dataTransfer.files)
-  }, [simulateUpload])
-
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) simulateUpload(e.target.files)
-    e.target.value = "" // reset so same file can be re-added
-  }, [simulateUpload])
-
-  const removeFile = useCallback((name: string) => {
-    setFiles((prev) => prev.filter((f) => f.name !== name))
-  }, [])
-
-  const fileIcon = (name: string) => {
-    if (name.endsWith(".pdf")) return "PDF"
-    if (name.endsWith(".doc") || name.endsWith(".docx")) return "DOC"
-    if (name.endsWith(".txt")) return "TXT"
-    return "FILE"
-  }
-
-  return (
-    <div className={compact ? "space-y-2" : "bh-panel p-4 space-y-3"}>
-      <div className="flex items-center gap-2">
-        <FileText size={14} style={{ color: "var(--boeing-blue)" }} />
-        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Your notes</span>
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>(optional)</span>
-      </div>
-
-      <textarea
-        value={internalNotes}
-        onChange={(e) => onNotesChange(e.target.value)}
-        placeholder="Prior commitments, open items, or notes for the briefing"
-        className="w-full rounded text-sm leading-relaxed outline-none resize-none"
-        style={{
-          background: "var(--bg-input)",
-          padding: compact ? "8px" : "12px",
-          minHeight: compact ? "56px" : "80px",
-          color: "var(--text-primary)",
-          border: "1px solid var(--surface-border)",
-          fontFamily: "inherit",
-        }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--boeing-blue)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0, 51, 161, 0.12)" }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--surface-border)"; e.currentTarget.style.boxShadow = "none" }}
-      />
-
-      {/* Drop zone */}
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`rounded px-3 flex flex-col items-center gap-2 cursor-pointer transition-colors ${compact ? "py-2.5" : "py-4"}`}
-        style={{
-          border: `1.5px dashed ${dragOver ? "var(--boeing-blue)" : "var(--border-hover)"}`,
-          background: dragOver ? "var(--boeing-ice)" : "var(--bg-muted)",
-        }}
-      >
-        <Upload size={18} style={{ color: dragOver ? "var(--boeing-blue)" : "var(--text-muted)" }} />
-        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-          {dragOver ? "Drop files here" : "Drag & drop files, or click to browse"}
-        </p>
-        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-          PDF, TXT, DOC, DOCX
-        </p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept=".pdf,.txt,.doc,.docx"
-          onChange={handleFileInput}
-          className="hidden"
-        />
-      </div>
-
-      {/* Uploaded files */}
-      {files.length > 0 && (
-        <div className="space-y-1.5">
-          {files.map((file) => (
-            <div
-              key={file.name}
-              className="flex items-center gap-2.5 px-3 py-2 rounded"
-              style={{ background: "var(--bg-muted)", border: "1px solid var(--surface-border)", animation: "fadeInUp 0.3s ease-out" }}
-            >
-              <div
-                className="w-7 h-7 rounded flex items-center justify-center text-[9px] font-bold shrink-0"
-                style={{ background: "var(--boeing-ice)", color: "var(--boeing-blue)" }}
-              >
-                {fileIcon(file.name)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs truncate" style={{ color: "var(--text-primary)" }}>{file.name}</p>
-                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{formatFileSize(file.size)}</p>
-              </div>
-              {file.status === "uploading" ? (
-                <Loader2 size={14} className="animate-spin shrink-0" style={{ color: "var(--boeing-cyan)" }} />
-              ) : (
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <CheckCircle2 size={14} style={{ color: "#15803D" }} />
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeFile(file.name) }}
-                    className="transition-colors cursor-pointer"
-                    style={{ color: "var(--text-muted)" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--boeing-blue)" }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)" }}
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 type ResearchPane = "agents" | "brief"
 
 function ResearchPaneToggle({
@@ -358,6 +195,7 @@ export function AgentResearch({
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ResearchResult | null>(null)
   const [internalNotes, setInternalNotes] = useState(initialNotes ?? "")
+  const [extractedDoc, setExtractedDoc] = useState<ExtractedInternalDocument | null>(null)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [pane, setPane] = useState<ResearchPane>("agents")
   const agentScrollRef = useRef<HTMLDivElement>(null)
@@ -394,6 +232,13 @@ export function AgentResearch({
     },
   ])
   const hasFired = useRef(false)
+  const extractedRef = useRef<ExtractedInternalDocument | null>(null)
+
+  const publishResult = useCallback((r: ResearchResult) => {
+    const merged = extractedRef.current ? mergePriorEngagement(r, extractedRef.current) : r
+    if (extractedRef.current) setInternalNotes(extractedRef.current.notesText)
+    setResult(merged)
+  }, [])
 
   useEffect(() => {
     if (isComplete) return
@@ -657,7 +502,7 @@ export function AgentResearch({
       completeAgent("country", formatDuration(27000))
 
       setIsComplete(true)
-      setResult(hardcoded)
+      publishResult(hardcoded)
       return
     }
 
@@ -698,7 +543,7 @@ export function AgentResearch({
               await tracePromise
               setIsComplete(true)
               setIsFallback(!!event.isFallback)
-              setResult(event.data)
+              publishResult(event.data)
             }
           } catch {
             // skip malformed events
@@ -709,7 +554,7 @@ export function AgentResearch({
       await tracePromise
       setError(err instanceof Error ? err.message : "Research failed.")
     }
-  }, [company, person, meetingType, updateSpan, completeAgent])
+  }, [company, person, meetingType, updateSpan, completeAgent, publishResult])
 
   // Start research on mount
   useEffect(() => {
@@ -717,7 +562,7 @@ export function AgentResearch({
     hasFired.current = true
 
     if (completedResult) {
-      setResult(completedResult)
+      publishResult(completedResult)
       setIsComplete(true)
       setAgents((prev) =>
         prev.map((a) => ({
@@ -732,7 +577,7 @@ export function AgentResearch({
 
     // If prefetch already resolved, use it immediately
     if (prefetchedResult) {
-      setResult(prefetchedResult)
+      publishResult(prefetchedResult)
       setIsComplete(true)
       const fastTrace = async () => {
         for (const agent of ["company", "industry", "country"] as const) {
@@ -758,6 +603,30 @@ export function AgentResearch({
     if (result) onReadyRef.current?.(result, internalNotes)
   }, [result, internalNotes])
 
+  const handleExtracted = useCallback((doc: ExtractedInternalDocument) => {
+    extractedRef.current = doc
+    setExtractedDoc(doc)
+    setInternalNotes(doc.notesText)
+    setResult((prev) => (prev ? mergePriorEngagement(prev, doc) : prev))
+  }, [])
+
+  const documentsPanel = (compact?: boolean) => (
+    <InternalDocumentsPanel
+      company={company}
+      person={person}
+      meetingType={meetingType}
+      research={result}
+      compact={compact}
+      extracted={extractedDoc}
+      onExtracted={handleExtracted}
+      onClear={() => {
+        extractedRef.current = null
+        setExtractedDoc(null)
+        if (!initialNotes) setInternalNotes("")
+      }}
+    />
+  )
+
   useEffect(() => {
     if (pane !== "agents" || !stickToBottom.current) return
     const el = agentScrollRef.current
@@ -768,7 +637,7 @@ export function AgentResearch({
   // If prefetch resolves WHILE we're already researching, pick it up
   useEffect(() => {
     if (prefetchedResult && !isComplete && !result) {
-      setResult(prefetchedResult)
+      publishResult(prefetchedResult)
       setIsComplete(true)
       // Complete all agents instantly
       for (const agent of ["company", "industry", "country"] as const) {
@@ -827,9 +696,9 @@ export function AgentResearch({
             person={person}
             research={result}
             meetingType={meetingType}
-            notesSlot={
-              <NotesSection compact internalNotes={internalNotes} onNotesChange={setInternalNotes} />
-            }
+            notesSlot={documentsPanel(true)}
+            notesOpenLabel="Internal docs"
+            focusSourceId={extractedDoc ? PRIOR_SOURCE_ID : null}
             onContinue={() => onComplete(result, internalNotes)}
             onSkip={() => onComplete(result, internalNotes)}
           />
@@ -843,7 +712,7 @@ export function AgentResearch({
             stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 96
           }}
         >
-          <div className="space-y-6 max-w-2xl mx-auto pb-8">
+          <div className="space-y-6 max-w-3xl mx-auto pb-8">
             <div className="text-center">
               <h2 className="text-2xl font-semibold" style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
                 {isComplete && result ? "Research ready" : "Preparing briefing"}
@@ -880,7 +749,7 @@ export function AgentResearch({
               ))}
             </div>
 
-            <NotesSection internalNotes={internalNotes} onNotesChange={setInternalNotes} />
+            {documentsPanel(false)}
 
             {isComplete && result && (
               <div

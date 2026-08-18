@@ -1,6 +1,6 @@
 import type { AuditSource, GroundedParagraph, ResearchAudit } from "../../types/researchAudit"
 import { RESEARCH_MODELS } from "../../utils/researchAudit"
-import { CiteChip, LANE_ACCENT, NAVY } from "./ui"
+import { CiteChip, LANE_ACCENT, NAVY, BLUE } from "./ui"
 
 interface GroundedBriefProps {
   audit: ResearchAudit
@@ -63,6 +63,14 @@ function GroundedBlock({
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: LANE_ACCENT[para.lane] }}>
           {para.heading} · {model?.shortName} model
         </p>
+        {para.id === "g-prior-paper" && (
+          <span
+            className="text-[11px] font-semibold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded"
+            style={{ background: "#E3EFFA", color: BLUE }}
+          >
+            Internal paper
+          </span>
+        )}
       </div>
       <p className="text-[15px] leading-[1.75]" style={{ color: "var(--text-primary)" }}>
         {para.text}
