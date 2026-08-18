@@ -357,6 +357,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
         title: "Chief Executive Officer, American Airlines Group & American Airlines",
         headline: "CEO owning dual-source fleet, remaining 787-9 stream and MAX 10 certification timing",
         seniority: "C-Suite",
+        photoUrl: "/people/robert-d-isom.webp",
       },
       {
         id: "david-seymour",
@@ -365,6 +366,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
         title: "Chief Operating Officer, American Airlines",
         headline: "COO absorbing 737-8 MAX and 787-9 induction into the DFW 13-bank operation",
         seniority: "C-Suite",
+        photoUrl: "/people/david-seymour.jpg",
       },
       {
         id: "devon-may",
@@ -373,6 +375,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
         title: "Chief Financial Officer, American Airlines",
         headline: "CFO scoring Boeing delivery dates against the 2026 debt and free-cash-flow path",
         seniority: "C-Suite",
+        photoUrl: "/people/devon-may.jpg",
       },
       {
         id: "nat-pieper",
@@ -381,6 +384,7 @@ export const partnerDirectory: PartnerLookupEntry[] = [
         title: "Chief Commercial Officer, American Airlines",
         headline: "CCO converting 787-9 Flagship Suite and future MAX 10 upgauge into premium seats",
         seniority: "C-Suite",
+        photoUrl: "/people/nathaniel-pieper.jpg",
       },
     ],
   },

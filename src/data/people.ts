@@ -29,10 +29,10 @@ export function personSurname(person: Pick<Person, "name" | "surname">): string 
 
 export const people: Person[] = [
   // American Airlines — titles from aa.com corporate structure
-  { id: "robert-isom", companyId: "american", name: "Robert D. Isom", surname: "Isom", title: "Chief Executive Officer, American Airlines Group & American Airlines", headline: "CEO since 2022 — dual-source fleet, 89 737-8 MAX in service, remaining 787-9 stream and MAX 10 certification timing", initial: "R", seniority: "C-Suite" },
-  { id: "david-seymour", companyId: "american", name: "David Seymour", surname: "Seymour", title: "Chief Operating Officer", headline: "COO absorbing 737-8 MAX and 787-9 induction while DFW re-banks to a 13-bank structure", initial: "D", seniority: "C-Suite" },
-  { id: "devon-may", companyId: "american", name: "Devon May", surname: "May", title: "Chief Financial Officer", headline: "CFO defending 2026 free-cash-flow >$2B and scoring Boeing delivery dates against the debt path", initial: "D", seniority: "C-Suite" },
-  { id: "nat-pieper", companyId: "american", name: "Nat Pieper", surname: "Pieper", title: "Chief Commercial Officer", headline: "CCO converting Flagship Suite on 787-9 and 777 retrofits into the premium-seat lead American has already claimed", initial: "N", seniority: "C-Suite" },
+  { id: "robert-isom", companyId: "american", name: "Robert D. Isom", surname: "Isom", title: "Chief Executive Officer, American Airlines Group & American Airlines", headline: "CEO since 2022 — dual-source fleet, 89 737-8 MAX in service, remaining 787-9 stream and MAX 10 certification timing", initial: "R", photoUrl: "/people/robert-d-isom.webp", seniority: "C-Suite" },
+  { id: "david-seymour", companyId: "american", name: "David Seymour", surname: "Seymour", title: "Chief Operating Officer", headline: "COO absorbing 737-8 MAX and 787-9 induction while DFW re-banks to a 13-bank structure", initial: "D", photoUrl: "/people/david-seymour.jpg", seniority: "C-Suite" },
+  { id: "devon-may", companyId: "american", name: "Devon May", surname: "May", title: "Chief Financial Officer", headline: "CFO defending 2026 free-cash-flow >$2B and scoring Boeing delivery dates against the debt path", initial: "D", photoUrl: "/people/devon-may.jpg", seniority: "C-Suite" },
+  { id: "nat-pieper", companyId: "american", name: "Nat Pieper", surname: "Pieper", title: "Chief Commercial Officer", headline: "CCO converting Flagship Suite on 787-9 and 777 retrofits into the premium-seat lead American has already claimed", initial: "N", photoUrl: "/people/nathaniel-pieper.jpg", seniority: "C-Suite" },
 
   // Delta Air Lines — titles from news.delta.com leader bios / 5 Mar 2026 employee memo
   { id: "ed-bastian", companyId: "delta", name: "Ed Bastian", surname: "Bastian", title: "Chief Executive Officer", headline: "Tenth year as CEO in 2026 — owns 737-10 EIS credibility and Delta’s first direct 787-10 order", initial: "E", seniority: "C-Suite" },
