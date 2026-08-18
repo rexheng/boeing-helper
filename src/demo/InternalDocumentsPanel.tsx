@@ -188,7 +188,7 @@ export function InternalDocumentsPanel({
         <>
           <div className="idp-sample">
             <div className="idp-sample__stamp">
-              <span className="idp-sample__label">Prior paper</span>
+              <span className="idp-sample__label">Prior paper · {company.name}</span>
               <span className="idp-sample__date">{paper.dateLabel}</span>
               <span className="idp-sample__meta">{paper.locationOrEvent}</span>
             </div>

@@ -564,6 +564,7 @@ export function AgentResearch({
     if (completedResult) {
       publishResult(completedResult)
       setIsComplete(true)
+      stickToBottom.current = false
       setAgents((prev) =>
         prev.map((a) => ({
           ...a,
@@ -628,11 +629,19 @@ export function AgentResearch({
   )
 
   useEffect(() => {
-    if (pane !== "agents" || !stickToBottom.current) return
+    if (isComplete) stickToBottom.current = false
+  }, [isComplete])
+
+  const traceSig = agents
+    .map((a) => `${a.id}:${a.status}:${a.elapsed}:${a.spans.map((s) => `${s.status}:${s.elapsed}`).join(",")}`)
+    .join("|")
+
+  useEffect(() => {
+    if (pane !== "agents" || isComplete || !stickToBottom.current) return
     const el = agentScrollRef.current
     if (!el) return
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
-  }, [agents, pane])
+  }, [traceSig, pane, isComplete])
 
   // If prefetch resolves WHILE we're already researching, pick it up
   useEffect(() => {
@@ -690,7 +699,7 @@ export function AgentResearch({
       </div>
 
       {showBrief && result ? (
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           <ResearchAuditWorkspace
             company={company}
             person={person}

@@ -233,7 +233,7 @@ export function ResearchAuditWorkspace({
   const highFindings = audit.findings.filter((f) => f.confidence === "high")
 
   return (
-    <div className="audit-workspace">
+    <div className="audit-workspace h-full min-h-0">
       <header className="audit-toolbar">
         <div className="audit-toolbar__bar" />
         <div className="audit-toolbar__row">
