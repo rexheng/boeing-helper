@@ -282,7 +282,6 @@ export function InternalDocumentsPanel({
               fileName={extracted.fileName}
               liveFields={new Set()}
               doneFields={completeFields}
-              settled
             />
           )}
           <p className="idp-result__foot">
@@ -305,22 +304,21 @@ function PaperFacsimile({
   fileName,
   liveFields,
   doneFields,
-  settled,
 }: {
   paper: PriorMeetingPaper
   fileName: string
   liveFields: Set<string>
   doneFields: Set<string>
-  settled?: boolean
 }) {
   const mark = (id: string) => {
     if (liveFields.has(id)) return "is-live"
-    if (doneFields.has(id)) return settled ? "is-set" : "is-done"
+    if (doneFields.has(id) && liveFields.size === 0) return "is-set"
+    if (doneFields.has(id)) return "is-done"
     return ""
   }
 
   return (
-    <article className={`idp-sheet ${settled ? "is-settled" : ""}`} aria-hidden>
+    <article className="idp-sheet" aria-hidden>
       <header className="idp-sheet__banner">
         <span>Boeing</span>
         <span>Meeting paper</span>

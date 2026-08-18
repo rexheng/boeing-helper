@@ -2222,43 +2222,6 @@ a:hover { color: var(--boeing-blue); }
   gap: 8px;
 }
 
-.idp-result__kicker {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--boeing-blue);
-}
-
-.idp-insights {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.idp-insights li {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 8px;
-  align-items: start;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--text-primary);
-}
-
-.idp-insights li span {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--boeing-blue);
-  padding-top: 1px;
-}
-
 .idp-result__foot {
   margin: 0;
   display: flex;
