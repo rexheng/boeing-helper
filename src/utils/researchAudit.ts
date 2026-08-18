@@ -750,14 +750,15 @@ export function buildResearchAudit(
 
   if (research.priorEngagement) {
     const pe = research.priorEngagement
-    const open = pe.openItems.length
-      ? `Open items carried forward: ${pe.openItems.join(" ")}`
-      : pe.summary
+    const openSent = pe.openItems.length
+      ? `Open items carried forward: ${pe.openItems.join("; ")}.`
+      : `${pe.summary}.`
+    const commitSent = pe.commitments[0] ? ` Recorded at that meeting: ${pe.commitments[0]}` : ""
     addGrounded(
       "g-prior-paper",
       "company",
       "Prior engagement",
-      `${pe.dateLabel} — ${pe.event}. ${open} ${pe.commitments[0] ? `Recorded commitment: ${pe.commitments[0]}` : ""}`.trim(),
+      `${pe.dateLabel}, ${pe.event}. ${openSent}${commitSent}`.replace(/\.\./g, "."),
       ["f-prior-paper", "f-prior-commit"],
     )
   }

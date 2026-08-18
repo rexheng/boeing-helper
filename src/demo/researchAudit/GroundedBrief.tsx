@@ -65,7 +65,7 @@ function GroundedBlock({
         </p>
         {para.id === "g-prior-paper" && (
           <span
-            className="text-[9px] font-semibold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded"
+            className="text-[11px] font-semibold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded"
             style={{ background: "#E3EFFA", color: BLUE }}
           >
             Internal paper
