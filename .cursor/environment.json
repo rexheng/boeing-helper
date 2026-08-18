@@ -1,0 +1,9 @@
+{
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "test -f .env || cp .env.example .env; npm run dev"
+    }
+  ]
+}
