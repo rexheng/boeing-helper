@@ -441,11 +441,18 @@ export function generateMeetingPaper(
       flagship?.campaignBackground ??
       truncate(research.company.overview, 220),
     customerSatIssues: satIssues,
-    engagementBackground:
-      flagship?.engagementBackground ??
-      (research.company.recent_news[0]
-        ? `Public marker: "${research.company.recent_news[0].headline}" (${research.company.recent_news[0].source}, ${research.company.recent_news[0].date}). Confirm last Boeing attendees before freeze.`
-        : "Prior engagement history to be completed by the in-country team."),
+    engagementBackground: (() => {
+      const prior = research.priorEngagement
+      const priorLine = prior
+        ? `Prior paper ${prior.dateLabel} (${prior.event}): ${prior.openItems[0] ?? prior.summary}`
+        : null
+      const base =
+        flagship?.engagementBackground ??
+        (research.company.recent_news[0]
+          ? `Public marker: "${research.company.recent_news[0].headline}" (${research.company.recent_news[0].source}, ${research.company.recent_news[0].date}). Confirm last Boeing attendees before freeze.`
+          : "Prior engagement history to be completed by the in-country team.")
+      return priorLine ? truncate(`${priorLine} ${base}`, 420) : base
+    })(),
     biography: {
       name: person.name,
       title: person.title,

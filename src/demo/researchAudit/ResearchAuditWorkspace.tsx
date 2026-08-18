@@ -32,6 +32,8 @@ interface ResearchAuditWorkspaceProps {
   research: ResearchResult
   meetingType: string
   notesSlot?: React.ReactNode
+  notesOpenLabel?: string
+  focusSourceId?: string | null
   onContinue: () => void
   onSkip: () => void
 }
@@ -42,6 +44,8 @@ export function ResearchAuditWorkspace({
   research,
   meetingType,
   notesSlot,
+  notesOpenLabel = "Notes",
+  focusSourceId,
   onContinue,
   onSkip,
 }: ResearchAuditWorkspaceProps) {
@@ -75,6 +79,31 @@ export function ResearchAuditWorkspace({
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [])
+
+  useEffect(() => {
+    setEnabled((prev) => {
+      const next = new Set(prev)
+      let changed = false
+      for (const s of audit.sources) {
+        if (!next.has(s.id)) {
+          next.add(s.id)
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [audit.sources])
+
+  useEffect(() => {
+    if (!focusSourceId) return
+    if (!audit.sources.some((s) => s.id === focusSourceId)) return
+    setSelectedSourceId(focusSourceId)
+    const src = audit.sources.find((s) => s.id === focusSourceId)
+    if (src?.findingIds[0]) setSelectedFindingId(src.findingIds[0])
+    setInspectorOpen(true)
+    setInspectorTick((n) => n + 1)
+    setView("grounded")
+  }, [focusSourceId, audit.sources])
 
   const selectedSource = audit.sources.find((s) => s.id === selectedSourceId) ?? null
   const selectedFinding = audit.findings.find((f) => f.id === selectedFindingId) ?? null
@@ -266,7 +295,7 @@ export function ResearchAuditWorkspace({
                 className={`audit-quiet-btn ${notesOpen ? "is-on" : ""}`}
                 aria-expanded={notesOpen}
               >
-                Notes
+                {notesOpenLabel}
               </button>
             )}
             <button type="button" onClick={exportCsv} className="audit-quiet-btn" title="Export selected sources">
