@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
-import { CheckCircle2, Download, FileText, Loader2, Lock, Upload, X } from "lucide-react"
+import { AlertCircle, Download, FileText, Loader2, Lock, Upload, X } from "lucide-react"
 import type { Company } from "../data/companies"
 import type { Person } from "../data/people"
 import type { ExtractedInternalDocument, PriorMeetingPaper } from "../types/internalDocument"
@@ -17,19 +17,12 @@ interface Beat {
 }
 
 const BEATS: Beat[] = [
-  { id: "read", label: "Reading the meeting paper", at: 0, fieldIds: ["date", "event"] },
-  { id: "extract", label: "Extracting template fields", at: 520, fieldIds: ["contact", "counterpart", "obj-0", "obj-1", "obj-2"] },
-  { id: "file", label: "Filing open items into the brief", at: 1180, fieldIds: ["open-0", "open-1", "open-2"] },
+  { id: "read", label: "Reading the meeting paper", at: 0, fieldIds: ["date", "event", "contact", "counterpart"] },
+  { id: "extract", label: "Extracting open items and commitments", at: 640, fieldIds: ["obj-0", "obj-1", "obj-2", "msg-0", "open-0", "open-1", "open-2", "cmt-0"] },
 ]
 
-const FINISH_AT = 1780
+const FINISH_AT = 1080
 const ACCEPT = ".pdf,.txt,.doc,.docx"
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / 1048576).toFixed(1)} MB`
-}
 
 function isAccepted(file: File) {
   return /\.(pdf|txt|docx?)$/i.test(file.name)
@@ -67,8 +60,8 @@ export function InternalDocumentsPanel({
   const [beat, setBeat] = useState(0)
   const [liveFields, setLiveFields] = useState<Set<string>>(new Set())
   const [doneFields, setDoneFields] = useState<Set<string>>(new Set())
-  const [workingFile, setWorkingFile] = useState<{ name: string; size: number } | null>(
-    extracted ? { name: extracted.fileName, size: extracted.fileSize } : null,
+  const [workingFile, setWorkingFile] = useState<{ name: string } | null>(
+    extracted ? { name: extracted.fileName } : null,
   )
   const inputId = useId()
   const dragDepth = useRef(0)
@@ -89,7 +82,7 @@ export function InternalDocumentsPanel({
     (file: File) => {
       clearTimers()
       setError(null)
-      setWorkingFile({ name: file.name, size: file.size })
+      setWorkingFile({ name: file.name })
       setPhase("processing")
       setBeat(0)
       setLiveFields(new Set())
@@ -118,7 +111,7 @@ export function InternalDocumentsPanel({
           onExtracted(doc)
         } catch {
           setPhase("error")
-          setError("The document could not be read. Try the sample Word paper.")
+          setError("The document could not be read. Download the sample Word paper and drop that file.")
         }
       }, FINISH_AT)
       timers.current.push(id)
@@ -128,8 +121,7 @@ export function InternalDocumentsPanel({
 
   const handleFiles = useCallback(
     (list: FileList | File[]) => {
-      const files = Array.from(list)
-      const preferred = files.find(isAccepted)
+      const preferred = Array.from(list).find(isAccepted)
       if (!preferred) {
         setError("Use a PDF, Word, or text meeting paper.")
         setPhase("error")
@@ -166,34 +158,31 @@ export function InternalDocumentsPanel({
 
   const displayPaper = extracted?.paper ?? paper
   const completeFields = new Set([
-    "date",
-    "event",
-    "contact",
-    "counterpart",
-    "obj-0",
-    "obj-1",
-    "obj-2",
-    "open-0",
-    "open-1",
-    "open-2",
+    "date", "event", "contact", "counterpart",
+    "obj-0", "obj-1", "obj-2", "msg-0",
+    "open-0", "open-1", "open-2", "cmt-0",
   ])
 
   return (
     <div className={`idp ${compact ? "idp--compact" : ""}`}>
-      <div className="idp-head">
-        <div className="idp-head__icon" aria-hidden>
-          <Lock size={14} />
-        </div>
-        <div>
-          <p className="idp-kicker">Internal</p>
-          <h3 className="idp-title">Upload Internal Documents</h3>
-          {!compact && (
+      {!compact && (
+        <div className="idp-head">
+          <div className="idp-head__icon" aria-hidden>
+            <Lock size={14} />
+          </div>
+          <div>
+            <p className="idp-kicker">Internal</p>
+            <h3 className="idp-title">
+              {phase === "complete" ? "Prior paper filed" : "Upload Internal Documents"}
+            </h3>
             <p className="idp-lede">
-              Prior meeting papers are read against the fixed Boeing template, then written into the research brief.
+              {phase === "complete" && extracted
+                ? `${extracted.paper.dateLabel} · ${extracted.paper.locationOrEvent}`
+                : "Prior meeting papers are read against the fixed Boeing template, then written into the research brief."}
             </p>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {(phase === "idle" || phase === "error") && (
         <>
@@ -201,9 +190,7 @@ export function InternalDocumentsPanel({
             <div className="idp-sample__stamp">
               <span className="idp-sample__label">Prior paper</span>
               <span className="idp-sample__date">{paper.dateLabel}</span>
-              <span className="idp-sample__meta">
-                {paper.locationOrEvent}
-              </span>
+              <span className="idp-sample__meta">{paper.locationOrEvent}</span>
             </div>
             <button type="button" className="idp-download" onClick={handleDownload} disabled={downloading}>
               {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
@@ -233,7 +220,7 @@ export function InternalDocumentsPanel({
           >
             <Upload size={16} />
             <span className="idp-drop__copy">
-              <strong>{dragOver ? "Drop the meeting paper" : "Drop the filled meeting paper, or browse"}</strong>
+              <strong>{dragOver ? "Drop the meeting paper" : "Return the filled paper here, or browse"}</strong>
               <em>PDF, DOC, DOCX, TXT</em>
             </span>
             <input
@@ -252,6 +239,7 @@ export function InternalDocumentsPanel({
 
       {phase === "error" && error && (
         <p className="idp-error" role="alert">
+          <AlertCircle size={14} />
           {error}
         </p>
       )}
@@ -269,9 +257,6 @@ export function InternalDocumentsPanel({
           <p className="idp-status">
             <Loader2 size={14} className="animate-spin" />
             {BEATS[beat]?.label}
-            <span>
-              {workingFile.name} · {formatFileSize(workingFile.size)}
-            </span>
           </p>
         </div>
       )}
@@ -280,16 +265,13 @@ export function InternalDocumentsPanel({
         <div className="idp-result">
           {compact ? (
             <div className="idp-file">
-              <div className="idp-file__glyph" aria-hidden>
-                DOC
-              </div>
+              <div className="idp-file__glyph" aria-hidden>DOC</div>
               <div className="idp-file__body">
                 <p className="idp-file__name">{extracted.fileName}</p>
                 <p className="idp-file__meta">
                   {extracted.paper.dateLabel} · {extracted.paper.locationOrEvent}
                 </p>
               </div>
-              <CheckCircle2 size={16} className="idp-file__ok" />
               <button type="button" className="idp-file__remove" onClick={reset} aria-label="Remove document">
                 <X size={13} />
               </button>
@@ -300,33 +282,27 @@ export function InternalDocumentsPanel({
               fileName={extracted.fileName}
               liveFields={new Set()}
               doneFields={completeFields}
+              settled
             />
           )}
-          <div className="idp-result__bar">
-            <p className="idp-result__kicker">Carried into the research brief</p>
+          {compact && (
+            <ul className="idp-insights">
+              {extracted.paper.openItems.slice(0, 2).map((item) => (
+                <li key={item}>
+                  <span>Open</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="idp-result__foot">
+            <FileText size={12} />
+            Filed in the research brief
             {!compact && (
               <button type="button" className="idp-file__remove" onClick={reset} aria-label="Remove document">
                 <X size={13} />
               </button>
             )}
-          </div>
-          <ul className="idp-insights">
-            {extracted.paper.openItems.map((item) => (
-              <li key={item}>
-                <span>Open</span>
-                {item}
-              </li>
-            ))}
-            {extracted.paper.commitments.slice(0, compact ? 1 : 2).map((item) => (
-              <li key={item}>
-                <span>Held</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p className="idp-result__foot">
-            <FileText size={12} />
-            Internal source · Compose paper will cite this engagement
           </p>
         </div>
       )}
@@ -339,16 +315,22 @@ function PaperFacsimile({
   fileName,
   liveFields,
   doneFields,
+  settled,
 }: {
   paper: PriorMeetingPaper
   fileName: string
   liveFields: Set<string>
   doneFields: Set<string>
+  settled?: boolean
 }) {
-  const mark = (id: string) => (liveFields.has(id) ? "is-live" : doneFields.has(id) ? "is-done" : "")
+  const mark = (id: string) => {
+    if (liveFields.has(id)) return "is-live"
+    if (doneFields.has(id)) return settled ? "is-set" : "is-done"
+    return ""
+  }
 
   return (
-    <article className="idp-sheet" aria-hidden>
+    <article className={`idp-sheet ${settled ? "is-settled" : ""}`} aria-hidden>
       <header className="idp-sheet__banner">
         <span>Boeing</span>
         <span>Meeting paper</span>
@@ -369,14 +351,17 @@ function PaperFacsimile({
           </div>
           <div className={mark("contact")}>
             <dt>Contact</dt>
-            <dd>{paper.contact.name}</dd>
+            <dd>
+              {paper.contact.name}
+              <em>{paper.contact.title}</em>
+            </dd>
           </div>
           <div className={mark("counterpart")}>
             <dt>Customer</dt>
             <dd>
               {paper.customer.name}
               <em>
-                “{paper.customer.salutation}” · {paper.customer.title}
+                “{paper.customer.salutation}” · {paper.customer.raa}
               </em>
             </dd>
           </div>
@@ -389,10 +374,26 @@ function PaperFacsimile({
             </li>
           ))}
         </ol>
+        <p className="idp-sheet__h">Key messages</p>
+        <ol>
+          {paper.keyMessages.slice(0, 2).map((km, i) => (
+            <li key={km.message} className={mark(`msg-${i}`)}>
+              <b>{i + 1}.</b> {km.message}
+            </li>
+          ))}
+        </ol>
         <p className="idp-sheet__h">Open items — carry forward</p>
         <ul>
           {paper.openItems.slice(0, 3).map((o, i) => (
             <li key={o} className={mark(`open-${i}`)}>
+              {o}
+            </li>
+          ))}
+        </ul>
+        <p className="idp-sheet__h">Commitments recorded</p>
+        <ul>
+          {paper.commitments.slice(0, 2).map((o, i) => (
+            <li key={o} className={mark(`cmt-${i}`)}>
               {o}
             </li>
           ))}

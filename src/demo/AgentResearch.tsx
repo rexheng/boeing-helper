@@ -233,7 +233,6 @@ export function AgentResearch({
   ])
   const hasFired = useRef(false)
   const extractedRef = useRef<ExtractedInternalDocument | null>(null)
-  const briefReadyRef = useRef(false)
 
   const publishResult = useCallback((r: ResearchResult) => {
     const merged = extractedRef.current ? mergePriorEngagement(r, extractedRef.current) : r
@@ -604,16 +603,11 @@ export function AgentResearch({
     if (result) onReadyRef.current?.(result, internalNotes)
   }, [result, internalNotes])
 
-  briefReadyRef.current = !!(isComplete && result)
-
   const handleExtracted = useCallback((doc: ExtractedInternalDocument) => {
     extractedRef.current = doc
     setExtractedDoc(doc)
     setInternalNotes(doc.notesText)
     setResult((prev) => (prev ? mergePriorEngagement(prev, doc) : prev))
-    if (briefReadyRef.current) {
-      window.setTimeout(() => setPane("brief"), 420)
-    }
   }, [])
 
   const documentsPanel = (compact?: boolean) => (

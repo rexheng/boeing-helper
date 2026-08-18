@@ -1871,10 +1871,10 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .idp-sample__date {
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--boeing-navy);
+  letter-spacing: -0.01em;
 }
 
 .idp-sample__meta {
@@ -1958,8 +1958,17 @@ a:hover { color: var(--boeing-blue); }
 
 .idp-error {
   margin: 0;
-  font-size: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
   color: #B91C1C;
+}
+
+.idp-error svg {
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .idp-theatre,
@@ -1998,8 +2007,6 @@ a:hover { color: var(--boeing-blue); }
 .idp-sheet {
   background: #fff;
   border: 1px solid #d5dde5;
-  border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(10, 34, 64, 0.07);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2037,7 +2044,7 @@ a:hover { color: var(--boeing-blue); }
 
 .idp-sheet__title {
   margin: 0;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--boeing-navy);
   letter-spacing: -0.015em;
@@ -2061,7 +2068,8 @@ a:hover { color: var(--boeing-blue); }
   gap: 8px;
   padding: 7px 8px;
   border-bottom: 1px solid var(--surface-border);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0.4;
+  transition: background 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .idp-sheet__meta dt {
@@ -2107,8 +2115,8 @@ a:hover { color: var(--boeing-blue); }
 }
 
 .idp-sheet li {
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--text-secondary);
   padding: 5px 8px;
   margin-bottom: 2px;
@@ -2133,6 +2141,13 @@ a:hover { color: var(--boeing-blue); }
   opacity: 1;
   background: transparent;
   box-shadow: inset 3px 0 0 var(--boeing-blue);
+}
+
+.idp-sheet li.is-set,
+.idp-sheet__meta > div.is-set {
+  opacity: 1;
+  background: transparent;
+  box-shadow: none;
 }
 
 .idp-sheet__foot {
@@ -2249,8 +2264,12 @@ a:hover { color: var(--boeing-blue); }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
+}
+
+.idp-result__foot .idp-file__remove {
+  margin-left: auto;
 }
 
 .audit-notes .idp--compact {
