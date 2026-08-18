@@ -2215,13 +2215,6 @@ a:hover { color: var(--boeing-blue); }
 
 .idp-file__remove:hover { color: var(--boeing-blue); }
 
-.idp-result__bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .idp-result__foot {
   margin: 0;
   display: flex;
