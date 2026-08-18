@@ -55,6 +55,7 @@ function flagshipPrior(person: Person, company: Company): Partial<PriorMeetingPa
   }
   if (company.id === "mindef-sg") return mindefPrior(person)
   if (person.id === "goh-choon-phong" || company.id === "sia") return siaPrior(person)
+  if (person.id === "robert-isom" || company.id === "american") return americanPrior(person)
   return null
 }
 
@@ -188,6 +189,150 @@ function siaPrior(person: Person): Partial<PriorMeetingPaper> {
     commitments: [
       "Return a written 777-9 date or strike the schedule sentence.",
       "Name SIA-side owner before the next review.",
+    ],
+  }
+}
+
+function americanPrior(person: Person): Partial<PriorMeetingPaper> {
+  const shared: Partial<PriorMeetingPaper> = {
+    dateLabel: "12 May 2026",
+    dateIso: "2026-05-12",
+    locationOrEvent: "DFW Headquarters · Programme Status Review",
+    customerSatIssues: [
+      "737-8 MAX first-90-day reliability and AOG/spares",
+      "Flagship Suite install quality on 787-9",
+      "MAX 10 certification date versus the 2029-and-thereafter remainder",
+      "777-200ER replacement timing (average age 25.0 years)",
+    ],
+    engagementBackground:
+      "Programme status review, DFW Headquarters, 12 May 2026. Public marker 27 Jan 2026 (American Airlines Newsroom): record $54.6B FY2025 revenue; 23 737-8 MAX and 11 787-9 delivered in 2025 (10-K). Confirm last Boeing attendees before freeze.",
+    campaignBackground:
+      "American: 1,013 mainline aircraft. Boeing remaining firm book 129 737-family and 19 787-family (10-K). Dual-source with A321neo/XLR. Centennial year 2026 — premium product is the public story.",
+  }
+
+  if (person.id === "david-seymour") {
+    return {
+      ...shared,
+      customer: {
+        name: person.name,
+        title: person.title,
+        salutation: "Mr Seymour",
+        phonetic: "—",
+        raa: "COO absorbing 737-8 MAX and 787-9 induction while DFW re-banks to a 13-bank structure.",
+      },
+      objectives: [
+        "Put a 737-8 MAX spares and AOG plan for the DFW 13-bank on paper (89 aircraft already in service).",
+        "Align 787-9 layover / cabin-install disruption against the 13-bank structure.",
+        "Name a Boeing ops counterpart and the American ops owner for the next written item.",
+      ],
+      keyMessages: [
+        { message: "Aircraft out of the bank is a schedule we did not choose — first-90-day reliability is an operations problem first." },
+        { message: "A delivery date that moves is a DFW bank that breaks; bring a written contingency, not a utilisation slide." },
+        { message: "Close the AOG and spares conversation before talking MAX 10." },
+      ],
+      openItems: [
+        "737-8 MAX AOG / spares SLA for the DFW 13-bank still not written.",
+        "787-9 layover contingency versus DFW re-bank still blank.",
+        "Named Boeing ops counterpart still missing.",
+      ],
+      commitments: [
+        "Issue a written MAX AOG / spares plan for DFW within ten business days.",
+        "Name the Boeing ops counterpart before the next working session.",
+      ],
+    }
+  }
+
+  if (person.id === "devon-may") {
+    return {
+      ...shared,
+      customer: {
+        name: person.name,
+        title: person.title,
+        salutation: "Mr May",
+        phonetic: "—",
+        raa: "CFO scoring Boeing delivery dates against the 2026 free-cash-flow goal of more than $2 billion.",
+      },
+      objectives: [
+        "Put delivery-window probability against the 2026 free-cash-flow goal of more than $2 billion.",
+        "Lock PDP and escalation language if MAX 10 certification moves.",
+        "Name the American finance owner for the next written artefact.",
+      ],
+      keyMessages: [
+        { message: "A delivery date that moves is a financing date that moves — do not put un-dated production risk on the balance sheet." },
+        { message: "The remaining book — 129 737-family and 19 787-family — is cash already planned. Do not ask for a new order while that book is date-risk." },
+        { message: "Come with how Boeing handles pre-delivery payments if MAX 10 certification slips." },
+      ],
+      openItems: [
+        "PDP treatment if MAX 10 certification moves still not in writing.",
+        "Delivery-window probability versus the >$2B FCF goal still blank.",
+        "American finance owner for the next artefact not named.",
+      ],
+      commitments: [
+        "Return written PDP / escalation language within ten business days.",
+        "Name the finance-side owner before the next review.",
+      ],
+    }
+  }
+
+  if (person.id === "nat-pieper") {
+    return {
+      ...shared,
+      customer: {
+        name: person.name,
+        title: person.title,
+        salutation: "Mr Pieper",
+        phonetic: "—",
+        raa: "CCO converting Flagship Suite on 787-9 and 777 retrofits into the premium-seat lead American has already claimed.",
+      },
+      objectives: [
+        "Put a premium-seat delivery calendar for 787-9 Flagship Suite and 777 retrofit on paper.",
+        "Confirm Flagship Suite will be on the next 787-9s, matching the newsroom claim already in market.",
+        "Name the commercial-side owner for the next written ask.",
+      ],
+      keyMessages: [
+        { message: "If 787-9s arrive without the cabin the newsroom advertised, that is a commercial problem before it is a fleet problem." },
+        { message: "A321XLR already carries Flagship Suite on thin transatlantic; Boeing has to match cabin and range, not ignore that aircraft." },
+        { message: "Convert remaining 787-9 arrivals into sellable premium seats with dates, not a product slide." },
+      ],
+      openItems: [
+        "Premium-seat / Flagship Suite install calendar still not in writing.",
+        "Confirmation Flagship is on the next 787-9s versus XLR substitution still blank.",
+        "Commercial-side owner for the next written ask not named.",
+      ],
+      commitments: [
+        "Return a dated Flagship Suite install calendar for remaining 787-9s within ten business days.",
+        "Name the commercial owner before the next review.",
+      ],
+    }
+  }
+
+  return {
+    ...shared,
+    customer: {
+      name: person.name,
+      title: person.title,
+      salutation: person.id === "robert-isom" ? "Mr. Isom" : inferSalutation(person),
+      phonetic: "—",
+      raa: "American Airlines counterpart on 737-8 MAX induction, remaining 787-9 stream, and MAX 10 certification timing.",
+    },
+    objectives: [
+      "Put a first-90-day 737-8 MAX reliability / AOG figure on paper (89 aircraft already in service).",
+      "Lock a dated 787-9 / Flagship Suite install calendar that matches the newsroom product claim.",
+      "Name the American-side owner for the MAX 10 certification watch — 115 aircraft sit in 2029 and thereafter.",
+    ],
+    keyMessages: [
+      { message: "Do not lead with new metal. Lead with delivery fidelity on 737-8 MAX and 787-9 already on the property." },
+      { message: "The MAX 10 block is a date risk American has already disclosed — 14 737-family in 2026, none in 2027–2028, 115 from 2029." },
+      { message: "A321XLR is doing thin transatlantic work; any 787 slip makes that substitution easier to defend." },
+    ],
+    openItems: [
+      "737-8 MAX first-90-day reliability / AOG figure still not on paper.",
+      "Dated 787-9 / Flagship Suite install calendar still blank.",
+      "American-side owner for the MAX 10 watch item not named.",
+    ],
+    commitments: [
+      "Return a written MAX reliability number within ten business days.",
+      "Name the American owner for the MAX 10 watch item before the next review.",
     ],
   }
 }
